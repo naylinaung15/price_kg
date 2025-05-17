@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="my">
-
- 
-    <div class="container mx-auto px-4 py-4 flex flex-col items-center">
-        <!-- Logo as Image -->
-        <img src="https://limewire.com/decrypt?downloadUrl=https%3A%2F%2Flimewire-filesharing-production.b61cdfd8cf17f52ddc020162e738eb5d.r2.cloudflarestorage.com%2Fbuckets%2F621453ab-5240-4f3f-a9cb-9e8844c77764%2F52850b5e-e9d4-46ce-a17e-8c4077f706db%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Date%3D20250516T053002Z%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Credential%3Da1868571dfad6d4fe293ee5b945a0ad5%252F20250516%252Fauto%252Fs3%252Faws4_request%26X-Amz-Expires%3D14400%26X-Amz-Signature%3Db6090a49da0f215beb02b25739332df111e59c1f073ee2e31e1f17bdcd933a86&mediaType=image%2Fjpeg&decryptionSession=eyJhZXNKd2tHY20iOnsiYWVzS2V5VHlwZSI6IlNZTU1FVFJJQ19BRVMtR0NNX0tFWSIsImp3ayI6eyJhbGciOiJBMjU2R0NNIiwiZXh0Ijp0cnVlLCJrIjoiQUxGLVdtVDdWZ1ZxN1pSeC1vNnRhN3UwX1czYnNMVVpnSnhaeUw2VzB6MCIsImtleV9vcHMiOlsiZW5jcnlwdCIsImRlY3J5cHQiXSwia3R5Ijoib2N0In19LCJhZXNKd2tDdHIiOnsiYWVzS2V5VHlwZSI6IlNZTU1FVFJJQ19BRVMtQ1RSX0tFWSIsImp3ayI6eyJhbGciOiJBMjU2Q1RSIiwiZXh0Ijp0cnVlLCJrIjoiQUxGLVdtVDdWZ1ZxN1pSeC1vNnRhN3UwX1czYnNMVVpnSnhaeUw2VzB6MCIsImtleV9vcHMiOlsiZW5jcnlwdCIsImRlY3J5cHQiXSwia3R5Ijoib2N0In19fQ" class="h-20 mb-2">
-        
-    </div>
-            <title>သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
     <style>
@@ -54,6 +50,24 @@
             border-radius: 5px;
         }
         
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #4B6BFB;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
         @media print {
             body {
                 background-color: white;
@@ -73,8 +87,14 @@
 <body class="min-h-screen pb-10">
     <header class="bg-white shadow-md mb-6">
         <div class="container mx-auto px-4 py-6">
+            <div class="container mx-auto px-4 py-4 flex flex-col items-center">
+                <!-- Logo as Image -->
+               <img src="https://page1.genspark.site/v1/base64_upload/da5328a5d16605124c760e07b236aee1" class="h-20 mb-2">
+
+           
             <h1 class="text-3xl font-bold text-center text-gray-800">သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</h1>
             <p class="text-center text-gray-600 mt-2">မြန်မာ - ထိုင်း တင်ပို့မှု နှုန်းထားများ</p>
+                 </div>
         </div>
     </header>
 
@@ -84,9 +104,30 @@
             <button id="user-tab" class="px-4 py-2 tab-active focus:outline-none" onclick="switchTab('user')">
                 အသုံးပြုသူ မြင်ကွင်း
             </button>
-            <button id="admin-tab" class="px-4 py-2 focus:outline-none" onclick="switchTab('admin')">
+            <button id="admin-tab" class="px-4 py-2 focus:outline-none" onclick="showLoginForm()">
                 စီမံခန့်ခွဲသူ စာမျက်နှာ
             </button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-panel" class="hidden bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4 section-title">စီမံခန့်ခွဲသူ အကောင့်ဝင်ရန်</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 mb-2" for="email">အီးမေးလ်</label>
+                    <input type="email" id="email" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="အီးမေးလ် ထည့်သွင်းပါ">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2" for="password">စကားဝှက်</label>
+                    <input type="password" id="password" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="စကားဝှက် ထည့်သွင်းပါ">
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <button onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    အကောင့်ဝင်ရန်
+                </button>
+                <div id="login-error" class="text-red-600 hidden">အကောင့်ဝင်ရန် မအောင်မြင်ပါ။ ပြန်ကြိုးစားပါ။</div>
+            </div>
         </div>
 
         <!-- User Panel -->
@@ -123,6 +164,10 @@
             
             <!-- Results Section -->
             <h2 class="text-xl font-bold mb-4 section-title">နှုန်းထားများ</h2>
+            <div id="loading-indicator" class="flex justify-center items-center py-10 hidden">
+                <div class="spinner"></div>
+                <span class="ml-3">ဒေတာများ ရယူနေသည်...</span>
+            </div>
             <div id="results-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <!-- Shipping rates will be displayed here -->
             </div>
@@ -131,7 +176,12 @@
         <!-- Admin Panel -->
         <div id="admin-panel" class="hidden">
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 class="text-xl font-bold mb-4 section-title">နှုန်းထားများ စီမံခန့်ခွဲရန်</h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold section-title">နှုန်းထားများ စီမံခန့်ခွဲရန်</h2>
+                    <button onclick="logout()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1 px-3 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        အကောင့်ထွက်ရန်
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-gray-700 mb-2" for="admin-route">လမ်းကြောင်း</label>
@@ -166,12 +216,12 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-other">အခြားမြို့များ နှုန်းထား</label>
+                        <label class="block text-gray-700 mb-2" for="admin-other">အရှေနောက်မြောက် နှုန်းထား</label>
                         <input type="text" id="admin-other" placeholder="အခြားမြို့များ နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-remote">ဝေးလံဒေသ နှုန်းထား</label>
+                        <label class="block text-gray-700 mb-2" for="admin-remote">တောင်ပိုင်း  နှုန်းထား</label>
                         <input type="text" id="admin-remote" placeholder="ဝေးလံဒေသ နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -187,16 +237,99 @@
             </div>
             
             <h2 class="text-xl font-bold mb-4 section-title">လက်ရှိနှုန်းထားများ</h2>
+            <div id="admin-loading-indicator" class="flex justify-center items-center py-10 hidden">
+                <div class="spinner"></div>
+                <span class="ml-3">ဒေတာများ ရယူနေသည်...</span>
+            </div>
             <div id="admin-results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <!-- Admin shipping rates will be displayed here -->
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
     <script>
-        // Shipping rates data - Cleaned and optimized structure
-        const shippingRates = {
-            "YGN-BKK": {
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB49vRPX8YaWuTP5GS3lsBDqdAaz_hJYAw",
+            authDomain: "onlineshop-849c8.firebaseapp.com",
+            databaseURL: "https://onlineshop-849c8.firebaseio.com",
+            projectId: "onlineshop-849c8",
+            storageBucket: "onlineshop-849c8.appspot.com",
+            messagingSenderId: "883512833370",
+            appId: "1:883512833370:web:a1c8412b158f8744afef63"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Reference to database
+        const database = firebase.database();
+        const shippingRatesRef = database.ref('shippingRates');
+
+        // Authentication
+        const auth = firebase.auth();
+
+        // Global variables
+        let shippingRates = {};
+        let currentEditRate = null;
+        let isLoggedIn = false;
+
+        // Check authentication state on page load
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                isLoggedIn = true;
+                document.getElementById('login-panel').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                loadAdminRates();
+            } else {
+                isLoggedIn = false;
+            }
+        });
+
+        // Initialize the page
+        window.onload = function() {
+            loadShippingRates();
+        };
+
+        // Firebase data loading
+        function loadShippingRates() {
+            document.getElementById('loading-indicator').classList.remove('hidden');
+            document.getElementById('results-container').classList.add('hidden');
+            
+            shippingRatesRef.once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        shippingRates = snapshot.val() || {};
+                    } else {
+                        // Initialize with default data if no data exists in Firebase
+                        initializeDefaultData();
+                    }
+                    filterRates();
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                    document.getElementById('results-container').classList.remove('hidden');
+                })
+                .catch((error) => {
+                    console.error("Firebase data fetch error:", error);
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                    document.getElementById('results-container').classList.remove('hidden');
+                    document.getElementById('results-container').innerHTML = 
+                        `<div class="col-span-full text-center p-6 bg-red-100 rounded-lg text-red-700">
+                            <p class="font-bold">ဒေတာရယူရာတွင် အမှားရှိနေပါသည်</p>
+                            <p class="mt-2">${error.message}</p>
+                        </div>`;
+                });
+        }
+
+        // Initialize default data if Firebase is empty
+        function initializeDefaultData() {
+            // Define sample rates data (simplified version of your original data)
+            const defaultRates = {
+               "YGN-BKK": {
                 "Food": [
                     {"Kg": "1", "BKK": "75", "OtherCity": "85", "RemoteArea": "90", "type": "Food"},
                     {"Kg": "2", "BKK": "140", "OtherCity": "160", "RemoteArea": "170", "type": "Food"},
@@ -510,27 +643,42 @@
             }
         };
 
-        // Current rate being edited
-        let currentEditRate = null;
-
-        // Initialize the page
-        window.onload = function() {
-            filterRates();
-        };
+            // Set default data to Firebase
+            shippingRatesRef.set(defaultRates)
+                .then(() => {
+                    shippingRates = defaultRates;
+                    console.log("Default data initialized in Firebase");
+                })
+                .catch(error => {
+                    console.error("Error initializing default data:", error);
+                });
+        }
         
         function switchTab(tab) {
             if (tab === 'user') {
                 document.getElementById('user-panel').style.display = 'block';
                 document.getElementById('admin-panel').style.display = 'none';
+                document.getElementById('login-panel').style.display = 'none';
                 document.getElementById('user-tab').classList.add('tab-active');
                 document.getElementById('admin-tab').classList.remove('tab-active');
                 filterRates();
-            } else {
+            }
+        }
+
+        function showLoginForm() {
+            if (isLoggedIn) {
                 document.getElementById('user-panel').style.display = 'none';
+                document.getElementById('login-panel').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
                 document.getElementById('user-tab').classList.remove('tab-active');
                 document.getElementById('admin-tab').classList.add('tab-active');
                 loadAdminRates();
+            } else {
+                document.getElementById('user-panel').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'none';
+                document.getElementById('login-panel').style.display = 'block';
+                document.getElementById('user-tab').classList.remove('tab-active');
+                document.getElementById('admin-tab').classList.add('tab-active');
             }
         }
         
@@ -549,7 +697,7 @@
             if (type === 'all') {
                 // Combine all types
                 for (const rateType in shippingRates[route]) {
-                    ratesToShow = ratesToShow.concat(shippingRates[route][rateType]);
+                    ratesToShow = ratesToShow.concat(shippingRates[route][rateType] || []);
                 }
             } else {
                 ratesToShow = shippingRates[route][type] || [];
@@ -574,6 +722,14 @@
             ratesToShow.forEach(rate => {
                 container.appendChild(createRateCard(rate));
             });
+            
+            // Show message if no rates found
+            if (ratesToShow.length === 0) {
+                container.innerHTML = 
+                    `<div class="col-span-full text-center p-6 bg-blue-50 rounded-lg">
+                        <p class="text-blue-700">ရှာဖွေမှုနှင့် ကိုက်ညီသော နှုန်းထားများ မရှိပါ</p>
+                    </div>`;
+            }
         }
         
         function createRateCard(rate) {
@@ -624,18 +780,97 @@
             return card;
         }
         
+        // Authentication functions
+        function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!email || !password) {
+                showLoginError("အီးမေးလ်နှင့် စကားဝှက် ထည့်သွင်းပေးပါ");
+                return;
+            }
+            
+            document.getElementById('login-error').classList.add('hidden');
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    document.getElementById('login-panel').classList.add('hidden');
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                    document.getElementById('admin-tab').classList.add('tab-active');
+                    document.getElementById('user-tab').classList.remove('tab-active');
+                    isLoggedIn = true;
+                    loadAdminRates();
+                    clearLoginForm();
+                })
+                .catch((error) => {
+                    console.error("Login error:", error);
+                    showLoginError("အကောင့်ဝင်ရန် မအောင်မြင်ပါ။ အီးမေးလ်နှင့် စကားဝှက် စစ်ဆေးပြီး ပြန်ကြိုးစားပါ။");
+                });
+        }
+        
+        function showLoginError(message) {
+            const errorEl = document.getElementById('login-error');
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+        }
+        
+        function clearLoginForm() {
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+        
+        function logout() {
+            auth.signOut()
+                .then(() => {
+                    document.getElementById('admin-panel').classList.add('hidden');
+                    document.getElementById('user-panel').classList.remove('hidden');
+                    document.getElementById('admin-tab').classList.remove('tab-active');
+                    document.getElementById('user-tab').classList.add('tab-active');
+                    isLoggedIn = false;
+                })
+                .catch((error) => {
+                    console.error("Logout error:", error);
+                    alert("အကောင့်ထွက်ရန် အမှားရှိနေပါသည်");
+                });
+        }
+
         // Admin functions
         function loadAdminRates() {
-            const container = document.getElementById('admin-results');
-            container.innerHTML = '';
+            if (!isLoggedIn) return;
+
+            document.getElementById('admin-loading-indicator').classList.remove('hidden');
+            document.getElementById('admin-results').classList.add('hidden');
             
-            for (const route in shippingRates) {
-                for (const type in shippingRates[route]) {
-                    shippingRates[route][type].forEach(rate => {
-                        container.appendChild(createAdminRateCard(route, type, rate));
-                    });
-                }
-            }
+            shippingRatesRef.once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        shippingRates = snapshot.val() || {};
+                    }
+                    
+                    const container = document.getElementById('admin-results');
+                    container.innerHTML = '';
+                    
+                    for (const route in shippingRates) {
+                        for (const type in shippingRates[route]) {
+                            shippingRates[route][type].forEach(rate => {
+                                container.appendChild(createAdminRateCard(route, type, rate));
+                            });
+                        }
+                    }
+                    
+                    document.getElementById('admin-loading-indicator').classList.add('hidden');
+                    document.getElementById('admin-results').classList.remove('hidden');
+                })
+                .catch((error) => {
+                    console.error("Firebase admin data fetch error:", error);
+                    document.getElementById('admin-loading-indicator').classList.add('hidden');
+                    document.getElementById('admin-results').classList.remove('hidden');
+                    document.getElementById('admin-results').innerHTML = 
+                        `<div class="col-span-full text-center p-6 bg-red-100 rounded-lg text-red-700">
+                            <p class="font-bold">ဒေတာရယူရာတွင် အမှားရှိနေပါသည်</p>
+                            <p class="mt-2">${error.message}</p>
+                        </div>`;
+                });
         }
         
         function createAdminRateCard(route, type, rate) {
@@ -732,6 +967,11 @@
         }
         
         function updateRate() {
+            if (!isLoggedIn) {
+                alert('စီမံခန့်ခွဲခွင့် မရှိပါ။ အကောင့်ဝင်ပြီး ထပ်စမ်းကြည့်ပါ။');
+                return;
+            }
+            
             if (!currentEditRate) {
                 alert('ပြင်ဆင်ရန် နှုန်းထားကို ရွေးချယ်ပါ');
                 return;
@@ -749,56 +989,79 @@
                 return;
             }
             
-            // Find the rate to update
-            const rateIndex = shippingRates[currentEditRate.route][currentEditRate.type].findIndex(
-                r => r.Kg === currentEditRate.kg
-            );
-            
-            if (rateIndex === -1) {
-                alert('နှုန်းထားကို ရှာမတွေ့ပါ');
-                return;
-            }
-            
-            // Update the rate
-            shippingRates[currentEditRate.route][currentEditRate.type][rateIndex] = {
-                Kg: weight,
-                BKK: bkkRate,
-                OtherCity: otherCityRate,
-                RemoteArea: remoteAreaRate,
-                type: type
-            };
-            
-            // If route or type changed, move to new location
-            if (currentEditRate.route !== route || currentEditRate.type !== type) {
-                // Remove from old location
-                shippingRates[currentEditRate.route][currentEditRate.type] = 
-                    shippingRates[currentEditRate.route][currentEditRate.type].filter(
-                        r => r.Kg !== currentEditRate.kg
-                    );
-                
-                // Add to new location
-                if (!shippingRates[route]) shippingRates[route] = {};
-                if (!shippingRates[route][type]) shippingRates[route][type] = [];
-                
-                shippingRates[route][type].push({
-                    Kg: weight,
-                    BKK: bkkRate,
-                    OtherCity: otherCityRate,
-                    RemoteArea: remoteAreaRate,
-                    type: type
+            // First remove the old rate
+            const oldRateRef = shippingRatesRef.child(currentEditRate.route).child(currentEditRate.type);
+            oldRateRef.once('value')
+                .then((snapshot) => {
+                    const rates = snapshot.val() || [];
+                    const updatedRates = rates.filter((r) => r.Kg !== currentEditRate.kg);
+                    
+                    // Update the old location
+                    oldRateRef.set(updatedRates)
+                        .then(() => {
+                            // If route or type changed, add to new location
+                            const newRateRef = shippingRatesRef.child(route).child(type);
+                            newRateRef.once('value')
+                                .then((snapshot) => {
+                                    const existingRates = snapshot.val() || [];
+                                    const newRate = {
+                                        Kg: weight,
+                                        BKK: bkkRate,
+                                        OtherCity: otherCityRate,
+                                        RemoteArea: remoteAreaRate,
+                                        type: type
+                                    };
+                                    
+                                    // Check if weight already exists in the new location (if it's different from the old location)
+                                    if (route !== currentEditRate.route || type !== currentEditRate.type) {
+                                        const existingRate = existingRates.find(r => r.Kg === weight);
+                                        if (existingRate) {
+                                            alert(`"${weight} kg" သည် ${route} လမ်းကြောင်းတွင် ရှိနှင့်ပြီးဖြစ်သည်`);
+                                            loadAdminRates();
+                                            return;
+                                        }
+                                    }
+                                    
+                                    existingRates.push(newRate);
+                                    
+                                    // Save the updated rates
+                                    newRateRef.set(existingRates)
+                                        .then(() => {
+                                            // Clear form and reset current edit
+                                            clearForm();
+                                            currentEditRate = null;
+                                            
+                                            // Reload rates
+                                            loadAdminRates();
+                                            alert('နှုန်းထား ပြင်ဆင်ပြီးပါပြီ');
+                                        })
+                                        .catch((error) => {
+                                            console.error("Error adding new rate:", error);
+                                            alert('နှုန်းထား ပြင်ဆင်ရာတွင် အမှားရှိနေပါသည်');
+                                        });
+                                })
+                                .catch((error) => {
+                                    console.error("Error fetching new location rates:", error);
+                                    alert('နှုန်းထား ပြင်ဆင်ရာတွင် အမှားရှိနေပါသည်');
+                                });
+                        })
+                        .catch((error) => {
+                            console.error("Error updating old location rates:", error);
+                            alert('နှုန်းထား ပြင်ဆင်ရာတွင် အမှားရှိနေပါသည်');
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error fetching old rates:", error);
+                    alert('နှုန်းထား ပြင်ဆင်ရာတွင် အမှားရှိနေပါသည်');
                 });
-            }
-            
-            // Clear form and reset current edit
-            clearForm();
-            currentEditRate = null;
-            
-            // Reload rates
-            loadAdminRates();
-            alert('နှုန်းထား ပြင်ဆင်ပြီးပါပြီ');
         }
         
         function addRate() {
+            if (!isLoggedIn) {
+                alert('စီမံခန့်ခွဲခွင့် မရှိပါ။ အကောင့်ဝင်ပြီး ထပ်စမ်းကြည့်ပါ။');
+                return;
+            }
+            
             const route = document.getElementById('admin-route').value;
             const type = document.getElementById('admin-type').value;
             const weight = document.getElementById('admin-weight').value;
@@ -811,38 +1074,48 @@
                 return;
             }
             
-            // Initialize route/type if not exists
-            if (!shippingRates[route]) {
-                shippingRates[route] = {};
-            }
-            
-            if (!shippingRates[route][type]) {
-                shippingRates[route][type] = [];
-            }
-            
-            // Check if rate already exists
-            const exists = shippingRates[route][type].some(rate => rate.Kg === weight);
-            if (exists) {
-                alert('ဤအလေးချိန်အတွက် နှုန်းထားရှိပြီးဖြစ်သည်');
-                return;
-            }
-            
-            const newRate = {
-                Kg: weight,
-                BKK: bkkRate,
-                OtherCity: otherCityRate,
-                RemoteArea: remoteAreaRate,
-                type: type
-            };
-            
-            shippingRates[route][type].push(newRate);
-            
-            // Clear form
-            clearForm();
-            
-            // Reload rates
-            loadAdminRates();
-            alert('နှုန်းထား အသစ် ထည့်သွင်းပြီးပါပြီ');
+            // Get current rates for this route and type
+            const rateRef = shippingRatesRef.child(route).child(type);
+            rateRef.once('value')
+                .then((snapshot) => {
+                    const existingRates = snapshot.val() || [];
+                    
+                    // Check if weight already exists
+                    const existingRate = existingRates.find(r => r.Kg === weight);
+                    if (existingRate) {
+                        alert(`"${weight} kg" သည် ရှိနှင့်ပြီး ဖြစ်သည်`);
+                        return;
+                    }
+                    
+                    const newRate = {
+                        Kg: weight,
+                        BKK: bkkRate,
+                        OtherCity: otherCityRate,
+                        RemoteArea: remoteAreaRate,
+                        type: type
+                    };
+                    
+                    existingRates.push(newRate);
+                    
+                    // Save the updated rates
+                    rateRef.set(existingRates)
+                        .then(() => {
+                            // Clear form
+                            clearForm();
+                            
+                            // Reload rates
+                            loadAdminRates();
+                            alert('နှုန်းထား အသစ် ထည့်သွင်းပြီးပါပြီ');
+                        })
+                        .catch((error) => {
+                            console.error("Error adding rate:", error);
+                            alert('နှုန်းထား ထည့်သွင်းရာတွင် အမှားရှိနေပါသည်');
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error fetching rates:", error);
+                    alert('နှုန်းထား ထည့်သွင်းရာတွင် အမှားရှိနေပါသည်');
+                });
         }
         
         function clearForm() {
@@ -853,17 +1126,41 @@
         }
         
         function deleteRate(route, type, weight) {
+            if (!isLoggedIn) {
+                alert('စီမံခန့်ခွဲခွင့် မရှိပါ။ အကောင့်ဝင်ပြီး ထပ်စမ်းကြည့်ပါ။');
+                return;
+            }
+            
             if (confirm('ဤနှုန်းထားကို ဖျက်ရန် သေချာပါသလား?')) {
-                shippingRates[route][type] = shippingRates[route][type].filter(rate => rate.Kg !== weight);
-                loadAdminRates();
-                alert('နှုန်းထား ဖျက်ပြီးပါပြီ');
-                
-                // Clear form if deleting the currently edited rate
-                if (currentEditRate && currentEditRoute.route === route && 
-                    currentEditRoute.type === type && currentEditRoute.kg === weight) {
-                    clearForm();
-                    currentEditRate = null;
-                }
+                const rateRef = shippingRatesRef.child(route).child(type);
+                rateRef.once('value')
+                    .then((snapshot) => {
+                        const existingRates = snapshot.val() || [];
+                        const updatedRates = existingRates.filter(r => r.Kg !== weight);
+                        
+                        // Save the updated rates
+                        rateRef.set(updatedRates)
+                            .then(() => {
+                                // Clear form if deleting the currently edited rate
+                                if (currentEditRate && currentEditRate.route === route && 
+                                    currentEditRate.type === type && currentEditRate.kg === weight) {
+                                    clearForm();
+                                    currentEditRate = null;
+                                }
+                                
+                                // Reload rates
+                                loadAdminRates();
+                                alert('နှုန်းထား ဖျက်ပြီးပါပြီ');
+                            })
+                            .catch((error) => {
+                                console.error("Error deleting rate:", error);
+                                alert('နှုန်းထား ဖျက်ရာတွင် အမှားရှိနေပါသည်');
+                            });
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching rates for deletion:", error);
+                        alert('နှုန်းထား ဖျက်ရာတွင် အမှားရှိနေပါသည်');
+                    });
             }
         }
     </script>
