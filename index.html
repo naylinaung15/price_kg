@@ -221,7 +221,7 @@
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-remote">တောင်ပိုင်း  နှုန်းထား</label>
+                        <label class="block text-gray-700 mb-2" for="admin-remote">တောင်ပိုင်း နှုန်းထား</label>
                         <input type="text" id="admin-remote" placeholder="ဝေးလံဒေသ နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -233,6 +233,37 @@
                     <button onclick="updateRate()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-green-500">
                         နှုန်းထား ပြင်ဆင်ရန်
                     </button>
+                </div>
+            </div>
+            
+            <!-- Admin Search Section -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <h2 class="text-xl font-bold mb-4 section-title">စီမံခန့်ခွဲသူ ရှာဖွေမှု</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="admin-search-route">လမ်းကြောင်း</label>
+                        <select id="admin-search-route" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterAdminRates()">
+                            <option value="all">အားလုံး</option>
+                            <option value="YGN-BKK">ရန်ကုန် - ဘန်ကောက်</option>
+                            <option value="MWD-BKK">မြဝတီ - ဘန်ကောက်</option>
+                            <option value="MDY-BKK">မန္တလေး - ဘန်ကောက်</option>
+                            <option value="HPA-BKK">ဘားအံ - ဘန်ကောက်</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="admin-search-type">ပစ္စည်းအမျိုးအစား</label>
+                        <select id="admin-search-type" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterAdminRates()">
+                            <option value="all">အားလုံး</option>
+                            <option value="Food">အစားအသောက်</option>
+                            <option value="Cosmetic">အလှကုန်ပစ္စည်း</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="admin-search-weight">အလေးချိန် ရှာဖွေရန်</label>
+                        <input type="text" id="admin-search-weight" placeholder="အလေးချိန် ရိုက်ထည့်ပါ..." class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterAdminRates()">
+                    </div>
                 </div>
             </div>
             
@@ -278,6 +309,7 @@
         let shippingRates = {};
         let currentEditRate = null;
         let isLoggedIn = false;
+        let adminRatesCache = []; // Cache for admin rates filtering
 
         // Check authentication state on page load
         auth.onAuthStateChanged((user) => {
@@ -847,16 +879,22 @@
                         shippingRates = snapshot.val() || {};
                     }
                     
-                    const container = document.getElementById('admin-results');
-                    container.innerHTML = '';
-                    
+                    // Process rates for admin view and store in cache
+                    adminRatesCache = [];
                     for (const route in shippingRates) {
                         for (const type in shippingRates[route]) {
                             shippingRates[route][type].forEach(rate => {
-                                container.appendChild(createAdminRateCard(route, type, rate));
+                                // Add route info to each rate for filtering
+                                adminRatesCache.push({
+                                    ...rate,
+                                    route: route
+                                });
                             });
                         }
                     }
+                    
+                    // Initial display of all rates
+                    filterAdminRates();
                     
                     document.getElementById('admin-loading-indicator').classList.add('hidden');
                     document.getElementById('admin-results').classList.remove('hidden');
@@ -871,6 +909,65 @@
                             <p class="mt-2">${error.message}</p>
                         </div>`;
                 });
+        }
+
+        // Admin rates filtering function
+        function filterAdminRates() {
+            const route = document.getElementById('admin-search-route').value;
+            const type = document.getElementById('admin-search-type').value;
+            const searchTerm = document.getElementById('admin-search-weight').value.toLowerCase();
+            
+            const container = document.getElementById('admin-results');
+            container.innerHTML = '';
+            
+            if (!adminRatesCache.length) return;
+            
+            // Apply filters
+            let filteredRates = adminRatesCache;
+            
+            // Filter by route if not "all"
+            if (route !== 'all') {
+                filteredRates = filteredRates.filter(rate => rate.route === route);
+            }
+            
+            // Filter by type if not "all"
+            if (type !== 'all') {
+                filteredRates = filteredRates.filter(rate => rate.type === type);
+            }
+            
+            // Filter by weight search term
+            if (searchTerm) {
+                filteredRates = filteredRates.filter(rate => 
+                    rate.Kg.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Sort rates by route, type, and then weight
+            filteredRates.sort((a, b) => {
+                if (a.route !== b.route) {
+                    return a.route.localeCompare(b.route);
+                }
+                if (a.type !== b.type) {
+                    return a.type.localeCompare(b.type);
+                }
+                // Handle ranges like "30-40"
+                const aNum = parseFloat(a.Kg.split('-')[0]);
+                const bNum = parseFloat(b.Kg.split('-')[0]);
+                return aNum - bNum;
+            });
+            
+            // Display the filtered rates
+            filteredRates.forEach(rate => {
+                container.appendChild(createAdminRateCard(rate.route, rate.type, rate));
+            });
+            
+            // Show message if no rates found
+            if (filteredRates.length === 0) {
+                container.innerHTML = 
+                    `<div class="col-span-full text-center p-6 bg-blue-50 rounded-lg">
+                        <p class="text-blue-700">ရှာဖွေမှုနှင့် ကိုက်ညီသော နှုန်းထားများ မရှိပါ</p>
+                    </div>`;
+            }
         }
         
         function createAdminRateCard(route, type, rate) {
@@ -960,8 +1057,7 @@
             document.getElementById('admin-remote').value = rate.RemoteArea;
             
             // Scroll to form
-            document.getElementById('admin-panel').scrollTo({
-                top: 0,
+            document.getElementById('admin-panel').scrollIntoView({
                 behavior: 'smooth'
             });
         }
