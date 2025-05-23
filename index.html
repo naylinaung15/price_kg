@@ -846,37 +846,46 @@
 
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <div class="route-badge mb-2">${routeDisplay}</div>
-                            <div class="type-badge">${typeDisplay}</div>
-                        </div>
-                        <div class="text-3xl font-bold text-indigo-700">${rate.Kg} kg</div>
-                    </div>
-                    <div class="space-y-3 mt-6">
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <span class="font-medium text-gray-700">ဘန်ကောက်:</span>
-                            <span class="price-badge">${rate.BKK} ဘတ်</span>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <span class="font-medium text-gray-700">အရှေနောက်မြောက်:</span>
-                            <span class="price-badge">${rate.OtherCity} ဘတ်</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-700">တောင်ပိုင်း :</span>
-                            <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
-                        </div>
-                         <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-700">အဟောင်း :</span>
-                            <span class="price-badge">${rate.Used} ဘတ်</span>
-                        </div>
-                         <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-700">အသစ် :</span>
-                            <span class="price-badge">${rate.BKK1} ဘတ်</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+                       if (!rates || rates.length === 0) {
+    container.innerHTML = '<div class="text-center text-gray-500">Data မရှိပါ</div>';
+    // ဒါမှမဟုတ်, container.innerHTML = ""; ဖြုတ်ချင်ရင်
+    return;
+}
+rates.forEach((rate) => {
+    const card = document.createElement('div');
+    card.innerHTML = `
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <div class="route-badge mb-2">${routeDisplay}</div>
+                <div class="type-badge">${typeDisplay}</div>
+            </div>
+            <div class="text-3xl font-bold text-indigo-700">${rate.Kg} kg</div>
+        </div>
+        <div class="space-y-3 mt-6">
+            <div class="flex justify-between items-center border-b pb-2">
+                <span class="font-medium text-gray-700">ဘန်ကောက်:</span>
+                <span class="price-badge">${rate.BKK} ဘတ်</span>
+            </div>
+            <div class="flex justify-between items-center border-b pb-2">
+                <span class="font-medium text-gray-700">အရှေနောက်မြောက်:</span>
+                <span class="price-badge">${rate.OtherCity} ဘတ်</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700">တောင်ပိုင်း :</span>
+                <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700">အဟောင်း :</span>
+                <span class="price-badge">${rate.Used} ဘတ်</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700">အသစ် :</span>
+                <span class="price-badge">${rate.BKK1} ဘတ်</span>
+            </div>
+        </div>
+    `;
+    container.appendChild(card);
+});
         }
 
         // Admin functions
@@ -927,34 +936,43 @@
                         
                         card.innerHTML = `
                             <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <div class="route-badge mb-2">${routeDisplay}</div>
-                                    <div class="type-badge">${typeDisplay}</div>
-                                </div>
-                                <div class="text-3xl font-bold text-indigo-700">${rate.Kg} kg</div>
-                            </div>
-                            <div class="space-y-3 mt-6">
-                                <div class="flex justify-between items-center border-b pb-2">
-                                    <span class="font-medium text-gray-700">ဘန်ကောက်:</span>
-                                    <span class="price-badge">${rate.BKK} ဘတ်</span>
-                                </div>
-                                <div class="flex justify-between items-center border-b pb-2">
-                            <span class="font-medium text-gray-700">အရှေနောက်မြောက်:</span>
-                            <span class="price-badge">${rate.OtherCity} ဘတ်</span>
+                               if (!rates || rates.length === 0) {
+    container.innerHTML = '<div class="text-center text-gray-500">Data မရှိပါ</div>';
+    // ဒါမှမဟုတ်, container.innerHTML = ""; ဖြုတ်ချင်ရင်
+    return;
+}
+rates.forEach((rate) => {
+    const card = document.createElement('div');
+    card.innerHTML = `
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <div class="route-badge mb-2">${routeDisplay}</div>
+                <div class="type-badge">${typeDisplay}</div>
+            </div>
+            <div class="text-3xl font-bold text-indigo-700">${rate.Kg} kg</div>
+        </div>
+        <div class="space-y-3 mt-6">
+            <div class="flex justify-between items-center border-b pb-2">
+                <span class="font-medium text-gray-700">ဘန်ကောက်:</span>
+                <span class="price-badge">${rate.BKK} ဘတ်</span>
+            </div>
+            <div class="flex justify-between items-center border-b pb-2">
+                <span class="font-medium text-gray-700">အရှေနောက်မြောက်:</span>
+                <span class="price-badge">${rate.OtherCity} ဘတ်</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700">တောင်ပိုင်း :</span>
+                <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700">အဟောင်း :</span>
+                <span class="price-badge">${rate.Used} ဘတ်</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700">အသစ် :</span>
+                <span class="price-badge">${rate.BKK1} ဘတ်</span>
+            </div>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-700">တောင်ပိုင်း :</span>
-                            <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
-                        </div>
-                         <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-700">အဟောင်း :</span>
-                            <span class="price-badge">${rate.Used} ဘတ်</span>
-                        </div>
-                         <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-700">အသစ် :</span>
-                            <span class="price-badge">${rate.BKK1} ဘတ်</span>
-                                </div>
-                            </div>
                             <div class="mt-6 flex justify-between">
                                 <button onclick="editRate('${route}', '${type}', '${rate.Kg}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition">
                                     <i class="fas fa-edit"></i> ပြင်ဆင်ရန်
