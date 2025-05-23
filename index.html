@@ -830,7 +830,12 @@
                 const card = document.createElement('div');
                 card.className = 'rate-card rounded-xl shadow-lg p-6 relative';
                 
-                let typeDisplay = rate.type === 'Food' ? 'အစားအသောက်' : 'အလှကုန်ပစ္စည်း';
+               let typeDisplay = 
+  rate.type === 'Food' 
+    ? 'အစားအသောက်' 
+    : rate.type === 'Electronics'
+      ? 'လျှပ်စစ်ပစ္စည်း'
+      : 'အလှကုန်ပစ္စည်း';
 
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
@@ -846,12 +851,20 @@
                             <span class="price-badge">${rate.BKK} ဘတ်</span>
                         </div>
                         <div class="flex justify-between items-center border-b pb-2">
-                            <span class="font-medium text-gray-700">အခြားမြို့များ:</span>
+                            <span class="font-medium text-gray-700">အရှေနောက်မြောက်:</span>
                             <span class="price-badge">${rate.OtherCity} ဘတ်</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-700">ဝေးလံဒေသ:</span>
+                            <span class="font-medium text-gray-700">တောင်ပိုင်း :</span>
                             <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
+                        </div>
+                         <div class="flex justify-between items-center">
+                            <span class="font-medium text-gray-700">အဟောင်း :</span>
+                            <span class="price-badge">${rate.Used} ဘတ်</span>
+                        </div>
+                         <div class="flex justify-between items-center">
+                            <span class="font-medium text-gray-700">အဟောင်း :</span>
+                            <span class="price-badge">${rate.BKK1} အသစ်</span>
                         </div>
                     </div>
                 `;
@@ -898,7 +911,12 @@
                             case 'HPA-BKK': routeDisplay = 'ဘားအံ - ဘန်ကောက်'; break;
                         }
                         
-                        let typeDisplay = type === 'Food' ? 'အစားအသောက်' : 'အလှကုန်ပစ္စည်း';
+                         let typeDisplay = 
+  rate.type === 'Food' 
+    ? 'အစားအသောက်' 
+    : rate.type === 'Electronics'
+      ? 'လျှပ်စစ်ပစ္စည်း'
+      : 'အလှကုန်ပစ္စည်း';
                         
                         card.innerHTML = `
                             <div class="flex justify-between items-start mb-4">
@@ -914,12 +932,20 @@
                                     <span class="price-badge">${rate.BKK} ဘတ်</span>
                                 </div>
                                 <div class="flex justify-between items-center border-b pb-2">
-                                    <span class="font-medium text-gray-700">အခြားမြို့များ:</span>
-                                    <span class="price-badge">${rate.OtherCity} ဘတ်</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="font-medium text-gray-700">ဝေးလံဒေသ:</span>
-                                    <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
+                            <span class="font-medium text-gray-700">အရှေနောက်မြောက်:</span>
+                            <span class="price-badge">${rate.OtherCity} ဘတ်</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium text-gray-700">တောင်ပိုင်း :</span>
+                            <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
+                        </div>
+                         <div class="flex justify-between items-center">
+                            <span class="font-medium text-gray-700">အဟောင်း :</span>
+                            <span class="price-badge">${rate.Used} ဘတ်</span>
+                        </div>
+                         <div class="flex justify-between items-center">
+                            <span class="font-medium text-gray-700">အသစ် :</span>
+                            <span class="price-badge">${rate.BKK1} ဘတ်</span>
                                 </div>
                             </div>
                             <div class="mt-6 flex justify-between">
