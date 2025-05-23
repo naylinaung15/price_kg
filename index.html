@@ -5,38 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        @font-face {
-            font-family: 'Myanmar Sans';
-            src: url('https://cdn.jsdelivr.net/npm/myanmar-sans@1.0.0/font/myanmar-sans.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
+        body {
+            font-family: 'Noto Sans Myanmar', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         
-        body {
-            font-family: 'Myanmar Sans', Arial, sans-serif;
-            background-color: #f7f7f7;
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
         
         .rate-card {
             transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border-radius: 1rem;
         }
         
         .rate-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .electronic-card {
+            background: linear-gradient(135deg, #f4f9ff, #e8f3ff);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .food-card {
+            background: linear-gradient(135deg, #f0fff4, #dcfce7);
+            border-left: 4px solid #22c55e;
+        }
+
+        .cosmetic-card {
+            background: linear-gradient(135deg, #fff1f2, #fecdd3);
+            border-left: 4px solid #ec4899;
         }
         
         .tab-active {
-            border-bottom: 3px solid #4B6BFB;
-            color: #4B6BFB;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
             font-weight: bold;
         }
         
         .section-title {
             position: relative;
-            padding-left: 15px;
+            padding-left: 20px;
         }
         
         .section-title::before {
@@ -45,146 +64,404 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 5px;
-            background-color: #4B6BFB;
-            border-radius: 5px;
+            width: 4px;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            border-radius: 2px;
         }
         
+        .loading-spinner {
+            border: 4px solid rgba(79, 70, 229, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #4F46E5;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .price-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .route-badge {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .type-badge {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .electronic-badge {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+        
+        .food-badge {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+        }
+        
+        .cosmetic-badge {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            background: white;
+            border-color: #4F46E5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6B7280, #4B5563);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(107, 114, 128, 0.3);
+        }
+
+        .floating-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
         @media print {
-            body {
-                background-color: white;
+            body { 
+                background: white;
+                font-size: 12px;
             }
-            
-            .no-print {
-                display: none;
+            .no-print { 
+                display: none; 
             }
-            
-            .print-full {
-                width: 100% !important;
-                max-width: 100% !important;
+            .print-full { 
+                width: 100% !important; 
+                max-width: 100% !important; 
+            }
+            .rate-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin: 0.5rem 0;
+                box-shadow: none;
+                border: 1px solid #eaeaea;
+            }
+            .glass-effect {
+                background: white;
+                backdrop-filter: none;
+                border: none;
+                box-shadow: none;
+            }
+            .section-title {
+                color: #000;
+            }
+            .route-badge, .type-badge, .price-badge {
+                background: none;
+                border: 1px solid #ccc;
+                color: #000;
+            }
+            .food-card, .cosmetic-card, .electronic-card {
+                background: white;
+                border-left-width: 2px;
             }
         }
     </style>
 </head>
 <body class="min-h-screen pb-10">
-    <header class="bg-white shadow-md mb-6">
+    <header class="glass-effect shadow-lg mb-8 floating-header no-print">
         <div class="container mx-auto px-4 py-6">
-            <h1 class="text-3xl font-bold text-center text-gray-800">သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</h1>
-            <p class="text-center text-gray-600 mt-2">မြန်မာ - ထိုင်း တင်ပို့မှု နှုန်းထားများ</p>
+            <div class="text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</h1>
+                <p class="text-white text-lg opacity-90">မြန်မာ - ထိုင်း တင်ပို့မှု နှုန်းထားများ</p>
+            </div>
         </div>
     </header>
 
+    <!-- Print-only header -->
+    <div class="hidden print:block text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</h1>
+        <p class="text-gray-700 text-lg">မြန်မာ - ထိုင်း တင်ပို့မှု နှုန်းထားများ</p>
+    </div>
+
     <div class="container mx-auto px-4">
         <!-- Tabs -->
-        <div class="flex border-b mb-6 no-print">
-            <button id="user-tab" class="px-4 py-2 tab-active focus:outline-none" onclick="switchTab('user')">
-                အသုံးပြုသူ မြင်ကွင်း
-            </button>
-            <button id="admin-tab" class="px-4 py-2 focus:outline-none" onclick="switchTab('admin')">
-                စီမံခန့်ခွဲသူ စာမျက်နှာ
-            </button>
+        <div class="flex justify-center mb-8 no-print">
+            <div class="glass-effect rounded-lg p-2">
+                <button id="user-tab" class="px-4 md:px-6 py-3 rounded-md tab-active transition-all duration-300 mr-2" onclick="switchTab('user')">
+                    <i class="fas fa-user mr-2"></i>အသုံးပြုသူ မြင်ကွင်း
+                </button>
+                <button id="admin-tab" class="px-4 md:px-6 py-3 rounded-md transition-all duration-300" onclick="switchTab('admin')">
+                    <i class="fas fa-cog mr-2"></i>စီမံခန့်ခွဲသူ စာမျက်နှာ
+                </button>
+            </div>
+        </div>
+
+        <!-- Login Panel -->
+        <div id="login-panel" class="hidden">
+            <div class="max-w-md mx-auto glass-effect rounded-xl shadow-xl p-8 mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-center text-white">
+                    <i class="fas fa-lock mr-2"></i>စီမံခန့်ခွဲသူ အကောင့်ဝင်ရန်
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-white mb-2 font-medium" for="email">အီးမေးလ်</label>
+                        <input type="email" id="email" class="w-full p-3 rounded-lg input-field" placeholder="အီးမေးလ် ထည့်သွင်းပါ">
+                    </div>
+                    <div>
+                        <label class="block text-white mb-2 font-medium" for="password">စကားဝှက်</label>
+                        <input type="password" id="password" class="w-full p-3 rounded-lg input-field" placeholder="စကားဝှက် ထည့်သွင်းပါ">
+                    </div>
+                    <div class="flex flex-col space-y-3">
+                        <button onclick="login()" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                            <i class="fas fa-sign-in-alt mr-2"></i>အကောင့်ဝင်ရန်
+                        </button>
+                        <div id="login-error" class="text-red-300 text-center hidden"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- User Panel -->
         <div id="user-panel">
             <!-- Filter Section -->
-            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h2 class="text-xl font-bold mb-4 section-title">စစ်ထုတ်ကြည့်ရှုရန်</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass-effect rounded-xl shadow-lg p-6 mb-8 no-print">
+                <h2 class="text-2xl font-bold mb-6 section-title text-white">
+                    <i class="fas fa-filter mr-2"></i>စစ်ထုတ်ကြည့်ရှုရန်
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                     <div>
-                        <label class="block text-gray-700 mb-2" for="route-select">လမ်းကြောင်း</label>
-                        <select id="route-select" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterRates()">
+                        <label class="block text-white mb-2 font-medium" for="route-select">လမ်းကြောင်း</label>
+                        <select id="route-select" class="w-full p-3 rounded-lg input-field" onchange="filterRates()">
                             <option value="YGN-BKK">ရန်ကုန် - ဘန်ကောက်</option>
                             <option value="MWD-BKK">မြဝတီ - ဘန်ကောက်</option>
+                            <option value="MDY-BKK">မန္တလေး - ဘန်ကောက်</option>
                             <option value="HPA-BKK">ဘားအံ - ဘန်ကောက်</option>
                         </select>
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2" for="type-select">ပစ္စည်းအမျိုးအစား</label>
-                        <select id="type-select" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterRates()">
+                        <label class="block text-white mb-2 font-medium" for="type-select">ပစ္စည်းအမျိုးအစား</label>
+                        <select id="type-select" class="w-full p-3 rounded-lg input-field" onchange="filterRates()">
                             <option value="all">အားလုံး</option>
                             <option value="Food">အစားအသောက်</option>
                             <option value="Cosmetic">အလှကုန်ပစ္စည်း</option>
+                            <option value="Electronic">လျှပ်စစ်ပစ္စည်း</option>
                         </select>
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2" for="weight-search">အလေးချိန်ရှာဖွေရန်</label>
-                        <input type="text" id="weight-search" placeholder="အလေးချိန် ရိုက်ထည့်ပါ..." class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterRates()">
+                        <label class="block text-white mb-2 font-medium" for="weight-search">အလေးချိန်ရှာဖွေရန်</label>
+                        <input type="text" id="weight-search" placeholder="အလေးချိန် ရိုက်ထည့်ပါ..." class="w-full p-3 rounded-lg input-field" oninput="filterRates()">
                     </div>
                 </div>
             </div>
             
-            <!-- Results Section -->
-            <h2 class="text-xl font-bold mb-4 section-title">နှုန်းထားများ</h2>
-            <div id="results-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Filtered Results Tag -->
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold section-title text-white">
+                    <i class="fas fa-list mr-2"></i>နှုန်းထားများ
+                </h2>
+                <div id="result-count" class="text-white text-lg no-print"></div>
+            </div>
+            
+            <div id="loading-indicator" class="flex justify-center items-center py-16 hidden">
+                <div class="loading-spinner"></div>
+                <span class="ml-4 text-white text-lg">ဒေတာများ ရယူနေသည်...</span>
+            </div>
+            
+            <div id="results-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 <!-- Shipping rates will be displayed here -->
             </div>
         </div>
 
         <!-- Admin Panel -->
         <div id="admin-panel" class="hidden">
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 class="text-xl font-bold mb-4 section-title">နှုန်းထားအသစ် ထည့်သွင်းရန်</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="glass-effect rounded-xl shadow-lg p-8 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold section-title text-white">
+                        <i class="fas fa-cogs mr-2"></i>နှုန်းထားများ စီမံခန့်ခွဲရန်
+                    </h2>
+                    <button onclick="logout()" class="btn-secondary text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                        <i class="fas fa-sign-out-alt mr-2"></i>အကောင့်ထွက်ရန်
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-route">လမ်းကြောင်း</label>
-                        <select id="admin-route" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-white mb-2 font-medium" for="admin-route">လမ်းကြောင်း</label>
+                        <select id="admin-route" class="w-full p-3 rounded-lg input-field">
                             <option value="YGN-BKK">ရန်ကုန် - ဘန်ကောက်</option>
                             <option value="MWD-BKK">မြဝတီ - ဘန်ကောက်</option>
+                            <option value="MDY-BKK">မန္တလေး - ဘန်ကောက်</option>
                             <option value="HPA-BKK">ဘားအံ - ဘန်ကောက်</option>
                         </select>
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-type">ပစ္စည်းအမျိုးအစား</label>
-                        <select id="admin-type" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-white mb-2 font-medium" for="admin-type">ပစ္စည်းအမျိုးအစား</label>
+                        <select id="admin-type" class="w-full p-3 rounded-lg input-field">
                             <option value="Food">အစားအသောက်</option>
                             <option value="Cosmetic">အလှကုန်ပစ္စည်း</option>
+                            <option value="Electronic">လျှပ်စစ်ပစ္စည်း</option>
                         </select>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-weight">အလေးချိန် (ကီလိုဂရမ်)</label>
-                        <input type="text" id="admin-weight" placeholder="ဥပမာ - 1 သို့ 30-40" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-white mb-2 font-medium" for="admin-weight">အလေးချိန် (ကီလိုဂရမ်)</label>
+                        <input type="text" id="admin-weight" placeholder="ဥပမာ - 1 သို့ 30-40" class="w-full p-3 rounded-lg input-field">
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-bkk">ဘန်ကောက် နှုန်းထား</label>
-                        <input type="text" id="admin-bkk" placeholder="ဘန်ကောက် နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-white mb-2 font-medium" for="admin-bkk">ဘန်ကောက် နှုန်းထား</label>
+                        <input type="text" id="admin-bkk" placeholder="ဘန်ကောက် နှုန်းထား" class="w-full p-3 rounded-lg input-field">
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-other">အခြားမြို့များ နှုန်းထား</label>
-                        <input type="text" id="admin-other" placeholder="အခြားမြို့များ နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-white mb-2 font-medium" for="admin-other">အရှေ့နောက်မြောက် နှုန်းထား</label>
+                        <input type="text" id="admin-other" placeholder="အရှေနောက်မြောက် နှုန်းထား" class="w-full p-3 rounded-lg input-field">
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2" for="admin-remote">ဝေးလံဒေသ နှုန်းထား</label>
-                        <input type="text" id="admin-remote" placeholder="ဝေးလံဒေသ နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-white mb-2 font-medium" for="admin-remote">တောင်ပိုင်း နှုန်းထား</label>
+                        <input type="text" id="admin-remote" placeholder="တောင်ပိုင်း နှုန်းထား" class="w-full p-3 rounded-lg input-field">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" id="electronic-fields">
+                    <div>
+                        <label class="block text-white mb-2 font-medium" for="admin-used">အဟောင်း နှုန်းထား</label>
+                        <input type="text" id="admin-used" placeholder="အဟောင်း နှုန်းထား" class="w-full p-3 rounded-lg input-field">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-white mb-2 font-medium" for="admin-new">အသစ် နှုန်းထား</label>
+                        <input type="text" id="admin-new" placeholder="အသစ် နှုန်းထား" class="w-full p-3 rounded-lg input-field">
                     </div>
                 </div>
                 
-                <button onclick="addRate()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    နှုန်းထားအသစ် ထည့်သွင်းရန်
-                </button>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="addRate()" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-plus mr-2"></i>နှုန်းထားအသစ် ထည့်သွင်းရန်
+                    </button>
+                    <button onclick="updateRate()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-edit mr-2"></i>နှုန်းထား ပြင်ဆင်ရန်
+                    </button>
+                    <button onclick="clearForm()" class="btn-secondary text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-broom mr-2"></i>ရှင်းလင်းရန်
+                    </button>
+                </div>
             </div>
             
-            <h2 class="text-xl font-bold mb-4 section-title">လက်ရှိနှုန်းထားများ</h2>
-            <div id="admin-results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <h2 class="text-2xl font-bold mb-6 section-title text-white">
+                <i class="fas fa-database mr-2"></i>လက်ရှိနှုန်းထားများ
+            </h2>
+            
+            <div id="admin-loading-indicator" class="flex justify-center items-center py-16 hidden">
+                <div class="loading-spinner"></div>
+                <span class="ml-4 text-white text-lg">ဒေတာများ ရယူနေသည်...</span>
+            </div>
+            
+            <div id="admin-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Admin shipping rates will be displayed here -->
             </div>
         </div>
     </div>
 
+    <footer class="mt-20 py-6 text-center text-white text-sm opacity-70 no-print">
+        <p>&copy; 2023 သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း စီမံကိန်း</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.6.10/firebase-app-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.6.10/firebase-database-compat.js"></script>
+
     <script>
-        // Shipping rates data
-        const shippingRates = {
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB49vRPX8YaWuTP5GS3lsBDqdAaz_hJYAw",
+            authDomain: "onlineshop-849c8.firebaseapp.com",
+            databaseURL: "https://onlineshop-849c8.firebaseio.com",
+            projectId: "onlineshop-849c8",
+            storageBucket: "onlineshop-849c8.appspot.com",
+            messagingSenderId: "883512833370",
+            appId: "1:883512833370:web:a1c8412b158f8744afef63"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const shippingRatesRef = database.ref('shippingRates');
+        const auth = firebase.auth();
+
+        // Global variables
+        let shippingRates = {};
+        let currentEditRate = null;
+        let isLoggedIn = false;
+
+        // Check authentication state on page load
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                isLoggedIn = true;
+                document.getElementById('login-panel').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                loadAdminRates();
+            } else {
+                isLoggedIn = false;
+            }
+        });
+
+        // Toggle electronic fields visibility
+        document.getElementById('admin-type').addEventListener('change', function() {
+            const electronicFields = document.getElementById('electronic-fields');
+            if (this.value === 'Electronic') {
+                electronicFields.classList.remove('hidden');
+            } else {
+                electronicFields.classList.add('hidden');
+            }
+        });
+
+        // Initialize default data with corrected prices from PDFs
+        const defaultRates = {
             "YGN-BKK": {
                 "Food": [
                     {"Kg": "1", "BKK": "75", "OtherCity": "85", "RemoteArea": "90", "type": "Food"},
@@ -225,6 +502,14 @@
                     {"Kg": "200", "BKK": "32/kg", "OtherCity": "42/kg", "RemoteArea": "47/kg", "type": "Food"},
                     {"Kg": "300", "BKK": "30/kg", "OtherCity": "40/kg", "RemoteArea": "45/kg", "type": "Food"},
                     {"Kg": "300-1000", "BKK": "28/kg", "OtherCity": "38/kg", "RemoteArea": "43/kg", "type": "Food"}
+                ],
+                "Electronic": [
+                    {"Kg": "1", "BKK1": "800", "Used": "500", "type": "Electronic"},
+                    {"Kg": "2", "BKK1": "900", "Used": "700", "type": "Electronic"},
+                    {"Kg": "3", "BKK1": "1800", "Used": "1400", "type": "Electronic"},
+                    {"Kg": "4", "BKK1": "2000", "Used": "1600", "type": "Electronic"},
+                    {"Kg": "5", "BKK1": "2500", "Used": "2000", "type": "Electronic"},
+                    {"Kg": "5-10", "BKK1": "3800", "Used": "3200", "type": "Electronic"}
                 ],
                 "Cosmetic": [
                     {"Kg": "1", "BKK": "70", "OtherCity": "80", "RemoteArea": "85", "type": "Cosmetic"},
@@ -305,6 +590,14 @@
                     {"Kg": "300", "BKK": "26/kg", "OtherCity": "36/kg", "RemoteArea": "41/kg", "type": "Food"},
                     {"Kg": "300-1000", "BKK": "24/kg", "OtherCity": "34/kg", "RemoteArea": "39/kg", "type": "Food"}
                 ],
+                "Electronic": [
+                    {"Kg": "1", "BKK1": "680", "Used": "425", "type": "Electronic"},
+                    {"Kg": "2", "BKK1": "765", "Used": "595", "type": "Electronic"},
+                    {"Kg": "3", "BKK1": "1530", "Used": "1190", "type": "Electronic"},
+                    {"Kg": "4", "BKK1": "1700", "Used": "1360", "type": "Electronic"},
+                    {"Kg": "5", "BKK1": "2125", "Used": "1700", "type": "Electronic"},
+                    {"Kg": "5-10", "BKK1": "3230", "Used": "2720", "type": "Electronic"}
+                ],
                 "Cosmetic": [
                     {"Kg": "1", "BKK": "70", "OtherCity": "80", "RemoteArea": "85", "type": "Cosmetic"},
                     {"Kg": "2", "BKK": "136", "OtherCity": "156", "RemoteArea": "166", "type": "Cosmetic"},
@@ -341,6 +634,92 @@
                     {"Kg": "200", "BKK": "55/kg", "OtherCity": "65/kg", "RemoteArea": "70/kg", "type": "Cosmetic"},
                     {"Kg": "300", "BKK": "55/kg", "OtherCity": "65/kg", "RemoteArea": "70/kg", "type": "Cosmetic"},
                     {"Kg": "300-1000", "BKK": "55/kg", "OtherCity": "65/kg", "RemoteArea": "70/kg", "type": "Cosmetic"}
+                ]
+            },
+            "MDY-BKK": {
+                "Food": [
+                    {"Kg": "1", "BKK": "85", "OtherCity": "95", "RemoteArea": "100", "type": "Food"},
+                    {"Kg": "2", "BKK": "160", "OtherCity": "180", "RemoteArea": "190", "type": "Food"},
+                    {"Kg": "3", "BKK": "240", "OtherCity": "270", "RemoteArea": "285", "type": "Food"},
+                    {"Kg": "4", "BKK": "320", "OtherCity": "360", "RemoteArea": "380", "type": "Food"},
+                    {"Kg": "5", "BKK": "400", "OtherCity": "450", "RemoteArea": "475", "type": "Food"},
+                    {"Kg": "6", "BKK": "480", "OtherCity": "540", "RemoteArea": "570", "type": "Food"},
+                    {"Kg": "7", "BKK": "560", "OtherCity": "630", "RemoteArea": "665", "type": "Food"},
+                    {"Kg": "8", "BKK": "640", "OtherCity": "720", "RemoteArea": "760", "type": "Food"},
+                    {"Kg": "9", "BKK": "720", "OtherCity": "810", "RemoteArea": "855", "type": "Food"},
+                    {"Kg": "10", "BKK": "800", "OtherCity": "900", "RemoteArea": "950", "type": "Food"},
+                    {"Kg": "11", "BKK": "880", "OtherCity": "990", "RemoteArea": "1045", "type": "Food"},
+                    {"Kg": "12", "BKK": "960", "OtherCity": "1080", "RemoteArea": "1140", "type": "Food"},
+                    {"Kg": "13", "BKK": "1040", "OtherCity": "1170", "RemoteArea": "1235", "type": "Food"},
+                    {"Kg": "14", "BKK": "1092", "OtherCity": "1232", "RemoteArea": "1302", "type": "Food"},
+                    {"Kg": "15", "BKK": "1170", "OtherCity": "1320", "RemoteArea": "1395", "type": "Food"},
+                    {"Kg": "16", "BKK": "1232", "OtherCity": "1392", "RemoteArea": "1472", "type": "Food"},
+                    {"Kg": "17", "BKK": "1309", "OtherCity": "1479", "RemoteArea": "1564", "type": "Food"},
+                    {"Kg": "18", "BKK": "1350", "OtherCity": "1530", "RemoteArea": "1620", "type": "Food"},
+                    {"Kg": "19", "BKK": "1406", "OtherCity": "1596", "RemoteArea": "1691", "type": "Food"},
+                    {"Kg": "20", "BKK": "1440", "OtherCity": "1640", "RemoteArea": "1740", "type": "Food"},
+                    {"Kg": "21", "BKK": "1470", "OtherCity": "1680", "RemoteArea": "1785", "type": "Food"},
+                    {"Kg": "22", "BKK": "1496", "OtherCity": "1716", "RemoteArea": "1826", "type": "Food"},
+                    {"Kg": "23", "BKK": "1518", "OtherCity": "1748", "RemoteArea": "1863", "type": "Food"},
+                    {"Kg": "24", "BKK": "1536", "OtherCity": "1776", "RemoteArea": "1896", "type": "Food"},
+                    {"Kg": "25", "BKK": "1575", "OtherCity": "1825", "RemoteArea": "1950", "type": "Food"},
+                    {"Kg": "26", "BKK": "1612", "OtherCity": "1872", "RemoteArea": "2002", "type": "Food"},
+                    {"Kg": "27", "BKK": "1647", "OtherCity": "1917", "RemoteArea": "2052", "type": "Food"},
+                    {"Kg": "28", "BKK": "1708", "OtherCity": "1988", "RemoteArea": "2128", "type": "Food"},
+                    {"Kg": "29", "BKK": "1740", "OtherCity": "2030", "RemoteArea": "2175", "type": "Food"},
+                    {"Kg": "30", "BKK": "1800", "OtherCity": "2100", "RemoteArea": "2250", "type": "Food"},
+                    {"Kg": "30-40", "BKK": "55/kg", "OtherCity": "65/kg", "RemoteArea": "70/kg", "type": "Food"},
+                    {"Kg": "40-50", "BKK": "53/kg", "OtherCity": "63/kg", "RemoteArea": "68/kg", "type": "Food"},
+                    {"Kg": "50-70", "BKK": "50/kg", "OtherCity": "60/kg", "RemoteArea": "65/kg", "type": "Food"},
+                    {"Kg": "70-100", "BKK": "45/kg", "OtherCity": "55/kg", "RemoteArea": "60/kg", "type": "Food"},
+                    {"Kg": "100", "BKK": "43/kg", "OtherCity": "53/kg", "RemoteArea": "58/kg", "type": "Food"},
+                    {"Kg": "200", "BKK": "42/kg", "OtherCity": "52/kg", "RemoteArea": "57/kg", "type": "Food"},
+                    {"Kg": "300", "BKK": "40/kg", "OtherCity": "50/kg", "RemoteArea": "55/kg", "type": "Food"},
+                    {"Kg": "300-1000", "BKK": "38/kg", "OtherCity": "48/kg", "RemoteArea": "53/kg", "type": "Food"}
+                ],
+                "Electronic": [
+                    {"Kg": "1", "BKK1": "880", "Used": "550", "type": "Electronic"},
+                    {"Kg": "2", "BKK1": "990", "Used": "770", "type": "Electronic"},
+                    {"Kg": "3", "BKK1": "1980", "Used": "1540", "type": "Electronic"},
+                    {"Kg": "4", "BKK1": "2200", "Used": "1760", "type": "Electronic"},
+                    {"Kg": "5", "BKK1": "2750", "Used": "2200", "type": "Electronic"},
+                    {"Kg": "5-10", "BKK1": "4100", "Used": "3500", "type": "Electronic"}
+                ],
+                "Cosmetic": [
+                    {"Kg": "1", "BKK": "80", "OtherCity": "90", "RemoteArea": "95", "type": "Cosmetic"},
+                    {"Kg": "2", "BKK": "180", "OtherCity": "200", "RemoteArea": "210", "type": "Cosmetic"},
+                    {"Kg": "3", "BKK": "270", "OtherCity": "300", "RemoteArea": "315", "type": "Cosmetic"},
+                    {"Kg": "4", "BKK": "360", "OtherCity": "400", "RemoteArea": "420", "type": "Cosmetic"},
+                    {"Kg": "5", "BKK": "450", "OtherCity": "500", "RemoteArea": "525", "type": "Cosmetic"},
+                    {"Kg": "6", "BKK": "540", "OtherCity": "600", "RemoteArea": "630", "type": "Cosmetic"},
+                    {"Kg": "7", "BKK": "630", "OtherCity": "700", "RemoteArea": "735", "type": "Cosmetic"},
+                    {"Kg": "8", "BKK": "720", "OtherCity": "800", "RemoteArea": "840", "type": "Cosmetic"},
+                    {"Kg": "9", "BKK": "810", "OtherCity": "900", "RemoteArea": "945", "type": "Cosmetic"},
+                    {"Kg": "10", "BKK": "900", "OtherCity": "1000", "RemoteArea": "1050", "type": "Cosmetic"},
+                    {"Kg": "11", "BKK": "990", "OtherCity": "1100", "RemoteArea": "1155", "type": "Cosmetic"},
+                    {"Kg": "12", "BKK": "1080", "OtherCity": "1200", "RemoteArea": "1260", "type": "Cosmetic"},
+                    {"Kg": "13", "BKK": "1170", "OtherCity": "1300", "RemoteArea": "1365", "type": "Cosmetic"},
+                    {"Kg": "14", "BKK": "1260", "OtherCity": "1400", "RemoteArea": "1470", "type": "Cosmetic"},
+                    {"Kg": "15", "BKK": "1350", "OtherCity": "1500", "RemoteArea": "1575", "type": "Cosmetic"},
+                    {"Kg": "16", "BKK": "1440", "OtherCity": "1600", "RemoteArea": "1680", "type": "Cosmetic"},
+                    {"Kg": "17", "BKK": "1530", "OtherCity": "1700", "RemoteArea": "1785", "type": "Cosmetic"},
+                    {"Kg": "18", "BKK": "1620", "OtherCity": "1800", "RemoteArea": "1890", "type": "Cosmetic"},
+                    {"Kg": "19", "BKK": "1710", "OtherCity": "1900", "RemoteArea": "1995", "type": "Cosmetic"},
+                    {"Kg": "20", "BKK": "1800", "OtherCity": "2000", "RemoteArea": "2100", "type": "Cosmetic"},
+                    {"Kg": "21", "BKK": "1995", "OtherCity": "2205", "RemoteArea": "2310", "type": "Cosmetic"},
+                    {"Kg": "22", "BKK": "2090", "OtherCity": "2310", "RemoteArea": "2420", "type": "Cosmetic"},
+                    {"Kg": "23", "BKK": "2185", "OtherCity": "2415", "RemoteArea": "2530", "type": "Cosmetic"},
+                    {"Kg": "24", "BKK": "2280", "OtherCity": "2520", "RemoteArea": "2640", "type": "Cosmetic"},
+                    {"Kg": "25", "BKK": "2375", "OtherCity": "2625", "RemoteArea": "2750", "type": "Cosmetic"},
+                    {"Kg": "26", "BKK": "2470", "OtherCity": "2730", "RemoteArea": "2860", "type": "Cosmetic"},
+                    {"Kg": "27", "BKK": "2700", "OtherCity": "2970", "RemoteArea": "3105", "type": "Cosmetic"},
+                    {"Kg": "28", "BKK": "2800", "OtherCity": "3080", "RemoteArea": "3220", "type": "Cosmetic"},
+                    {"Kg": "29", "BKK": "2900", "OtherCity": "3190", "RemoteArea": "3335", "type": "Cosmetic"},
+                    {"Kg": "30", "BKK": "3000", "OtherCity": "3300", "RemoteArea": "3450", "type": "Cosmetic"},
+                    {"Kg": "30-50", "BKK": "85/kg", "OtherCity": "95/kg", "RemoteArea": "100/kg", "type": "Cosmetic"},
+                    {"Kg": "50-100", "BKK": "80/kg", "OtherCity": "90/kg", "RemoteArea": "95/kg", "type": "Cosmetic"},
+                    {"Kg": "200", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"},
+                    {"Kg": "300-1000", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"}
                 ]
             },
             "HPA-BKK": {
@@ -384,15 +763,23 @@
                     {"Kg": "300", "BKK": "27/kg", "OtherCity": "37/kg", "RemoteArea": "42/kg", "type": "Food"},
                     {"Kg": "300-1000", "BKK": "25/kg", "OtherCity": "35/kg", "RemoteArea": "40/kg", "type": "Food"}
                 ],
+                "Electronic": [
+                    {"Kg": "1", "BKK1": "720", "Used": "450", "type": "Electronic"}, 
+                    {"Kg": "2", "BKK1": "810", "Used": "630", "type": "Electronic"},
+                    {"Kg": "3", "BKK1": "1620", "Used": "1260", "type": "Electronic"},
+                    {"Kg": "4", "BKK1": "1800", "Used": "1440", "type": "Electronic"},
+                    {"Kg": "5", "BKK1": "2250", "Used": "1800", "type": "Electronic"},
+                    {"Kg": "5-10", "BKK1": "3420", "Used": "2880", "type": "Electronic"}
+                ],
                 "Cosmetic": [
                     {"Kg": "1", "BKK": "70", "OtherCity": "80", "RemoteArea": "85", "type": "Cosmetic"},
                     {"Kg": "2", "BKK": "144", "OtherCity": "164", "RemoteArea": "174", "type": "Cosmetic"},
                     {"Kg": "3", "BKK": "216", "OtherCity": "246", "RemoteArea": "261", "type": "Cosmetic"},
-                    {"Kg": "4", "BKK": "288", "OtherCity": "238", "RemoteArea": "348", "type": "Cosmetic"},
+                    {"Kg": "4", "BKK": "288", "OtherCity": "328", "RemoteArea": "348", "type": "Cosmetic"},
                     {"Kg": "5", "BKK": "360", "OtherCity": "410", "RemoteArea": "435", "type": "Cosmetic"},
                     {"Kg": "6", "BKK": "432", "OtherCity": "492", "RemoteArea": "522", "type": "Cosmetic"},
-                    {"Kg": "7", "BKK": "504", "OtherCity": "574", "RemoteArea": "690", "type": "Cosmetic"},
-                    {"Kg": "8", "BKK": "676", "OtherCity": "656", "RemoteArea": "696", "type": "Cosmetic"},
+                    {"Kg": "7", "BKK": "504", "OtherCity": "574", "RemoteArea": "609", "type": "Cosmetic"},
+                    {"Kg": "8", "BKK": "576", "OtherCity": "656", "RemoteArea": "696", "type": "Cosmetic"},
                     {"Kg": "9", "BKK": "648", "OtherCity": "738", "RemoteArea": "783", "type": "Cosmetic"},
                     {"Kg": "10", "BKK": "720", "OtherCity": "820", "RemoteArea": "870", "type": "Cosmetic"},
                     {"Kg": "11", "BKK": "792", "OtherCity": "902", "RemoteArea": "957", "type": "Cosmetic"},
@@ -408,272 +795,612 @@
                     {"Kg": "21", "BKK": "1607", "OtherCity": "1817", "RemoteArea": "1922", "type": "Cosmetic"},
                     {"Kg": "22", "BKK": "1683", "OtherCity": "1903", "RemoteArea": "2013", "type": "Cosmetic"},
                     {"Kg": "23", "BKK": "1760", "OtherCity": "1990", "RemoteArea": "2105", "type": "Cosmetic"},
-                    {"Kg": "24", "BKK": "1835", "OtherCity": "2076", "RemoteArea": "2196", "type": "Cosmetic"},
+                    {"Kg": "24", "BKK": "1836", "OtherCity": "2076", "RemoteArea": "2196", "type": "Cosmetic"},
                     {"Kg": "25", "BKK": "1913", "OtherCity": "2163", "RemoteArea": "2288", "type": "Cosmetic"},
                     {"Kg": "26", "BKK": "1989", "OtherCity": "2249", "RemoteArea": "2379", "type": "Cosmetic"},
                     {"Kg": "27", "BKK": "2187", "OtherCity": "2457", "RemoteArea": "2592", "type": "Cosmetic"},
                     {"Kg": "28", "BKK": "2268", "OtherCity": "2548", "RemoteArea": "2688", "type": "Cosmetic"},
                     {"Kg": "29", "BKK": "2349", "OtherCity": "2639", "RemoteArea": "2784", "type": "Cosmetic"},
                     {"Kg": "30", "BKK": "2430", "OtherCity": "2730", "RemoteArea": "2880", "type": "Cosmetic"},
-                   {"Kg": "30-50", "BKK": "68/kg", "OtherCity": "78/kg", "RemoteArea": "83/kg", "type": "Cosmetic"},
+                    {"Kg": "30-50", "BKK": "68/kg", "OtherCity": "78/kg", "RemoteArea": "83/kg", "type": "Cosmetic"},
                     {"Kg": "50-100", "BKK": "63/kg", "OtherCity": "73/kg", "RemoteArea": "78/kg", "type": "Cosmetic"},
-                   // {"Kg": "50-70", "BKK": "59/kg", "OtherCity": "69/kg", "RemoteArea": "74/kg", "type": "Cosmetic"},
                     {"Kg": "200", "BKK": "59/kg", "OtherCity": "69/kg", "RemoteArea": "74/kg", "type": "Cosmetic"},
-                   // {"Kg": "100", "BKK": "59/kg", "OtherCity": "69/kg", "RemoteArea": "74/kg", "type": "Cosmetic"},
-                    //{"Kg": "200", "BKK": "36/kg", "OtherCity": "46/kg", "RemoteArea": "51/kg", "type": "Cosmetic"},
-                   // {"Kg": "300", "BKK": "34/kg", "OtherCity": "44/kg", "RemoteArea": "49/kg", "type": "Cosmetic"},
+                    {"Kg": "300", "BKK": "59/kg", "OtherCity": "69/kg", "RemoteArea": "74/kg", "type": "Cosmetic"},
                     {"Kg": "300-1000", "BKK": "59/kg", "OtherCity": "69/kg", "RemoteArea": "74/kg", "type": "Cosmetic"}
                 ]
             }
         };
 
-        // Initialize the page
-        window.onload = function() {
-            filterRates();
-        };
-        
+        // Function to switch between user and admin tabs
         function switchTab(tab) {
             if (tab === 'user') {
-                document.getElementById('user-panel').style.display = 'block';
-                document.getElementById('admin-panel').style.display = 'none';
                 document.getElementById('user-tab').classList.add('tab-active');
                 document.getElementById('admin-tab').classList.remove('tab-active');
-                filterRates();
+                document.getElementById('user-panel').classList.remove('hidden');
+                document.getElementById('admin-panel').classList.add('hidden');
+                document.getElementById('login-panel').classList.add('hidden');
+                loadRates();
             } else {
-                document.getElementById('user-panel').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                document.getElementById('user-tab').classList.remove('tab-active');
                 document.getElementById('admin-tab').classList.add('tab-active');
-                loadAdminRates();
+                document.getElementById('user-tab').classList.remove('tab-active');
+                document.getElementById('user-panel').classList.add('hidden');
+                
+                if (isLoggedIn) {
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                    document.getElementById('login-panel').classList.add('hidden');
+                    loadAdminRates();
+                } else {
+                    document.getElementById('admin-panel').classList.add('hidden');
+                    document.getElementById('login-panel').classList.remove('hidden');
+                }
             }
         }
-        
+
+        // Hide electronic fields by default
+        document.getElementById('electronic-fields').classList.add('hidden');
+
+        // Function to load shipping rates from database or use default rates
+        function loadRates() {
+            document.getElementById('loading-indicator').classList.remove('hidden');
+            document.getElementById('results-container').innerHTML = '';
+            
+            shippingRatesRef.once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        shippingRates = snapshot.val();
+                    } else {
+                        shippingRates = defaultRates;
+                        // Upload default rates to database
+                        shippingRatesRef.set(defaultRates);
+                    }
+                    filterRates();
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                })
+                .catch((error) => {
+                    console.error("Error loading rates: ", error);
+                    shippingRates = defaultRates;
+                    filterRates();
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                });
+        }
+
+        // Filter rates based on user selections
         function filterRates() {
             const route = document.getElementById('route-select').value;
             const type = document.getElementById('type-select').value;
-            const searchTerm = document.getElementById('weight-search').value.toLowerCase();
-            
-            const container = document.getElementById('results-container');
-            container.innerHTML = '';
-            
-            if (!shippingRates[route]) return;
-            
-            let ratesToShow = [];
-            
-            if (type === 'all') {
-                // Combine all types
-                for (const rateType in shippingRates[route]) {
-                    ratesToShow = ratesToShow.concat(shippingRates[route][rateType]);
+            const weight = document.getElementById('weight-search').value.toLowerCase();
+
+            let filteredRates = [];
+
+            if (shippingRates[route]) {
+                if (type === 'all') {
+                    // Combine all rates for the selected route
+                    if (shippingRates[route]['Food']) {
+                        filteredRates = filteredRates.concat(shippingRates[route]['Food']);
+                    }
+                    if (shippingRates[route]['Cosmetic']) {
+                        filteredRates = filteredRates.concat(shippingRates[route]['Cosmetic']);
+                    }
+                    if (shippingRates[route]['Electronic']) {
+                        filteredRates = filteredRates.concat(shippingRates[route]['Electronic']);
+                    }
+                } else if (shippingRates[route][type]) {
+                    // Only get rates for the selected type
+                    filteredRates = shippingRates[route][type];
                 }
-            } else {
-                ratesToShow = shippingRates[route][type] || [];
             }
-            
-            // Filter by search term if provided
-            if (searchTerm) {
-                ratesToShow = ratesToShow.filter(rate => 
-                    rate.Kg.toLowerCase().includes(searchTerm)
+
+            // Filter by weight if provided
+            if (weight) {
+                filteredRates = filteredRates.filter(rate => 
+                    rate.Kg.toLowerCase().includes(weight)
                 );
             }
-            
-            // Sort rates by weight (converting to numbers for proper sorting)
-            ratesToShow.sort((a, b) => {
-                // Handle ranges like "30-40"
-                const aNum = parseFloat(a.Kg.split('-')[0]);
-                const bNum = parseFloat(b.Kg.split('-')[0]);
-                return aNum - bNum;
-            });
-            
-            // Display the rates
-            ratesToShow.forEach(rate => {
-                container.appendChild(createRateCard(rate));
-            });
-        }
-        
-        function createRateCard(rate) {
-            const typeLabels = {
-                'Food': 'အစားအသောက်',
-                'Cosmetic': 'အလှကုန်ပစ္စည်း'
-            };
 
-            const bgColors = {
-                'Food': 'bg-blue-50',
-                'Cosmetic': 'bg-purple-50'
-            };
-            
-            const card = document.createElement('div');
-            card.className = `rate-card ${bgColors[rate.type]} rounded-lg shadow-sm p-4 mb-4`;
-            
-            const header = document.createElement('div');
-            header.className = 'flex justify-between items-center mb-3 border-b pb-2';
-            
-            const weightLabel = document.createElement('div');
-            weightLabel.className = 'text-lg font-bold';
-            weightLabel.innerHTML = `${rate.Kg} kg`;
-            
-            const typeLabel = document.createElement('div');
-            typeLabel.className = 'text-sm bg-gray-200 px-2 py-1 rounded-full';
-            typeLabel.innerHTML = typeLabels[rate.type];
-            
-            header.appendChild(weightLabel);
-            header.appendChild(typeLabel);
-            
-            const bkk = document.createElement('div');
-            bkk.className = 'flex justify-between py-1';
-            bkk.innerHTML = `<span>ဘန်ကောက်:</span> <span class="font-semibold">${rate.BKK}</span>`;
-            
-            const otherCity = document.createElement('div');
-            otherCity.className = 'flex justify-between py-1';
-            otherCity.innerHTML = `<span>အခြားမြို့များ:</span> <span class="font-semibold">${rate.OtherCity}</span>`;
-            
-            const remoteArea = document.createElement('div');
-            remoteArea.className = 'flex justify-between py-1';
-            remoteArea.innerHTML = `<span>ဝေးလံဒေသ:</span> <span class="font-semibold">${rate.RemoteArea}</span>`;
-            
-            card.appendChild(header);
-            card.appendChild(bkk);
-            card.appendChild(otherCity);
-            card.appendChild(remoteArea);
-            
-            return card;
+            // Update results count
+            document.getElementById('result-count').textContent = `${filteredRates.length} စာရင်းတွေ့ရှိသည်`;
+
+            displayRates(filteredRates, route);
         }
-        
+
+        // Display rates in the results container
+        function displayRates(rates, route) {
+            const container = document.getElementById('results-container');
+            container.innerHTML = '';
+
+            if (rates.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="bg-white rounded-lg p-8 shadow-md">
+                            <i class="fas fa-exclamation-circle text-yellow-500 text-5xl mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">ရှာဖွေတွေ့ရှိမှု မရှိပါ</h3>
+                            <p class="text-gray-600">သင့်ရှာဖွေမှုနှင့် ကိုက်ညီသော နှုန်းထားများ မရှိပါ။</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let routeDisplay = '';
+            switch (route) {
+                case 'YGN-BKK': routeDisplay = 'ရန်ကုန် - ဘန်ကောက်'; break;
+                case 'MWD-BKK': routeDisplay = 'မြဝတီ - ဘန်ကောက်'; break;
+                case 'MDY-BKK': routeDisplay = 'မန္တလေး - ဘန်ကောက်'; break;
+                case 'HPA-BKK': routeDisplay = 'ဘားအံ - ဘန်ကောက်'; break;
+            }
+
+            rates.forEach(rate => {
+                let typeDisplay = '';
+                let cardClass = 'rate-card';
+                let typeBadgeClass = 'type-badge';
+                
+                if (rate.type === 'Food') {
+                    typeDisplay = 'အစားအသောက်';
+                    cardClass += ' food-card';
+                    typeBadgeClass += ' food-badge';
+                } else if (rate.type === 'Electronic') {
+                    typeDisplay = 'လျှပ်စစ်ပစ္စည်း';
+                    cardClass += ' electronic-card';
+                    typeBadgeClass += ' electronic-badge';
+                } else {
+                    typeDisplay = 'အလှကုန်ပစ္စည်း';
+                    cardClass += ' cosmetic-card';
+                    typeBadgeClass += ' cosmetic-badge';
+                }
+
+                const card = document.createElement('div');
+                card.className = cardClass + ' p-6 shadow-lg';
+
+                // Create different card layouts based on the type
+                if (rate.type === 'Electronic') {
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="route-badge mb-2">${routeDisplay}</div>
+                                <div class="${typeBadgeClass}">${typeDisplay}</div>
+                            </div>
+                            <div class="text-3xl font-bold text-indigo-700">${rate.Kg} kg</div>
+                        </div>
+                        <div class="space-y-3 mt-6">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="font-medium text-gray-700">အသစ်:</span>
+                                <span class="price-badge">${rate.BKK1} ဘတ်</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium text-gray-700">အဟောင်း:</span>
+                                <span class="price-badge">${rate.Used} ဘတ်</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="route-badge mb-2">${routeDisplay}</div>
+                                <div class="${typeBadgeClass}">${typeDisplay}</div>
+                            </div>
+                            <div class="text-3xl font-bold text-indigo-700">${rate.Kg} kg</div>
+                        </div>
+                        <div class="space-y-3 mt-6">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="font-medium text-gray-700">ဘန်ကောက်:</span>
+                                <span class="price-badge">${rate.BKK} ဘတ်</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="font-medium text-gray-700">အရှေ့နောက်မြောက်:</span>
+                                <span class="price-badge">${rate.OtherCity} ဘတ်</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium text-gray-700">တောင်ပိုင်း:</span>
+                                <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                container.appendChild(card);
+            });
+        }
+
         // Admin functions
         function loadAdminRates() {
+            document.getElementById('admin-loading-indicator').classList.remove('hidden');
+            document.getElementById('admin-results').innerHTML = '';
+            
+            shippingRatesRef.once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        shippingRates = snapshot.val();
+                    } else {
+                        shippingRates = defaultRates;
+                    }
+                    displayAdminRates();
+                    document.getElementById('admin-loading-indicator').classList.add('hidden');
+                })
+                .catch((error) => {
+                    console.error("Error loading admin rates: ", error);
+                    document.getElementById('admin-loading-indicator').classList.add('hidden');
+                });
+        }
+
+        function displayAdminRates() {
             const container = document.getElementById('admin-results');
             container.innerHTML = '';
             
             for (const route in shippingRates) {
                 for (const type in shippingRates[route]) {
                     shippingRates[route][type].forEach(rate => {
-                        container.appendChild(createAdminRateCard(route, type, rate));
+                        let typeDisplay = '';
+                        let cardClass = 'rate-card';
+                        let typeBadgeClass = 'type-badge';
+                        
+                        if (rate.type === 'Food') {
+                            typeDisplay = 'အစားအသောက်';
+                            cardClass += ' food-card';
+                            typeBadgeClass += ' food-badge';
+                        } else if (rate.type === 'Electronic') {
+                            typeDisplay = 'လျှပ်စစ်ပစ္စည်း';
+                            cardClass += ' electronic-card';
+                            typeBadgeClass += ' electronic-badge';
+                        } else {
+                            typeDisplay = 'အလှကုန်ပစ္စည်း';
+                            cardClass += ' cosmetic-card';
+                            typeBadgeClass += ' cosmetic-badge';
+                        }
+                        
+                        let routeDisplay = '';
+                        switch (route) {
+                            case 'YGN-BKK': routeDisplay = 'ရန်ကုန် - ဘန်ကောက်'; break;
+                            case 'MWD-BKK': routeDisplay = 'မြဝတီ - ဘန်ကောက်'; break;
+                            case 'MDY-BKK': routeDisplay = 'မန္တလေး - ဘန်ကောက်'; break;
+                            case 'HPA-BKK': routeDisplay = 'ဘားအံ - ဘန်ကောက်'; break;
+                        }
+                        
+                        const card = document.createElement('div');
+                        card.className = cardClass + ' p-6 shadow-lg';
+                        
+                        // Create different card layouts based on the type
+                        if (rate.type === 'Electronic') {
+                            card.innerHTML = `
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <div class="route-badge mb-2">${routeDisplay}</div>
+                                        <div class="${typeBadgeClass}">${typeDisplay}</div>
+                                    </div>
+                                    <div class="text-3xl font-bold text-indigo-700">${rate.Kg} kg</div>
+                                </div>
+                                <div class="space-y-3 mt-6">
+                                    <div class="flex justify-between items-center border-b pb-2">
+                                        <span class="font-medium text-gray-700">အသစ်:</span>
+                                        <span class="price-badge">${rate.BKK1} ဘတ်</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium text-gray-700">အဟောင်း:</span>
+                                        <span class="price-badge">${rate.Used} ဘတ်</span>
+                                    </div>
+                                </div>
+                                <div class="mt-6 flex justify-between">
+                                    <button onclick="editRate('${route}', '${type}', '${rate.Kg}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition">
+                                        <i class="fas fa-edit"></i> ပြင်ဆင်ရန်
+                                    </button>
+                                    <button onclick="deleteRate('${route}', '${type}', '${rate.Kg}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md transition">
+                                        <i class="fas fa-trash"></i> ဖျက်ရန်
+                                    </button>
+                                </div>
+                            `;
+                        } else {
+                            card.innerHTML = `
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <div class="route-badge mb-2">${routeDisplay}</div>
+                                        <div class="${typeBadgeClass}">${typeDisplay}</div>
+                                    </div>
+                                    <div class="text-3xl font-bold text-indigo-700">${rate.Kg} kg</div>
+                                </div>
+                                <div class="space-y-3 mt-6">
+                                    <div class="flex justify-between items-center border-b pb-2">
+                                        <span class="font-medium text-gray-700">ဘန်ကောက်:</span>
+                                        <span class="price-badge">${rate.BKK} ဘတ်</span>
+                                    </div>
+                                    <div class="flex justify-between items-center border-b pb-2">
+                                        <span class="font-medium text-gray-700">အရှေ့နောက်မြောက်:</span>
+                                        <span class="price-badge">${rate.OtherCity} ဘတ်</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium text-gray-700">တောင်ပိုင်း:</span>
+                                        <span class="price-badge">${rate.RemoteArea} ဘတ်</span>
+                                    </div>
+                                </div>
+                                <div class="mt-6 flex justify-between">
+                                    <button onclick="editRate('${route}', '${type}', '${rate.Kg}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition">
+                                        <i class="fas fa-edit"></i> ပြင်ဆင်ရန်
+                                    </button>
+                                    <button onclick="deleteRate('${route}', '${type}', '${rate.Kg}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md transition">
+                                        <i class="fas fa-trash"></i> ဖျက်ရန်
+                                    </button>
+                                </div>
+                            `;
+                        }
+                        container.appendChild(card);
                     });
                 }
             }
         }
-        
-        function createAdminRateCard(route, type, rate) {
-            const routeLabels = {
-                'YGN-BKK': 'ရန်ကုန် - ဘန်ကောက်',
-                'MWD-BKK': 'မြဝတီ - ဘန်ကောက်',
-                'HPA-BKK': 'ဘားအံ - ဘန်ကောက်'
-            };
+
+        // Admin login function
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('login-error');
             
-            const typeLabels = {
-                'Food': 'အစားအသောက်',
-                'Cosmetic': 'အလှကုန်ပစ္စည်း'
-            };
+            if (!email || !password) {
+                errorElement.innerText = 'အီးမေးလ် နှင့် စကားဝှက် ထည့်သွင်းပေးပါ။';
+                errorElement.classList.remove('hidden');
+                return;
+            }
             
-            const bgColors = {
-                'Food': 'bg-blue-50',
-                'Cosmetic': 'bg-purple-50'
-            };
+            errorElement.classList.add('hidden');
             
-            const card = document.createElement('div');
-            card.className = `rate-card ${bgColors[type]} rounded-lg shadow-sm p-4 mb-4`;
-            
-            const header = document.createElement('div');
-            header.className = 'flex justify-between items-center mb-3 border-b pb-2';
-            
-            const routeTypeLabel = document.createElement('div');
-            routeTypeLabel.className = 'text-sm font-medium';
-            routeTypeLabel.innerHTML = `${routeLabels[route]} | ${typeLabels[type]}`;
-            
-            const weightLabel = document.createElement('div');
-            weightLabel.className = 'text-lg font-bold';
-            weightLabel.innerHTML = `${rate.Kg} kg`;
-            
-            header.appendChild(routeTypeLabel);
-            header.appendChild(weightLabel);
-            
-            const bkk = document.createElement('div');
-            bkk.className = 'flex justify-between py-1';
-            bkk.innerHTML = `<span>ဘန်ကောက်:</span> <span class="font-semibold">${rate.BKK}</span>`;
-            
-            const otherCity = document.createElement('div');
-            otherCity.className = 'flex justify-between py-1';
-            otherCity.innerHTML = `<span>အခြားမြို့များ:</span> <span class="font-semibold">${rate.OtherCity}</span>`;
-            
-            const remoteArea = document.createElement('div');
-            remoteArea.className = 'flex justify-between py-1';
-            remoteArea.innerHTML = `<span>ဝေးလံဒေသ:</span> <span class="font-semibold">${rate.RemoteArea}</span>`;
-            
-            const btnContainer = document.createElement('div');
-            btnContainer.className = 'mt-3 flex justify-end';
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded-md text-sm transition duration-300 focus:outline-none focus:ring-2 focus:ring-red-500';
-            deleteBtn.textContent = 'ဖျက်ရန်';
-            deleteBtn.onclick = function() {
-                deleteRate(route, type, rate.Kg);
-            };
-            
-            btnContainer.appendChild(deleteBtn);
-            
-            card.appendChild(header);
-            card.appendChild(bkk);
-            card.appendChild(otherCity);
-            card.appendChild(remoteArea);
-            card.appendChild(btnContainer);
-            
-            return card;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    document.getElementById('login-panel').classList.add('hidden');
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                    isLoggedIn = true;
+                    loadAdminRates();
+                })
+                .catch((error) => {
+                    errorElement.innerText = 'အကောင့်ဝင်ရန် မအောင်မြင်ပါ။ ထည့်သွင်းထားသော အချက်အလက်များကို စစ်ဆေးပါ။';
+                    errorElement.classList.remove('hidden');
+                    console.error('Login error:', error);
+                });
         }
-        
+
+        // Logout function
+        function logout() {
+            auth.signOut().then(() => {
+                isLoggedIn = false;
+                document.getElementById('admin-panel').classList.add('hidden');
+                document.getElementById('login-panel').classList.remove('hidden');
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
+        }
+
+        // Edit rate function
+        function editRate(route, type, kg) {
+            const rateArray = shippingRates[route][type];
+            const rateObj = rateArray.find(rate => rate.Kg === kg);
+            
+            if (rateObj) {
+                document.getElementById('admin-route').value = route;
+                document.getElementById('admin-type').value = type;
+                document.getElementById('admin-weight').value = rateObj.Kg;
+
+                // Show/hide appropriate fields based on type
+                if (type === 'Electronic') {
+                    document.getElementById('electronic-fields').classList.remove('hidden');
+                    document.getElementById('admin-new').value = rateObj.BKK1 || '';
+                    document.getElementById('admin-used').value = rateObj.Used || '';
+                } else {
+                    document.getElementById('electronic-fields').classList.add('hidden');
+                    document.getElementById('admin-bkk').value = rateObj.BKK || '';
+                    document.getElementById('admin-other').value = rateObj.OtherCity || '';
+                    document.getElementById('admin-remote').value = rateObj.RemoteArea || '';
+                }
+                
+                currentEditRate = {
+                    route: route,
+                    type: type,
+                    originalKg: kg
+                };
+                
+                // Scroll to the form
+                document.querySelector('.glass-effect').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Delete rate function
+        function deleteRate(route, type, kg) {
+            if (confirm('ဤနှုန်းထားကို ဖျက်ရန် သေချာပါသလား?')) {
+                const rateArray = shippingRates[route][type];
+                const rateIndex = rateArray.findIndex(rate => rate.Kg === kg);
+                
+                if (rateIndex !== -1) {
+                    rateArray.splice(rateIndex, 1);
+                    
+                    shippingRatesRef.set(shippingRates)
+                        .then(() => {
+                            alert('နှုန်းထားကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။');
+                            displayAdminRates();
+                        })
+                        .catch((error) => {
+                            console.error("Error deleting rate: ", error);
+                            alert('နှုန်းထားဖျက်ရန် မအောင်မြင်ပါ။');
+                        });
+                }
+            }
+        }
+
+        // Add new rate function
         function addRate() {
             const route = document.getElementById('admin-route').value;
             const type = document.getElementById('admin-type').value;
-            const weight = document.getElementById('admin-weight').value;
-            const bkkRate = document.getElementById('admin-bkk').value;
-            const otherCityRate = document.getElementById('admin-other').value;
-            const remoteAreaRate = document.getElementById('admin-remote').value;
+            const kg = document.getElementById('admin-weight').value;
             
-            if (!weight || !bkkRate || !otherCityRate || !remoteAreaRate) {
-                alert('အချက်အလက်အားလုံး ဖြည့်စွက်ပေးပါ');
+            if (!kg) {
+                alert('ကျေးဇူးပြု၍ အလေးချိန်ကို ထည့်သွင်းပါ။');
                 return;
             }
             
-            // Initialize route/type if not exists
-            if (!shippingRates[route]) {
-                shippingRates[route] = {};
-            }
+            let newRate = {
+                "Kg": kg,
+                "type": type
+            };
             
-            if (!shippingRates[route][type]) {
-                shippingRates[route][type] = [];
+            // Set properties based on type
+            if (type === 'Electronic') {
+                const bkk1 = document.getElementById('admin-new').value;
+                const used = document.getElementById('admin-used').value;
+                
+                if (!bkk1 || !used) {
+                    alert('ကျေးဇူးပြု၍ လိုအပ်သည့် အချက်အလက်အားလုံးကို ထည့်သွင်းပါ။');
+                    return;
+                }
+                
+                newRate.BKK1 = bkk1;
+                newRate.Used = used;
+            } else {
+                const bkk = document.getElementById('admin-bkk').value;
+                const other = document.getElementById('admin-other').value;
+                const remote = document.getElementById('admin-remote').value;
+                
+                if (!bkk || !other || !remote) {
+                    alert('ကျေးဇူးပြု၍ လိုအပ်သည့် အချက်အလက်အားလုံးကို ထည့်သွင်းပါ။');
+                    return;
+                }
+                
+                newRate.BKK = bkk;
+                newRate.OtherCity = other;
+                newRate.RemoteArea = remote;
             }
             
             // Check if rate already exists
-            const exists = shippingRates[route][type].some(rate => rate.Kg === weight);
-            if (exists) {
-                alert('ဤအလေးချိန်အတွက် နှုန်းထားရှိပြီးဖြစ်သည်');
+            const rateExists = shippingRates[route][type].some(rate => rate.Kg === kg);
+            
+            if (rateExists && !currentEditRate) {
+                alert('ထည့်သွင်းလိုသော အလေးချိန်အတွက် နှုန်းထား ရှိပြီးဖြစ်ပါသည်။ ကျေးဇူးပြု၍ အခြားအလေးချိန် ထည့်သွင်းပါ သို့မဟုတ် ရှိပြီးသားကို ပြင်ဆင်ပါ။');
                 return;
             }
             
-            const newRate = {
-                Kg: weight,
-                BKK: bkkRate,
-                OtherCity: otherCityRate,
-                RemoteArea: remoteAreaRate,
-                type: type
+            // If not already in edit mode, add new rate
+            if (!currentEditRate) {
+                shippingRates[route][type].push(newRate);
+            } else {
+                // If in edit mode, update existing rate
+                updateExistingRate();
+                return;
+            }
+            
+            shippingRatesRef.set(shippingRates)
+                .then(() => {
+                    alert('နှုန်းထားကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။');
+                    clearForm();
+                    displayAdminRates();
+                })
+                .catch((error) => {
+                    console.error("Error saving rate: ", error);
+                    alert('နှုန်းထားသိမ်းဆည်းရန် မအောင်မြင်ပါ။');
+                });
+        }
+
+        // Update existing rate
+        function updateRate() {
+            if (!currentEditRate) {
+                alert('ပြင်ဆင်ရန် နှုန်းထားကို ရွေးချယ်ပါ။');
+                return;
+            }
+            
+            updateExistingRate();
+        }
+
+        // Helper function for updating rates
+        function updateExistingRate() {
+            const route = document.getElementById('admin-route').value;
+            const type = document.getElementById('admin-type').value;
+            const kg = document.getElementById('admin-weight').value;
+            
+            if (!kg) {
+                alert('ကျေးဇူးပြု၍ အလေးချိန်ကို ထည့်သွင်းပါ။');
+                return;
+            }
+            
+            let updatedRate = {
+                "Kg": kg,
+                "type": type
             };
             
-            shippingRates[route][type].push(newRate);
+            // Set properties based on type
+            if (type === 'Electronic') {
+                const bkk1 = document.getElementById('admin-new').value;
+                const used = document.getElementById('admin-used').value;
+                
+                if (!bkk1 || !used) {
+                    alert('ကျေးဇူးပြု၍ လိုအပ်သည့် အချက်အလက်အားလုံးကို ထည့်သွင်းပါ။');
+                    return;
+                }
+                
+                updatedRate.BKK1 = bkk1;
+                updatedRate.Used = used;
+            } else {
+                const bkk = document.getElementById('admin-bkk').value;
+                const other = document.getElementById('admin-other').value;
+                const remote = document.getElementById('admin-remote').value;
+                
+                if (!bkk || !other || !remote) {
+                    alert('ကျေးဇူးပြု၍ လိုအပ်သည့် အချက်အလက်အားလုံးကို ထည့်သွင်းပါ။');
+                    return;
+                }
+                
+                updatedRate.BKK = bkk;
+                updatedRate.OtherCity = other;
+                updatedRate.RemoteArea = remote;
+            }
             
-            // Clear form
+            // If route, type or kg changed, delete from original location
+            if (currentEditRate.route !== route || currentEditRate.type !== type || currentEditRate.originalKg !== kg) {
+                const originalRateArray = shippingRates[currentEditRate.route][currentEditRate.type];
+                const originalRateIndex = originalRateArray.findIndex(rate => rate.Kg === currentEditRate.originalKg);
+                
+                if (originalRateIndex !== -1) {
+                    originalRateArray.splice(originalRateIndex, 1);
+                }
+                
+                // Check if rate already exists at new location
+                if (shippingRates[route][type].some(rate => rate.Kg === kg)) {
+                    alert('ထည့်သွင်းလိုသော အလေးချိန်အတွက် နှုန်းထား ရှိပြီးဖြစ်ပါသည်။');
+                    return;
+                }
+                
+                // Add to new location
+                shippingRates[route][type].push(updatedRate);
+            } else {
+                // Update in place
+                const rateArray = shippingRates[route][type];
+                const rateIndex = rateArray.findIndex(rate => rate.Kg === currentEditRate.originalKg);
+                
+                if (rateIndex !== -1) {
+                    rateArray[rateIndex] = updatedRate;
+                }
+            }
+            
+            shippingRatesRef.set(shippingRates)
+                .then(() => {
+                    alert('နှုန်းထားကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။');
+                    clearForm();
+                    displayAdminRates();
+                })
+                .catch((error) => {
+                    console.error("Error updating rate: ", error);
+                    alert('နှုန်းထားပြင်ဆင်ရန် မအောင်မြင်ပါ။');
+                });
+        }
+
+        // Clear form function
+        function clearForm() {
             document.getElementById('admin-weight').value = '';
             document.getElementById('admin-bkk').value = '';
             document.getElementById('admin-other').value = '';
             document.getElementById('admin-remote').value = '';
-            
-            // Reload rates
-            loadAdminRates();
+            document.getElementById('admin-new').value = '';
+            document.getElementById('admin-used').value = '';
+            currentEditRate = null;
         }
-        
-        function deleteRate(route, type, weight) {
-            if (confirm('ဤနှုန်းထားကို ဖျက်ရန် သေချာပါသလား?')) {
-                shippingRates[route][type] = shippingRates[route][type].filter(rate => rate.Kg !== weight);
-                loadAdminRates();
-            }
-        }
+
+        // Initialize data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRates();
+        });
     </script>
 </body>
 </html>
