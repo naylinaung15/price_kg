@@ -787,6 +787,10 @@
                     if (shippingRates[route]['Cosmetic']) {
                         filteredRates = filteredRates.concat(shippingRates[route]['Cosmetic']);
                     }
+                   }
+                    if (shippingRates[route]['Electronics']) {
+                        filteredRates = filteredRates.concat(shippingRates[route]['Electronics']);
+                    } 
                 } else if (shippingRates[route][type]) {
                     // Only get rates for the selected type
                     filteredRates = shippingRates[route][type];
