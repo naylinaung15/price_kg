@@ -268,6 +268,7 @@
                         <select id="admin-type" class="w-full p-3 rounded-lg input-field">
                             <option value="Food">အစားအသောက်</option>
                             <option value="Cosmetic">အလှကုန်ပစ္စည်း</option>
+                             <option value="Electronic">အလှကုန်ပစ္စည်း</option>
                         </select>
                     </div>
                 </div>
@@ -286,12 +287,12 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div>
-                        <label class="block text-white mb-2 font-medium" for="admin-other">အခြားမြို့များ နှုန်းထား</label>
+                        <label class="block text-white mb-2 font-medium" for="admin-other">အရှေ့နောက်မြောက် နှုန်းထား</label>
                         <input type="text" id="admin-other" placeholder="အခြားမြို့များ နှုန်းထား" class="w-full p-3 rounded-lg input-field">
                     </div>
                     
                     <div>
-                        <label class="block text-white mb-2 font-medium" for="admin-remote">ဝေးလံဒေသ နှုန်းထား</label>
+                        <label class="block text-white mb-2 font-medium" for="admin-remote">တောင်ပိုင်း နှုန်းထား</label>
                         <input type="text" id="admin-remote" placeholder="ဝေးလံဒေသ နှုန်းထား" class="w-full p-3 rounded-lg input-field">
                     </div>
                 </div>
@@ -408,12 +409,12 @@
                     {"Kg": "300-1000", "BKK": "28/kg", "OtherCity": "38/kg", "RemoteArea": "43/kg", "type": "Food"}
                 ],
                     "Electronic": [
-                    {"Kg": "1", "BKK": "800","Used": "500"},
-                        {"Kg": "2", "BKK": "900","Used": "700"},
-                        {"Kg": "3", "BKK": "1800","Used": "1400"},
-                        {"Kg": "4", "BKK": "2000","Used": "1600"},
-                        {"Kg": "5", "BKK": "2500","Used": "2000"},
-                        {"Kg": "5-10", "BKK": "3800","Used": "3200"}
+                    {"Kg": "1", "BKK1": "800","Used": "500"},
+                        {"Kg": "2", "BKK1": "900","Used": "700"},
+                        {"Kg": "3", "BKK1": "1800","Used": "1400"},
+                        {"Kg": "4", "BKK1": "2000","Used": "1600"},
+                        {"Kg": "5", "BKK1": "2500","Used": "2000"},
+                        {"Kg": "5-10", "BKK1": "3800","Used": "3200"}
                           ],
                    
                "Cosmetic": [
@@ -497,12 +498,12 @@
   {"Kg": "300 - 1000", "BKK": "24/kg", "OtherCity": "34/kg", "RemoteArea": "39/kg", "type": "Food"}
 ],
                 "Electronic": [
-                    {"Kg": "1", "BKK": "680","Used": "425"},
-                        {"Kg": "2", "BKK": "765","Used": "595"},
-                        {"Kg": "3", "BKK": "1530","Used": "1190"},
-                        {"Kg": "4", "BKK": "1700","Used": "1360"},
-                        {"Kg": "5", "BKK": "2125","Used": "1700"},
-                        {"Kg": "5-10", "BKK": "3230","Used": "2720"}
+                    {"Kg": "1", "BKK1": "680","Used": "425"},
+                        {"Kg": "2", "BKK1": "765","Used": "595"},
+                        {"Kg": "3", "BKK1": "1530","Used": "1190"},
+                        {"Kg": "4", "BKK1": "1700","Used": "1360"},
+                        {"Kg": "5", "BKK1": "2125","Used": "1700"},
+                        {"Kg": "5-10", "BKK1": "3230","Used": "2720"}
                           ],
                 "Cosmetic": [
   {"Kg": "1", "BKK": "70", "OtherCity": "80", "RemoteArea": "85", "type": "Cosmetic"},
@@ -584,12 +585,12 @@
                     {"Kg": "300-1000", "BKK": "38/kg", "OtherCity": "48/kg", "RemoteArea": "53/kg", "type": "Food"}
                 ],
                 "Electronic": [
-                    {"Kg": "1", "BKK": "880","Used": "550"},
-                        {"Kg": "2", "BKK": "990","Used": "770"},
-                        {"Kg": "3", "BKK": "1980","Used": "1540"},
-                        {"Kg": "4", "BKK": "2200","Used": "1760"},
-                        {"Kg": "5", "BKK": "2750","Used": "2200"},
-                        {"Kg": "5-10", "BKK": "4100","Used": "3500"}
+                    {"Kg": "1", "BKK1": "880","Used": "550"},
+                        {"Kg": "2", "BKK1": "990","Used": "770"},
+                        {"Kg": "3", "BKK1": "1980","Used": "1540"},
+                        {"Kg": "4", "BKK1": "2200","Used": "1760"},
+                        {"Kg": "5", "BKK1": "2750","Used": "2200"},
+                        {"Kg": "5-10", "BKK1": "4100","Used": "3500"}
                           ],
                 "Cosmetic": [
                     {"Kg": "1", "BKK": "80", "OtherCity": "90", "RemoteArea": "95", "type": "Cosmetic"},
@@ -670,12 +671,12 @@
   {"Kg": "300 - 1000", "BKK": "25/kg", "OtherCity": "35/kg", "RemoteArea": "40/kg", "type": "Food"}
 ],
                 "Electronic": [
-                    {"Kg": "1", "New": "720","Used": "450"}, 
-                        {"Kg": "2", "New": "810","Used": "630"},
-                        {"Kg": "3", "New": "1620","Used": "1260"},
-                        {"Kg": "4", "New": "1800","Used": "1440"},
-                        {"Kg": "5", "New": "2250","Used": "1800"},
-                        {"Kg": "5-10", "New": "3420","Used": "2880"}
+                    {"Kg": "1", "BKK1": "720","Used": "450"}, 
+                        {"Kg": "2", "BKK1": "810","Used": "630"},
+                        {"Kg": "3", "BKK1": "1620","Used": "1260"},
+                        {"Kg": "4", "BKK1": "1800","Used": "1440"},
+                        {"Kg": "5", "BKK1": "2250","Used": "1800"},
+                        {"Kg": "5-10", "BKK1": "3420","Used": "2880"}
                           ],
                "Cosmetic": [
     {"Kg": "1", "BKK": "70", "OtherCity": "80", "RemoteArea": "85", "type": "Cosmetic"},
