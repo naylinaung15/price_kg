@@ -3,1262 +3,1449 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</title>
+    <title>စာမျက်နှာ စုံလင် အက်ပ်</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @font-face {
-            font-family: 'Myanmar Sans';
-            src: url('https://cdn.jsdelivr.net/npm/myanmar-sans@1.0.0/font/myanmar-sans.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
-        
         body {
-            font-family: 'Myanmar Sans', Arial, sans-serif;
-            background-color: #f7f7f7;
+            font-family: 'Padauk', sans-serif;
+            background-color: #f8f9fa;
         }
-        
-        .rate-card {
-            transition: all 0.3s ease;
+        .page {
+            display: none;
         }
-        
-        .rate-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        .page.active {
+            display: block;
         }
-        
-        .tab-active {
-            border-bottom: 3px solid #4B6BFB;
-            color: #4B6BFB;
-            font-weight: bold;
+        .post {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
         }
-        
-        .section-title {
-            position: relative;
-            padding-left: 15px;
+        .nav-item.active {
+            color: #4f46e5;
+            border-bottom: 3px solid #4f46e5;
         }
-        
-        .section-title::before {
-            content: '';
+        .unread-badge {
             position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 5px;
-            background-color: #4B6BFB;
-            border-radius: 5px;
-        }
-        
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
             border-radius: 50%;
-            border-left-color: #4B6BFB;
-            animation: spin 1s linear infinite;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+        .video-preview {
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-        
-        @media print {
-            body {
-                background-color: white;
-            }
-            
-            .no-print {
-                display: none;
-            }
-            
-            .print-full {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
+        .video-preview video {
+            max-height: 100%;
+            max-width: 100%;
+        }
+        .file-upload-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .file-upload-btn input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            opacity: 0;
+            outline: none;
+            cursor: pointer;
+            display: block;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #4C51BF;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        .progress-bar {
+            height: 5px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            transition: width 0.3s ease;
+        }
+        .thumbnail-preview {
+            width: 80px;
+            height: 60px;
+            border-radius: 4px;
+            overflow: hidden;
+            display: inline-block;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        .thumbnail-preview.selected {
+            border: 2px solid #4C51BF;
+        }
+        .message {
+            border-radius: 18px;
+            padding: 8px 12px;
+            margin: 4px 0;
+            max-width: 80%;
+        }
+        .message.sent {
+            background-color: #4f46e5;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        .message.received {
+            background-color: #e5e7eb;
+            color: black;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
         }
     </style>
 </head>
-<body class="min-h-screen pb-10">
-    <header class="bg-white shadow-md mb-6">
-        <div class="container mx-auto px-4 py-6">
-            <div class="container mx-auto px-4 py-4 flex flex-col items-center">
-                <!-- Logo as Image -->
-               <img src="https://page1.genspark.site/v1/base64_upload/da5328a5d16605124c760e07b236aee1" class="h-20 mb-2">
-
-           
-            <h1 class="text-3xl font-bold text-center text-gray-800">သယ်ယူပို့ဆောင်ရေး နှုန်းထား တွက်ချက်ခြင်း</h1>
-            <p class="text-center text-gray-600 mt-2">မြန်မာ - ထိုင်း တင်ပို့မှု နှုန်းထားများ</p>
-                 </div>
+<body class="min-h-screen pb-20">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-2">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-indigo-600">မြန်မာစာ</h1>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <div id="userProfileHeader" class="hidden">
+                        <span id="userDisplayName" class="font-medium mr-2">အသုံးပြုသူ</span>
+                        <button id="logoutBtn" class="text-sm text-gray-600 hover:text-indigo-600">
+                            ထွက်ရန်
+                        </button>
+                    </div>
+                    <div id="authButtons" class="">
+                        <button onclick="openLoginModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                            ဝင်ရန်
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
-    <div class="container mx-auto px-4">
-        <!-- Tabs -->
-        <div class="flex border-b mb-6 no-print">
-            <button id="user-tab" class="px-4 py-2 tab-active focus:outline-none" onclick="switchTab('user')">
-                အသုံးပြုသူ မြင်ကွင်း
-            </button>
-            <button id="admin-tab" class="px-4 py-2 focus:outline-none" onclick="showLoginForm()">
-                စီမံခန့်ခွဲသူ စာမျက်နှာ
-            </button>
-        </div>
-
-        <!-- Login Form -->
-        <div id="login-panel" class="hidden bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-bold mb-4 section-title">စီမံခန့်ခွဲသူ အကောင့်ဝင်ရန်</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-gray-700 mb-2" for="email">အီးမေးလ်</label>
-                    <input type="email" id="email" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="အီးမေးလ် ထည့်သွင်းပါ">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2" for="password">စကားဝှက်</label>
-                    <input type="password" id="password" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="စကားဝှက် ထည့်သွင်းပါ">
-                </div>
-            </div>
-            <div class="flex justify-between items-center">
-                <button onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    အကောင့်ဝင်ရန်
-                </button>
-                <div id="login-error" class="text-red-600 hidden">အကောင့်ဝင်ရန် မအောင်မြင်ပါ။ ပြန်ကြိုးစားပါ။</div>
-            </div>
-        </div>
-
-        <!-- User Panel -->
-        <div id="user-panel">
-            <!-- Filter Section -->
-            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h2 class="text-xl font-bold mb-4 section-title">စစ်ထုတ်ကြည့်ရှုရန်</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="route-select">လမ်းကြောင်း</label>
-                        <select id="route-select" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterRates()">
-                            <option value="YGN-BKK">ရန်ကုန် - ဘန်ကောက်</option>
-                            <option value="MWD-BKK">မြဝတီ - ဘန်ကောက်</option>
-                            <option value="MDY-BKK">မန္တလေး - ဘန်ကောက်</option>
-                            <option value="HPA-BKK">ဘားအံ - ဘန်ကောက်</option>
-                        </select>
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-6">
+        <!-- Login Modal -->
+        <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <h2 class="text-2xl font-bold mb-6 text-center">အကောင့်ဝင်ရန်</h2>
+                <div id="loginForm">
+                    <div class="mb-4">
+                        <label for="loginEmail" class="block text-gray-700 mb-2">အီးမေးလ်</label>
+                        <input type="email" id="loginEmail" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="type-select">ပစ္စည်းအမျိုးအစား</label>
-                        <select id="type-select" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterRates()">
-                            <option value="all">အားလုံး</option>
-                            <option value="Food">အစားအသောက်</option>
-                            <option value="Cosmetic">အလှကုန်ပစ္စည်း</option>
-                        </select>
+                    <div class="mb-6">
+                        <label for="loginPassword" class="block text-gray-700 mb-2">စကားဝှက်</label>
+                        <input type="password" id="loginPassword" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="weight-search">အလေးချိန်ရှာဖွေရန်</label>
-                        <input type="text" id="weight-search" placeholder="အလေးချိန် ရိုက်ထည့်ပါ..." class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterRates()">
+                    <div class="flex justify-between mb-4">
+                        <button id="loginSubmitBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                            ဝင်ရန်
+                        </button>
+                        <button onclick="toggleAuthMode()" class="text-indigo-600 hover:underline">အကောင့်အသစ်ဖွင့်ရန်</button>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Results Section -->
-            <h2 class="text-xl font-bold mb-4 section-title">နှုန်းထားများ</h2>
-            <div id="loading-indicator" class="flex justify-center items-center py-10 hidden">
-                <div class="spinner"></div>
-                <span class="ml-3">ဒေတာများ ရယူနေသည်...</span>
-            </div>
-            <div id="results-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <!-- Shipping rates will be displayed here -->
-            </div>
-        </div>
-
-        <!-- Admin Panel -->
-        <div id="admin-panel" class="hidden">
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold section-title">နှုန်းထားများ စီမံခန့်ခွဲရန်</h2>
-                    <button onclick="logout()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1 px-3 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                        အကောင့်ထွက်ရန်
-                    </button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-route">လမ်းကြောင်း</label>
-                        <select id="admin-route" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="YGN-BKK">ရန်ကုန် - ဘန်ကောက်</option>
-                            <option value="MWD-BKK">မြဝတီ - ဘန်ကောက်</option>
-                            <option value="MDY-BKK">မန္တလေး - ဘန်ကောက်</option>
-                            <option value="HPA-BKK">ဘားအံ - ဘန်ကောက်</option>
-                        </select>
+                <div id="registerForm" class="hidden">
+                    <div class="mb-4">
+                        <label for="registerName" class="block text-gray-700 mb-2">အမည်</label>
+                        <input type="text" id="registerName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-type">ပစ္စည်းအမျိုးအစား</label>
-                        <select id="admin-type" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Food">အစားအသောက်</option>
-                            <option value="Cosmetic">အလှကုန်ပစ္စည်း</option>
-                        </select>
+                    <div class="mb-4">
+                        <label for="registerEmail" class="block text-gray-700 mb-2">အီးမေးလ်</label>
+                        <input type="email" id="registerEmail" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="registerPassword" class="block text-gray-700 mb-2">စကားဝှက်</label>
+                        <input type="password" id="registerPassword" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="flex justify-between mb-4">
+                        <button id="registerSubmitBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                            အကောင့်ဖွင့်ရန်
+                        </button>
+                        <button onclick="toggleAuthMode()" class="text-indigo-600 hover:underline">ဝင်ရောက်ရန်</button>
                     </div>
                 </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-weight">အလေးချိန် (ကီလိုဂရမ်)</label>
-                        <input type="text" id="admin-weight" placeholder="ဥပမာ - 1 သို့ 30-40" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-bkk">ဘန်ကောက် နှုန်းထား</label>
-                        <input type="text" id="admin-bkk" placeholder="ဘန်ကောက် နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-other">အရှေနောက်မြောက် နှုန်းထား</label>
-                        <input type="text" id="admin-other" placeholder="အခြားမြို့များ နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-remote">တောင်ပိုင်း နှုန်းထား</label>
-                        <input type="text" id="admin-remote" placeholder="ဝေးလံဒေသ နှုန်းထား" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button onclick="addRate()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        နှုန်းထားအသစ် ထည့်သွင်းရန်
-                    </button>
-                    <button onclick="updateRate()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-                        နှုန်းထား ပြင်ဆင်ရန်
+                <div class="text-center">
+                    <button onclick="closeLoginModal()" class="text-gray-600 hover:text-gray-800">
+                        ပိတ်ရန်
                     </button>
                 </div>
             </div>
-            
-            <!-- Admin Search Section -->
-            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h2 class="text-xl font-bold mb-4 section-title">စီမံခန့်ခွဲသူ ရှာဖွေမှု</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-search-route">လမ်းကြောင်း</label>
-                        <select id="admin-search-route" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterAdminRates()">
-                            <option value="all">အားလုံး</option>
-                            <option value="YGN-BKK">ရန်ကုန် - ဘန်ကောက်</option>
-                            <option value="MWD-BKK">မြဝတီ - ဘန်ကောက်</option>
-                            <option value="MDY-BKK">မန္တလေး - ဘန်ကောက်</option>
-                            <option value="HPA-BKK">ဘားအံ - ဘန်ကောက်</option>
-                        </select>
+        </div>
+
+        <!-- Auth Required Message -->
+        <div id="authRequiredMsg" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 hidden">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="ml-3">
+                    <p>ဒီလုပ်ဆောင်ချက်ကို အသုံးပြုရန် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။</p>
+                    <button onclick="openLoginModal()" class="text-indigo-600 hover:underline mt-2">
+                        အကောင့်ဝင်ရန် နှိပ်ပါ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pages Container -->
+        <div>
+            <!-- Home Page -->
+            <div id="homePage" class="page active">
+                <h2 class="text-2xl font-bold mb-6">အဓိကစာမျက်နှာ</h2>
+                
+                <!-- Posts Feed -->
+                <div id="postsContainer">
+                    <!-- Sample Posts - Will be populated from Firebase -->
+                    <div class="post p-4">
+                        <div class="flex items-start mb-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold">
+                                မ
+                            </div>
+                            <div class="ml-3">
+                                <div class="font-semibold">မောင်မောင်</div>
+                                <div class="text-xs text-gray-500">၂ နာရီအကြာက</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <p>ယနေ့ရဲ့ မိုးသားတွေဟာ လှပလိုက်တာ။ ကျွန်တော် ရိုက်ထားတဲ့ဓာတ်ပုံကို မျှဝေလိုက်ပါတယ်။</p>
+                        </div>
+                        <div class="rounded-lg overflow-hidden mb-3">
+                            <img src="https://images.unsplash.com/photo-1505533321630-975218a5f66f" alt="နမူနာပုံ" class="w-full h-auto">
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <button class="flex items-center hover:text-indigo-600">
+                                <i class="far fa-heart mr-1"></i> နှစ်သက်သည် (24)
+                            </button>
+                            <button class="flex items-center hover:text-indigo-600">
+                                <i class="far fa-comment mr-1"></i> မှတ်ချက် (5)
+                            </button>
+                            <button class="flex items-center hover:text-indigo-600">
+                                <i class="far fa-share-square mr-1"></i> မျှဝေမည်
+                            </button>
+                        </div>
                     </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-search-type">ပစ္စည်းအမျိုးအစား</label>
-                        <select id="admin-search-type" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterAdminRates()">
-                            <option value="all">အားလုံး</option>
-                            <option value="Food">အစားအသောက်</option>
-                            <option value="Cosmetic">အလှကုန်ပစ္စည်း</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 mb-2" for="admin-search-weight">အလေးချိန် ရှာဖွေရန်</label>
-                        <input type="text" id="admin-search-weight" placeholder="အလေးချိန် ရိုက်ထည့်ပါ..." class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterAdminRates()">
+
+                    <div class="post p-4">
+                        <div class="flex items-start mb-3">
+                            <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-500 font-bold">
+                                စ
+                            </div>
+                            <div class="ml-3">
+                                <div class="font-semibold">စန်းစန်း</div>
+                                <div class="text-xs text-gray-500">၅ နာရီအကြာက</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <p>ဒီနေ့ စကားဝိုင်းမှာ ဆွေးနွေးတဲ့အကြောင်းအရာလေးတွေကို မျှဝေလိုက်ပါတယ်။ ဘာတွေထပ်ဖြည့်စွက်ချင်ပါသေးလဲ?</p>
+                        </div>
+                        <div class="rounded-lg overflow-hidden mb-3">
+                            <video controls playsinline webkit-playsinline class="w-full h-auto">
+                                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <button class="flex items-center hover:text-indigo-600">
+                                <i class="far fa-heart mr-1"></i> နှစ်သက်သည် (42)
+                            </button>
+                            <button class="flex items-center hover:text-indigo-600">
+                                <i class="far fa-comment mr-1"></i> မှတ်ချက် (12)
+                            </button>
+                            <button class="flex items-center hover:text-indigo-600">
+                                <i class="far fa-share-square mr-1"></i> မျှဝေမည်
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <h2 class="text-xl font-bold mb-4 section-title">လက်ရှိနှုန်းထားများ</h2>
-            <div id="admin-loading-indicator" class="flex justify-center items-center py-10 hidden">
-                <div class="spinner"></div>
-                <span class="ml-3">ဒေတာများ ရယူနေသည်...</span>
+
+            <!-- Upload Page -->
+            <div id="uploadPage" class="page">
+                <h2 class="text-2xl font-bold mb-6">အကြောင်းအရာ တင်သွင်းရန်</h2>
+                
+                <!-- Content Type Selector -->
+                <div class="mb-6 flex justify-center">
+                    <div class="grid grid-cols-3 w-full max-w-lg text-center">
+                        <button id="textTabBtn" class="py-3 px-5 rounded-tl-lg bg-indigo-600 text-white">
+                            <i class="fas fa-pen-alt mr-2"></i> စာတင်ရန်
+                        </button>
+                        <button id="imageTabBtn" class="py-3 px-5 bg-gray-200">
+                            <i class="fas fa-images mr-2"></i> ပုံတင်ရန်
+                        </button>
+                        <button id="videoTabBtn" class="py-3 px-5 rounded-tr-lg bg-gray-200">
+                            <i class="fas fa-video mr-2"></i> ဗီဒီယိုတင်ရန်
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Text Post Tab -->
+                <div id="textPostTab" class="bg-white p-6 rounded-lg shadow-sm mb-6">
+                    <div class="mb-4">
+                        <label for="postTitle" class="block text-gray-700 font-medium mb-2">ခေါင်းစဉ်</label>
+                        <input type="text" id="postTitle" placeholder="ခေါင်းစဉ် ရိုက်ထည့်ပါ" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="postContent" class="block text-gray-700 font-medium mb-2">အကြောင်းအရာ</label>
+                        <textarea id="postContent" rows="6" placeholder="သင့်စာသား ရိုက်ထည့်ပါ..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-700">မှတ်ချက်ရေးခြင်း ပိတ်ထားရန်</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="textDisableComments">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button id="textPostBtn" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition">
+                        <i class="fas fa-paper-plane mr-2"></i> စာတင်ရန်
+                    </button>
+                </div>
+
+                <!-- Image Upload Tab -->
+                <div id="imageUploadTab" class="bg-white p-6 rounded-lg shadow-sm mb-6 hidden">
+                    <div class="mb-6">
+                        <div id="imagePreviewContainer" class="flex flex-wrap gap-4 mb-4">
+                            <label id="imageUploadLabel" class="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md h-32 w-32 cursor-pointer hover:border-indigo-500">
+                                <div class="text-center">
+                                    <i class="fas fa-image text-gray-400 text-3xl mb-2"></i>
+                                    <p class="text-sm text-gray-500">ပုံရွေးရန်</p>
+                                </div>
+                                <input type="file" id="imageUpload" accept="image/*" multiple class="hidden">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="imageTitle" class="block text-gray-700 font-medium mb-2">ခေါင်းစဉ်</label>
+                        <input type="text" id="imageTitle" placeholder="ခေါင်းစဉ် ရိုက်ထည့်ပါ" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="imageDescription" class="block text-gray-700 font-medium mb-2">ဖော်ပြချက်</label>
+                        <textarea id="imageDescription" rows="4" placeholder="ပုံအကြောင်း ဖော်ပြချက် ရေးသားပါ" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-gray-700">မှတ်ချက်ရေးခြင်း ပိတ်ထားရန်</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="imageDisableComments">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-gray-700">မျှဝေခြင်း ပိတ်ထားရန်</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="imageDisableSharing">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-gray-700">ဒေါင်းလုပ်ဆွဲခြင်း ပိတ်ထားရန်</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="imageDisableDownload">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="imageUploadBtn" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i> ပုံတင်သွင်းရန်
+                    </button>
+                    
+                    <!-- Progress Section (Initially Hidden) -->
+                    <div id="imageProgressSection" class="mt-6 hidden">
+                        <p class="text-center text-gray-700 mb-2">တင်သွင်းနေပါသည်။ ခေတ္တစောင့်ဆိုင်းပါ...</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                            <div id="imageProgressBar" class="progress-bar h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-end text-sm text-gray-600">
+                            <span id="imageProgressPercent">0% တင်သွင်းပြီးပါပြီ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Upload Tab -->
+                <div id="videoUploadTab" class="bg-white p-6 rounded-lg shadow-sm mb-6 hidden">
+                    <div class="mb-8">
+                        <div class="video-preview mb-4" id="videoPreviewContainer">
+                            <div class="text-center" id="uploadPrompt">
+                                <i class="fas fa-cloud-upload-alt text-gray-400 text-5xl mb-4"></i>
+                                <p class="text-gray-600">ဗီဒီယိုဖိုင် ရွေးချယ်ရန်</p>
+                            </div>
+                            <video id="videoPreview" class="hidden" controls playsinline webkit-playsinline></video>
+                        </div>
+                        
+                        <div class="flex flex-wrap items-center gap-4 mt-4">
+                            <button class="file-upload-btn bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg flex items-center">
+                                <i class="fas fa-file-video mr-2"></i> ဗီဒီယိုဖိုင် ရွေးရန်
+                                <input type="file" id="videoUpload" accept="video/*" />
+                            </button>
+                            
+                            <div class="flex-1 min-w-[200px]">
+                                <div class="text-sm text-gray-600 mb-1">ဖိုင်အမည်: <span id="fileName">ဗီဒီယိုဖိုင် မရွေးရသေးပါ</span></div>
+                                <div class="text-sm text-gray-600 mb-1">ဖိုင်အရွယ်အစား: <span id="fileSize">0 MB</span></div>
+                                <div class="text-sm text-gray-600">ကြာချိန်: <span id="fileDuration">00:00</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="videoTitle" class="block text-gray-700 font-medium mb-2">ဗီဒီယို ခေါင်းစဉ်</label>
+                        <input type="text" id="videoTitle" placeholder="ဗီဒီယိုခေါင်းစဉ် ရိုက်ထည့်ပါ" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="videoDescription" class="block text-gray-700 font-medium mb-2">အကြောင်းအရာ ဖော်ပြချက်</label>
+                        <textarea id="videoDescription" rows="4" placeholder="ဗီဒီယိုအကြောင်း ဖော်ပြချက် ရေးသားပါ" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <label class="block text-gray-700 font-medium mb-3">ဗီဒီယို အနှစ်ချုပ်ပုံ</label>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3" id="thumbnailContainer">
+                            <div class="bg-gray-200 rounded-md h-16 flex items-center justify-center">
+                                <span class="text-gray-500 text-xs text-center">ဗီဒီယိုဖိုင် ရွေးချယ်ပြီးမှ<br>ပုံပေါ်လာမည်</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-md h-16 flex items-center justify-center">
+                                <span class="text-gray-500 text-xs text-center">ဗီဒီယိုဖိုင် ရွေးချယ်ပြီးမှ<br>ပုံပေါ်လာမည်</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-md h-16 flex items-center justify-center">
+                                <span class="text-gray-500 text-xs text-center">ဗီဒီယိုဖိုင် ရွေးချယ်ပြီးမှ<br>ပုံပေါ်လာမည်</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-md h-16 flex items-center justify-center">
+                                <span class="text-gray-500 text-xs text-center">ဗီဒီယိုဖိုင် ရွေးချယ်ပြီးမှ<br>ပုံပေါ်လာမည်</span>
+                            </div>
+                        </div>
+                        
+                        <button id="customThumbnailBtn" class="text-blue-600 hover:text-blue-800 flex items-center text-sm">
+                            <i class="fas fa-plus-circle mr-1"></i> ပုံတစ်ခု တင်သွင်းရန်
+                            <input type="file" id="customThumbnail" accept="image/*" class="hidden" />
+                        </button>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4">အဆင့်မြင့် ရွေးချယ်မှုများ</h3>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-gray-700">မှတ်ချက်ရေးခြင်း ပိတ်ထားရန်</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="videoDisableComments">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-gray-700">မျှဝေခြင်း ပိတ်ထားရန်</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="videoDisableSharing">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-gray-700">ဒေါင်းလုပ်ဆွဲခြင်း ပိတ်ထားရန်</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="videoDisableDownload">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="videoUploadSection">
+                        <button id="videoUploadBtn" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i> ဗီဒီယို တင်သွင်းရန်
+                        </button>
+                    </div>
+                    
+                    <!-- Progress Section (Initially Hidden) -->
+                    <div id="videoProgressSection" class="mt-6 hidden">
+                        <p class="text-center text-gray-700 mb-2">တင်သွင်းနေပါသည်။ ခေတ္တစောင့်ဆိုင်းပါ...</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                            <div id="videoProgressBar" class="progress-bar h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span id="videoProgressTask">လုပ်ငန်း 0/3</span>
+                            <span id="videoProgressPercent">0% တင်သွင်းပြီးပါပြီ</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="admin-results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <!-- Admin shipping rates will be displayed here -->
+
+            <!-- Notifications Page -->
+            <div id="notificationsPage" class="page">
+                <h2 class="text-2xl font-bold mb-6">အကြောင်းကြားချက်များ</h2>
+                
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b hover:bg-gray-50">
+                        <div class="flex">
+                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 mr-3">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div>
+                                <p class="mb-1">
+                                    <span class="font-semibold">မောင်မောင်</span> သည် သင့်ရဲ့ ဗီဒီယိုကို နှစ်သက်လိုက်ပါတယ်
+                                </p>
+                                <p class="text-sm text-gray-500">၁ နာရီအကြာက</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-b bg-blue-50 hover:bg-blue-100">
+                        <div class="flex">
+                            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-500 mr-3">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div>
+                                <p class="mb-1">
+                                    <span class="font-semibold">စန်းစန်း</span> သည် သင့်ရဲ့ ပုံတင်ထားမှုတွင် မှတ်ချက်ပေးထားပါသည်
+                                </p>
+                                <p class="text-sm text-gray-500">၃ နာရီအကြာက</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-b hover:bg-gray-50">
+                        <div class="flex">
+                            <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-500 mr-3">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div>
+                                <p class="mb-1">
+                                    <span class="font-semibold">ကျော်ကျော်</span> သည် သင့်ကို နောက်ဆက်တွဲလိုက်လာပါသည်
+                                </p>
+                                <p class="text-sm text-gray-500">မနေ့က</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-b hover:bg-gray-50">
+                        <div class="flex">
+                            <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-500 mr-3">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div>
+                                <p class="mb-1">
+                                    သင့်ရဲ့ ဗီဒီယို "မြန်မာအစားအစာ လမ်းညွှန်" သည် ၁၀၀ ကြည့်ရှုမှုရရှိပြီးပါပြီ
+                                </p>
+                                <p class="text-sm text-gray-500">၂ ရက်အကြာက</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-b hover:bg-gray-50">
+                        <div class="flex">
+                            <div class="h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-500 mr-3">
+                                <i class="fas fa-share-alt"></i>
+                            </div>
+                            <div>
+                                <p class="mb-1">
+                                    <span class="font-semibold">သီရိ</span> သည် သင့်ရဲ့ ပုံတင်ထားမှုကို မျှဝေလိုက်ပါသည်
+                                </p>
+                                <p class="text-sm text-gray-500">၃ ရက်အကြာက</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profilePage" class="page">
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <div class="flex flex-col sm:flex-row items-center mb-6">
+                        <div class="mb-4 sm:mb-0 sm:mr-6">
+                            <div class="relative">
+                                <div class="h-24 w-24 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-3xl font-bold">
+                                    <span id="profileInitials">မ</span>
+                                </div>
+                                <button class="absolute bottom-0 right-0 bg-gray-100 hover:bg-gray-200 rounded-full p-2 text-gray-600 border border-gray-300">
+                                    <i class="fas fa-camera"></i>
+                                    <input type="file" class="hidden" id="profilePictureInput" accept="image/*">
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-1 text-center sm:text-left">
+                            <h2 class="text-2xl font-bold mb-2" id="profileDisplayName">မောင်မောင်</h2>
+                            <p class="text-gray-600 mb-2" id="profileEmail">maungmaung@example.com</p>
+                            <p class="text-sm text-gray-500" id="profileJoinDate">ဖွင့်လှစ်ခဲ့သည်: ၂၀၂၃ ခုနှစ် မေလ</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-indigo-50 p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-indigo-600">42</div>
+                            <div class="text-sm text-indigo-500">ပို့စ်များ</div>
+                        </div>
+                        <div class="bg-indigo-50 p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-indigo-600">128</div>
+                            <div class="text-sm text-indigo-500">နောက်ဆက်တွဲလိုက်သူများ</div>
+                        </div>
+                        <div class="bg-indigo-50 p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-indigo-600">56</div>
+                            <div class="text-sm text-indigo-500">နောက်ဆက်တွဲထားသူများ</div>
+                        </div>
+                        <div class="bg-indigo-50 p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-indigo-600">2.4K</div>
+                            <div class="text-sm text-indigo-500">နှစ်သက်မှုများ</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-4">ပရိုဖိုင် ပြင်ဆင်ရန်</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="editName" class="block text-gray-700 mb-1">အမည်</label>
+                                <input type="text" id="editName" value="မောင်မောင်" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <label for="editBio" class="block text-gray-700 mb-1">ကိုယ်ရေးအကျဉ်း</label>
+                                <textarea id="editBio" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">မြန်မာစာပေနှင့် ယဉ်ကျေးမှုကို နှစ်သက်သူတစ်ဦးပါ။</textarea>
+                            </div>
+
+                            <div>
+                                <label for="editLocation" class="block text-gray-700 mb-1">နေရပ်</label>
+                                <input type="text" id="editLocation" value="ရန်ကုန်" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <button id="saveProfileBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                                    ပရိုဖိုင်သိမ်းရန်
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">စကားဝှက်ပြောင်းရန်</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="currentPassword" class="block text-gray-700 mb-1">လက်ရှိစကားဝှက်</label>
+                                <input type="password" id="currentPassword" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <label for="newPassword" class="block text-gray-700 mb-1">စကားဝှက်အသစ်</label>
+                                <input type="password" id="newPassword" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <label for="confirmNewPassword" class="block text-gray-700 mb-1">စကားဝှက်အသစ် အတည်ပြုရန်</label>
+                                <input type="password" id="confirmNewPassword" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <button id="changePasswordBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                                    စကားဝှက်ပြောင်းရန်
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Page -->
+            <div id="messagesPage" class="page">
+                <h2 class="text-2xl font-bold mb-6">စကားဝိုင်းများ</h2>
+                
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Contact List -->
+                    <div class="w-full md:w-1/3 bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="border-b p-3">
+                            <input type="text" placeholder="အသုံးပြုသူရှာရန်..." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        
+                        <div class="divide-y">
+                            <div class="p-3 bg-indigo-50 cursor-pointer hover:bg-indigo-100">
+                                <div class="flex items-center">
+                                    <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold mr-3">
+                                        စ
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold">စန်းစန်း</div>
+                                        <div class="text-sm text-gray-500 truncate">ဟုတ်ကဲ့၊ မနက်ဖြန် တွေ့ကြတာပေါ့...</div>
+                                    </div>
+                                    <div class="text-xs text-indigo-600 font-semibold">
+                                        <span>၅ မိနစ်အကြာက</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 cursor-pointer hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-3">
+                                        က
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold">ကျော်ကျော်</div>
+                                        <div class="text-sm text-gray-500 truncate">ဟုတ်ပါပြီ လာတယ်</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        <span>၁ နာရီအကြာက</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 cursor-pointer hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="h-12 w-12 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold mr-3 relative">
+                                        သ
+                                        <span class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold">သီရိ</div>
+                                        <div class="text-sm text-gray-500 truncate">ဟုတ်ကဲ့၊ စာအုပ်တွေ ပြန်ပို့ပြီးပါပြီ</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        <span>တနင်္လာနေ့</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 cursor-pointer hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold mr-3">
+                                        ဝ
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold">ဝင်းမြင့်</div>
+                                        <div class="text-sm text-gray-500 truncate">စာစဉ်အသစ် ရပြီလား</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        <span>အင်္ဂါနေ့</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message Thread -->
+                    <div class="w-full md:w-2/3 bg-white rounded-lg shadow-sm overflow-hidden flex flex-col">
+                        <div class="border-b p-4 flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold mr-3">
+                                စ
+                            </div>
+                            <div>
+                                <div class="font-semibold">စန်းစန်း</div>
+                                <div class="text-xs text-green-500">အွန်လိုင်းရှိနေသည်</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 p-4 overflow-y-auto" style="max-height: 400px;">
+                            <div class="space-y-2">
+                                <div class="flex justify-end">
+                                    <div class="message sent">
+                                        မင်္ဂလာပါ စန်းစန်း။ စာအုပ်ဆိုင်သွားဖို့ အဆင်ပြေလား။
+                                    </div>
+                                </div>
+                                
+                                <div class="flex">
+                                    <div class="message received">
+                                        မင်္ဂလာပါ။ ဟုတ်ကဲ့၊ အဆင်ပြေပါတယ်။ ဘယ်အချိန်လောက်သွားမလဲ။
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end">
+                                    <div class="message sent">
+                                        မနက် ၁၀နာရီလောက်ဆို အဆင်ပြေမလား။
+                                    </div>
+                                </div>
+                                
+                                <div class="flex">
+                                    <div class="message received">
+                                        အိုကေတယ်။ မနက်ဖြန် ၁၀နာရီဆို အဆင်ပြေပါတယ်။
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end">
+                                    <div class="message sent">
+                                        ကောင်းပါပြီ။ စာအုပ်ဆိုင်ရှေ့မှာ တွေ့ကြတာပေါ့။
+                                    </div>
+                                </div>
+                                
+                                <div class="flex">
+                                    <div class="message received">
+                                        ဟုတ်ကဲ့၊ မနက်ဖြန် တွေ့ကြတာပေါ့။ သွားမယ့် စာအုပ်ဆိုင် လိပ်စာ SMS ပေးထားလိုက်ပါ။
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t p-4">
+                            <div class="flex">
+                                <input type="text" placeholder="စာတစ်ခု ရိုက်ထည့်ပါ..." class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <button class="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white shadow-lg">
+        <div class="container mx-auto">
+            <div class="flex justify-around">
+                <button class="nav-item active flex flex-col items-center py-3 px-6" data-page="homePage">
+                    <i class="fas fa-home text-xl"></i>
+                    <span class="text-xs mt-1">ပင်မ</span>
+                </button>
+                <button class="nav-item flex flex-col items-center py-3 px-6" data-page="uploadPage">
+                    <i class="fas fa-plus-circle text-xl"></i>
+                    <span class="text-xs mt-1">တင်ရန်</span>
+                </button>
+                <button class="nav-item flex flex-col items-center py-3 px-6 relative" data-page="notificationsPage">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="text-xs mt-1">အသိပေးချက်</span>
+                    <span class="unread-badge">3</span>
+                </button>
+                <button class="nav-item flex flex-col items-center py-3 px-6" data-page="messagesPage">
+                    <i class="fas fa-comment-alt text-xl"></i>
+                    <span class="text-xs mt-1">စကားဝိုင်း</span>
+                </button>
+                <button class="nav-item flex flex-col items-center py-3 px-6" data-page="profilePage">
+                    <i class="fas fa-user text-xl"></i>
+                    <span class="text-xs mt-1">ပရိုဖိုင်</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <script>
-        // Firebase configuration
+        // Firebase configuration - Replace with your Firebase project config
         const firebaseConfig = {
-            apiKey: "AIzaSyB49vRPX8YaWuTP5GS3lsBDqdAaz_hJYAw",
-            authDomain: "onlineshop-849c8.firebaseapp.com",
-            databaseURL: "https://onlineshop-849c8.firebaseio.com",
-            projectId: "onlineshop-849c8",
-            storageBucket: "onlineshop-849c8.appspot.com",
-            messagingSenderId: "883512833370",
-            appId: "1:883512833370:web:a1c8412b158f8744afef63"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        
-        // Reference to database
-        const database = firebase.database();
-        const shippingRatesRef = database.ref('shippingRates');
 
-        // Authentication
+        // Firebase services
         const auth = firebase.auth();
-
-        // Global variables
-        let shippingRates = {};
-        let currentEditRate = null;
-        let isLoggedIn = false;
-        let adminRatesCache = []; // Cache for admin rates filtering
-
-        // Check authentication state on page load
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                isLoggedIn = true;
-                document.getElementById('login-panel').classList.add('hidden');
-                document.getElementById('admin-panel').classList.remove('hidden');
-                loadAdminRates();
-            } else {
-                isLoggedIn = false;
-            }
-        });
-
-        // Initialize the page
-        window.onload = function() {
-            loadShippingRates();
-        };
-
-        // Firebase data loading
-        function loadShippingRates() {
-            document.getElementById('loading-indicator').classList.remove('hidden');
-            document.getElementById('results-container').classList.add('hidden');
-            
-            shippingRatesRef.once('value')
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        shippingRates = snapshot.val() || {};
-                    } else {
-                        // Initialize with default data if no data exists in Firebase
-                        initializeDefaultData();
-                    }
-                    filterRates();
-                    document.getElementById('loading-indicator').classList.add('hidden');
-                    document.getElementById('results-container').classList.remove('hidden');
-                })
-                .catch((error) => {
-                    console.error("Firebase data fetch error:", error);
-                    document.getElementById('loading-indicator').classList.add('hidden');
-                    document.getElementById('results-container').classList.remove('hidden');
-                    document.getElementById('results-container').innerHTML = 
-                        `<div class="col-span-full text-center p-6 bg-red-100 rounded-lg text-red-700">
-                            <p class="font-bold">ဒေတာရယူရာတွင် အမှားရှိနေပါသည်</p>
-                            <p class="mt-2">${error.message}</p>
-                        </div>`;
-                });
-        }
-
-        // Initialize default data if Firebase is empty
-        function initializeDefaultData() {
-            // Define sample rates data (simplified version of your original data)
-            const defaultRates = {
-               "YGN-BKK": {
-                "Food": [
-                    {"Kg": "1", "BKK": "75", "OtherCity": "85", "RemoteArea": "90", "type": "Food"},
-                    {"Kg": "2", "BKK": "140", "OtherCity": "160", "RemoteArea": "170", "type": "Food"},
-                    {"Kg": "3", "BKK": "210", "OtherCity": "240", "RemoteArea": "255", "type": "Food"},
-                    {"Kg": "4", "BKK": "280", "OtherCity": "320", "RemoteArea": "340", "type": "Food"},
-                    {"Kg": "5", "BKK": "350", "OtherCity": "400", "RemoteArea": "425", "type": "Food"},
-                    {"Kg": "6", "BKK": "420", "OtherCity": "480", "RemoteArea": "510", "type": "Food"},
-                    {"Kg": "7", "BKK": "490", "OtherCity": "560", "RemoteArea": "595", "type": "Food"},
-                    {"Kg": "8", "BKK": "560", "OtherCity": "640", "RemoteArea": "680", "type": "Food"},
-                    {"Kg": "9", "BKK": "630", "OtherCity": "720", "RemoteArea": "765", "type": "Food"},
-                    {"Kg": "10", "BKK": "700", "OtherCity": "800", "RemoteArea": "850", "type": "Food"},
-                    {"Kg": "11", "BKK": "770", "OtherCity": "880", "RemoteArea": "935", "type": "Food"},
-                    {"Kg": "12", "BKK": "840", "OtherCity": "960", "RemoteArea": "1020", "type": "Food"},
-                    {"Kg": "13", "BKK": "910", "OtherCity": "1040", "RemoteArea": "1105", "type": "Food"},
-                    {"Kg": "14", "BKK": "952", "OtherCity": "1092", "RemoteArea": "1162", "type": "Food"},
-                    {"Kg": "15", "BKK": "1020", "OtherCity": "1170", "RemoteArea": "1245", "type": "Food"},
-                    {"Kg": "16", "BKK": "1072", "OtherCity": "1232", "RemoteArea": "1312", "type": "Food"},
-                    {"Kg": "17", "BKK": "1139", "OtherCity": "1309", "RemoteArea": "1394", "type": "Food"},
-                    {"Kg": "18", "BKK": "1170", "OtherCity": "1350", "RemoteArea": "1440", "type": "Food"},
-                    {"Kg": "19", "BKK": "1216", "OtherCity": "1406", "RemoteArea": "1501", "type": "Food"},
-                    {"Kg": "20", "BKK": "1240", "OtherCity": "1440", "RemoteArea": "1540", "type": "Food"},
-                    {"Kg": "21", "BKK": "1260", "OtherCity": "1470", "RemoteArea": "1575", "type": "Food"},
-                    {"Kg": "22", "BKK": "1276", "OtherCity": "1496", "RemoteArea": "1606", "type": "Food"},
-                    {"Kg": "23", "BKK": "1288", "OtherCity": "1518", "RemoteArea": "1633", "type": "Food"},
-                    {"Kg": "24", "BKK": "1296", "OtherCity": "1536", "RemoteArea": "1656", "type": "Food"},
-                    {"Kg": "25", "BKK": "1325", "OtherCity": "1575", "RemoteArea": "1700", "type": "Food"},
-                    {"Kg": "26", "BKK": "1352", "OtherCity": "1612", "RemoteArea": "1742", "type": "Food"},
-                    {"Kg": "27", "BKK": "1377", "OtherCity": "1647", "RemoteArea": "1782", "type": "Food"},
-                    {"Kg": "28", "BKK": "1428", "OtherCity": "1708", "RemoteArea": "1848", "type": "Food"},
-                    {"Kg": "29", "BKK": "1450", "OtherCity": "1740", "RemoteArea": "1885", "type": "Food"},
-                    {"Kg": "30", "BKK": "1500", "OtherCity": "1800", "RemoteArea": "1950", "type": "Food"},
-                    {"Kg": "30-40", "BKK": "45/kg", "OtherCity": "55/kg", "RemoteArea": "60/kg", "type": "Food"},
-                    {"Kg": "40-50", "BKK": "43/kg", "OtherCity": "53/kg", "RemoteArea": "58/kg", "type": "Food"},
-                    {"Kg": "50-70", "BKK": "40/kg", "OtherCity": "50/kg", "RemoteArea": "55/kg", "type": "Food"},
-                    {"Kg": "70-100", "BKK": "35/kg", "OtherCity": "45/kg", "RemoteArea": "50/kg", "type": "Food"},
-                    {"Kg": "100", "BKK": "33/kg", "OtherCity": "43/kg", "RemoteArea": "48/kg", "type": "Food"},
-                    {"Kg": "200", "BKK": "32/kg", "OtherCity": "42/kg", "RemoteArea": "47/kg", "type": "Food"},
-                    {"Kg": "300", "BKK": "30/kg", "OtherCity": "40/kg", "RemoteArea": "45/kg", "type": "Food"},
-                    {"Kg": "300-1000", "BKK": "28/kg", "OtherCity": "38/kg", "RemoteArea": "43/kg", "type": "Food"}
-                ],
-                "Cosmetic": [
-                    {"Kg": "1", "BKK": "80", "OtherCity": "90", "RemoteArea": "95", "type": "Cosmetic"},
-                    {"Kg": "2", "BKK": "180", "OtherCity": "200", "RemoteArea": "210", "type": "Cosmetic"},
-                    {"Kg": "3", "BKK": "270", "OtherCity": "300", "RemoteArea": "315", "type": "Cosmetic"},
-                    {"Kg": "4", "BKK": "360", "OtherCity": "400", "RemoteArea": "420", "type": "Cosmetic"},
-                    {"Kg": "5", "BKK": "450", "OtherCity": "500", "RemoteArea": "525", "type": "Cosmetic"},
-                    {"Kg": "6", "BKK": "540", "OtherCity": "600", "RemoteArea": "630", "type": "Cosmetic"},
-                    {"Kg": "7", "BKK": "630", "OtherCity": "700", "RemoteArea": "735", "type": "Cosmetic"},
-                    {"Kg": "8", "BKK": "720", "OtherCity": "800", "RemoteArea": "840", "type": "Cosmetic"},
-                    {"Kg": "9", "BKK": "810", "OtherCity": "900", "RemoteArea": "945", "type": "Cosmetic"},
-                    {"Kg": "10", "BKK": "900", "OtherCity": "1000", "RemoteArea": "1050", "type": "Cosmetic"},
-                    {"Kg": "11", "BKK": "990", "OtherCity": "1100", "RemoteArea": "1155", "type": "Cosmetic"},
-                    {"Kg": "12", "BKK": "1080", "OtherCity": "1200", "RemoteArea": "1260", "type": "Cosmetic"},
-                    {"Kg": "13", "BKK": "1170", "OtherCity": "1300", "RemoteArea": "1365", "type": "Cosmetic"},
-                    {"Kg": "14", "BKK": "1260", "OtherCity": "1400", "RemoteArea": "1470", "type": "Cosmetic"},
-                    {"Kg": "15", "BKK": "1350", "OtherCity": "1500", "RemoteArea": "1575", "type": "Cosmetic"},
-                    {"Kg": "16", "BKK": "1440", "OtherCity": "1600", "RemoteArea": "1680", "type": "Cosmetic"},
-                    {"Kg": "17", "BKK": "1530", "OtherCity": "1700", "RemoteArea": "1785", "type": "Cosmetic"},
-                    {"Kg": "18", "BKK": "1620", "OtherCity": "1800", "RemoteArea": "1890", "type": "Cosmetic"},
-                    {"Kg": "19", "BKK": "1710", "OtherCity": "1900", "RemoteArea": "1995", "type": "Cosmetic"},
-                    {"Kg": "20", "BKK": "1800", "OtherCity": "2000", "RemoteArea": "2100", "type": "Cosmetic"},
-                    {"Kg": "21", "BKK": "1995", "OtherCity": "2205", "RemoteArea": "2310", "type": "Cosmetic"},
-                    {"Kg": "22", "BKK": "2090", "OtherCity": "2310", "RemoteArea": "2420", "type": "Cosmetic"},
-                    {"Kg": "23", "BKK": "2185", "OtherCity": "2415", "RemoteArea": "2530", "type": "Cosmetic"},
-                    {"Kg": "24", "BKK": "2280", "OtherCity": "2520", "RemoteArea": "2640", "type": "Cosmetic"},
-                    {"Kg": "25", "BKK": "2375", "OtherCity": "2625", "RemoteArea": "2750", "type": "Cosmetic"},
-                    {"Kg": "26", "BKK": "2470", "OtherCity": "2730", "RemoteArea": "2860", "type": "Cosmetic"},
-                    {"Kg": "27", "BKK": "2700", "OtherCity": "2970", "RemoteArea": "3105", "type": "Cosmetic"},
-                    {"Kg": "28", "BKK": "2800", "OtherCity": "3080", "RemoteArea": "3220", "type": "Cosmetic"},
-                    {"Kg": "29", "BKK": "2900", "OtherCity": "3190", "RemoteArea": "3335", "type": "Cosmetic"},
-                    {"Kg": "30", "BKK": "3000", "OtherCity": "3300", "RemoteArea": "3450", "type": "Cosmetic"},
-                    {"Kg": "30-50", "BKK": "85/kg", "OtherCity": "95/kg", "RemoteArea": "100/kg", "type": "Cosmetic"},
-                    {"Kg": "50-100", "BKK": "80/kg", "OtherCity": "90/kg", "RemoteArea": "95/kg", "type": "Cosmetic"},
-                    {"Kg": "200", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"},
-                    {"Kg": "300-1000", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"}
-                ]
-            },
-            "MWD-BKK": {
-                "Food": [
-                    {"Kg": "1", "BKK": "85", "OtherCity": "95", "RemoteArea": "100", "type": "Food"},
-                    {"Kg": "2", "BKK": "160", "OtherCity": "180", "RemoteArea": "190", "type": "Food"},
-                    {"Kg": "3", "BKK": "240", "OtherCity": "270", "RemoteArea": "285", "type": "Food"},
-                    {"Kg": "4", "BKK": "320", "OtherCity": "360", "RemoteArea": "380", "type": "Food"},
-                    {"Kg": "5", "BKK": "400", "OtherCity": "450", "RemoteArea": "475", "type": "Food"},
-                    {"Kg": "6", "BKK": "480", "OtherCity": "540", "RemoteArea": "570", "type": "Food"},
-                    {"Kg": "7", "BKK": "560", "OtherCity": "630", "RemoteArea": "665", "type": "Food"},
-                    {"Kg": "8", "BKK": "640", "OtherCity": "720", "RemoteArea": "760", "type": "Food"},
-                    {"Kg": "9", "BKK": "720", "OtherCity": "810", "RemoteArea": "855", "type": "Food"},
-                    {"Kg": "10", "BKK": "800", "OtherCity": "900", "RemoteArea": "950", "type": "Food"},
-                    {"Kg": "11", "BKK": "880", "OtherCity": "990", "RemoteArea": "1045", "type": "Food"},
-                    {"Kg": "12", "BKK": "960", "OtherCity": "1080", "RemoteArea": "1140", "type": "Food"},
-                    {"Kg": "13", "BKK": "1040", "OtherCity": "1170", "RemoteArea": "1235", "type": "Food"},
-                    {"Kg": "14", "BKK": "1092", "OtherCity": "1232", "RemoteArea": "1302", "type": "Food"},
-                    {"Kg": "15", "BKK": "1170", "OtherCity": "1320", "RemoteArea": "1395", "type": "Food"},
-                    {"Kg": "16", "BKK": "1232", "OtherCity": "1392", "RemoteArea": "1472", "type": "Food"},
-                    {"Kg": "17", "BKK": "1309", "OtherCity": "1479", "RemoteArea": "1564", "type": "Food"},
-                    {"Kg": "18", "BKK": "1350", "OtherCity": "1530", "RemoteArea": "1620", "type": "Food"},
-                    {"Kg": "19", "BKK": "1406", "OtherCity": "1596", "RemoteArea": "1691", "type": "Food"},
-                    {"Kg": "20", "BKK": "1440", "OtherCity": "1640", "RemoteArea": "1740", "type": "Food"},
-                    {"Kg": "21", "BKK": "1470", "OtherCity": "1680", "RemoteArea": "1785", "type": "Food"},
-                    {"Kg": "22", "BKK": "1496", "OtherCity": "1716", "RemoteArea": "1826", "type": "Food"},
-                    {"Kg": "23", "BKK": "1518", "OtherCity": "1748", "RemoteArea": "1863", "type": "Food"},
-                    {"Kg": "24", "BKK": "1536", "OtherCity": "1776", "RemoteArea": "1896", "type": "Food"},
-                    {"Kg": "25", "BKK": "1575", "OtherCity": "1825", "RemoteArea": "1950", "type": "Food"},
-                    {"Kg": "26", "BKK": "1612", "OtherCity": "1872", "RemoteArea": "2002", "type": "Food"},
-                    {"Kg": "27", "BKK": "1647", "OtherCity": "1917", "RemoteArea": "2052", "type": "Food"},
-                    {"Kg": "28", "BKK": "1708", "OtherCity": "1988", "RemoteArea": "2128", "type": "Food"},
-                    {"Kg": "29", "BKK": "1740", "OtherCity": "2030", "RemoteArea": "2175", "type": "Food"},
-                    {"Kg": "30", "BKK": "1800", "OtherCity": "2100", "RemoteArea": "2250", "type": "Food"},
-                    {"Kg": "30-40", "BKK": "55/kg", "OtherCity": "65/kg", "RemoteArea": "70/kg", "type": "Food"},
-                    {"Kg": "40-50", "BKK": "53/kg", "OtherCity": "63/kg", "RemoteArea": "68/kg", "type": "Food"},
-                    {"Kg": "50-70", "BKK": "50/kg", "OtherCity": "60/kg", "RemoteArea": "65/kg", "type": "Food"},
-                    {"Kg": "70-100", "BKK": "45/kg", "OtherCity": "55/kg", "RemoteArea": "60/kg", "type": "Food"},
-                    {"Kg": "100", "BKK": "43/kg", "OtherCity": "53/kg", "RemoteArea": "58/kg", "type": "Food"},
-                    {"Kg": "200", "BKK": "42/kg", "OtherCity": "52/kg", "RemoteArea": "57/kg", "type": "Food"},
-                    {"Kg": "300", "BKK": "40/kg", "OtherCity": "50/kg", "RemoteArea": "55/kg", "type": "Food"},
-                    {"Kg": "300-1000", "BKK": "38/kg", "OtherCity": "48/kg", "RemoteArea": "53/kg", "type": "Food"}
-                ],
-                "Cosmetic": [
-                    {"Kg": "1", "BKK": "80", "OtherCity": "90", "RemoteArea": "95", "type": "Cosmetic"},
-                    {"Kg": "2", "BKK": "180", "OtherCity": "200", "RemoteArea": "210", "type": "Cosmetic"},
-                    {"Kg": "3", "BKK": "270", "OtherCity": "300", "RemoteArea": "315", "type": "Cosmetic"},
-                    {"Kg": "4", "BKK": "360", "OtherCity": "400", "RemoteArea": "420", "type": "Cosmetic"},
-                    {"Kg": "5", "BKK": "450", "OtherCity": "500", "RemoteArea": "525", "type": "Cosmetic"},
-                    {"Kg": "6", "BKK": "540", "OtherCity": "600", "RemoteArea": "630", "type": "Cosmetic"},
-                    {"Kg": "7", "BKK": "630", "OtherCity": "700", "RemoteArea": "735", "type": "Cosmetic"},
-                    {"Kg": "8", "BKK": "720", "OtherCity": "800", "RemoteArea": "840", "type": "Cosmetic"},
-                    {"Kg": "9", "BKK": "810", "OtherCity": "900", "RemoteArea": "945", "type": "Cosmetic"},
-                    {"Kg": "10", "BKK": "900", "OtherCity": "1000", "RemoteArea": "1050", "type": "Cosmetic"},
-                    {"Kg": "11", "BKK": "990", "OtherCity": "1100", "RemoteArea": "1155", "type": "Cosmetic"},
-                    {"Kg": "12", "BKK": "1080", "OtherCity": "1200", "RemoteArea": "1260", "type": "Cosmetic"},
-                    {"Kg": "13", "BKK": "1170", "OtherCity": "1300", "RemoteArea": "1365", "type": "Cosmetic"},
-                    {"Kg": "14", "BKK": "1260", "OtherCity": "1400", "RemoteArea": "1470", "type": "Cosmetic"},
-                    {"Kg": "15", "BKK": "1350", "OtherCity": "1500", "RemoteArea": "1575", "type": "Cosmetic"},
-                    {"Kg": "16", "BKK": "1440", "OtherCity": "1600", "RemoteArea": "1680", "type": "Cosmetic"},
-                    {"Kg": "17", "BKK": "1530", "OtherCity": "1700", "RemoteArea": "1785", "type": "Cosmetic"},
-                    {"Kg": "18", "BKK": "1620", "OtherCity": "1800", "RemoteArea": "1890", "type": "Cosmetic"},
-                    {"Kg": "19", "BKK": "1710", "OtherCity": "1900", "RemoteArea": "1995", "type": "Cosmetic"},
-                    {"Kg": "20", "BKK": "1800", "OtherCity": "2000", "RemoteArea": "2100", "type": "Cosmetic"},
-                    {"Kg": "21", "BKK": "1995", "OtherCity": "2205", "RemoteArea": "2310", "type": "Cosmetic"},
-                    {"Kg": "22", "BKK": "2090", "OtherCity": "2310", "RemoteArea": "2420", "type": "Cosmetic"},
-                    {"Kg": "23", "BKK": "2185", "OtherCity": "2415", "RemoteArea": "2530", "type": "Cosmetic"},
-                    {"Kg": "24", "BKK": "2280", "OtherCity": "2520", "RemoteArea": "2640", "type": "Cosmetic"},
-                    {"Kg": "25", "BKK": "2375", "OtherCity": "2625", "RemoteArea": "2750", "type": "Cosmetic"},
-                    {"Kg": "26", "BKK": "2470", "OtherCity": "2730", "RemoteArea": "2860", "type": "Cosmetic"},
-                    {"Kg": "27", "BKK": "2700", "OtherCity": "2970", "RemoteArea": "3105", "type": "Cosmetic"},
-                    {"Kg": "28", "BKK": "2800", "OtherCity": "3080", "RemoteArea": "3220", "type": "Cosmetic"},
-                    {"Kg": "29", "BKK": "2900", "OtherCity": "3190", "RemoteArea": "3335", "type": "Cosmetic"},
-                    {"Kg": "30", "BKK": "3000", "OtherCity": "3300", "RemoteArea": "3450", "type": "Cosmetic"},
-                    {"Kg": "30-50", "BKK": "85/kg", "OtherCity": "95/kg", "RemoteArea": "100/kg", "type": "Cosmetic"},
-                    {"Kg": "50-100", "BKK": "80/kg", "OtherCity": "90/kg", "RemoteArea": "95/kg", "type": "Cosmetic"},
-                    {"Kg": "200", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"},
-                    {"Kg": "300-1000", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"}
-                ]
-            },
-            "MDY-BKK": {
-                "Food": [
-                    {"Kg": "1", "BKK": "85", "OtherCity": "95", "RemoteArea": "100", "type": "Food"},
-                    {"Kg": "2", "BKK": "160", "OtherCity": "180", "RemoteArea": "190", "type": "Food"},
-                    {"Kg": "3", "BKK": "240", "OtherCity": "270", "RemoteArea": "285", "type": "Food"},
-                    {"Kg": "4", "BKK": "320", "OtherCity": "360", "RemoteArea": "380", "type": "Food"},
-                    {"Kg": "5", "BKK": "400", "OtherCity": "450", "RemoteArea": "475", "type": "Food"},
-                    {"Kg": "6", "BKK": "480", "OtherCity": "540", "RemoteArea": "570", "type": "Food"},
-                    {"Kg": "7", "BKK": "560", "OtherCity": "630", "RemoteArea": "665", "type": "Food"},
-                    {"Kg": "8", "BKK": "640", "OtherCity": "720", "RemoteArea": "760", "type": "Food"},
-                    {"Kg": "9", "BKK": "720", "OtherCity": "810", "RemoteArea": "855", "type": "Food"},
-                    {"Kg": "10", "BKK": "800", "OtherCity": "900", "RemoteArea": "950", "type": "Food"},
-                    {"Kg": "11", "BKK": "880", "OtherCity": "990", "RemoteArea": "1045", "type": "Food"},
-                    {"Kg": "12", "BKK": "960", "OtherCity": "1080", "RemoteArea": "1140", "type": "Food"},
-                    {"Kg": "13", "BKK": "1040", "OtherCity": "1170", "RemoteArea": "1235", "type": "Food"},
-                    {"Kg": "14", "BKK": "1092", "OtherCity": "1232", "RemoteArea": "1302", "type": "Food"},
-                    {"Kg": "15", "BKK": "1170", "OtherCity": "1320", "RemoteArea": "1395", "type": "Food"},
-                    {"Kg": "16", "BKK": "1232", "OtherCity": "1392", "RemoteArea": "1472", "type": "Food"},
-                    {"Kg": "17", "BKK": "1309", "OtherCity": "1479", "RemoteArea": "1564", "type": "Food"},
-                    {"Kg": "18", "BKK": "1350", "OtherCity": "1530", "RemoteArea": "1620", "type": "Food"},
-                    {"Kg": "19", "BKK": "1406", "OtherCity": "1596", "RemoteArea": "1691", "type": "Food"},
-                    {"Kg": "20", "BKK": "1440", "OtherCity": "1640", "RemoteArea": "1740", "type": "Food"},
-                    {"Kg": "21", "BKK": "1470", "OtherCity": "1680", "RemoteArea": "1785", "type": "Food"},
-                    {"Kg": "22", "BKK": "1496", "OtherCity": "1716", "RemoteArea": "1826", "type": "Food"},
-                    {"Kg": "23", "BKK": "1518", "OtherCity": "1748", "RemoteArea": "1863", "type": "Food"},
-                    {"Kg": "24", "BKK": "1536", "OtherCity": "1776", "RemoteArea": "1896", "type": "Food"},
-                    {"Kg": "25", "BKK": "1575", "OtherCity": "1825", "RemoteArea": "1950", "type": "Food"},
-                    {"Kg": "26", "BKK": "1612", "OtherCity": "1872", "RemoteArea": "2002", "type": "Food"},
-                    {"Kg": "27", "BKK": "1647", "OtherCity": "1917", "RemoteArea": "2052", "type": "Food"},
-                    {"Kg": "28", "BKK": "1708", "OtherCity": "1988", "RemoteArea": "2128", "type": "Food"},
-                    {"Kg": "29", "BKK": "1740", "OtherCity": "2030", "RemoteArea": "2175", "type": "Food"},
-                    {"Kg": "30", "BKK": "1800", "OtherCity": "2100", "RemoteArea": "2250", "type": "Food"},
-                    {"Kg": "30-40", "BKK": "55/kg", "OtherCity": "65/kg", "RemoteArea": "70/kg", "type": "Food"},
-                    {"Kg": "40-50", "BKK": "53/kg", "OtherCity": "63/kg", "RemoteArea": "68/kg", "type": "Food"},
-                    {"Kg": "50-70", "BKK": "50/kg", "OtherCity": "60/kg", "RemoteArea": "65/kg", "type": "Food"},
-                    {"Kg": "70-100", "BKK": "45/kg", "OtherCity": "55/kg", "RemoteArea": "60/kg", "type": "Food"},
-                    {"Kg": "100", "BKK": "43/kg", "OtherCity": "53/kg", "RemoteArea": "58/kg", "type": "Food"},
-                    {"Kg": "200", "BKK": "42/kg", "OtherCity": "52/kg", "RemoteArea": "57/kg", "type": "Food"},
-                    {"Kg": "300", "BKK": "40/kg", "OtherCity": "50/kg", "RemoteArea": "55/kg", "type": "Food"},
-                    {"Kg": "300-1000", "BKK": "38/kg", "OtherCity": "48/kg", "RemoteArea": "53/kg", "type": "Food"}
-                ],
-                "Cosmetic": [
-                    {"Kg": "1", "BKK": "80", "OtherCity": "90", "RemoteArea": "95", "type": "Cosmetic"},
-                    {"Kg": "2", "BKK": "180", "OtherCity": "200", "RemoteArea": "210", "type": "Cosmetic"},
-                    {"Kg": "3", "BKK": "270", "OtherCity": "300", "RemoteArea": "315", "type": "Cosmetic"},
-                    {"Kg": "4", "BKK": "360", "OtherCity": "400", "RemoteArea": "420", "type": "Cosmetic"},
-                    {"Kg": "5", "BKK": "450", "OtherCity": "500", "RemoteArea": "525", "type": "Cosmetic"},
-                    {"Kg": "6", "BKK": "540", "OtherCity": "600", "RemoteArea": "630", "type": "Cosmetic"},
-                    {"Kg": "7", "BKK": "630", "OtherCity": "700", "RemoteArea": "735", "type": "Cosmetic"},
-                    {"Kg": "8", "BKK": "720", "OtherCity": "800", "RemoteArea": "840", "type": "Cosmetic"},
-                    {"Kg": "9", "BKK": "810", "OtherCity": "900", "RemoteArea": "945", "type": "Cosmetic"},
-                    {"Kg": "10", "BKK": "900", "OtherCity": "1000", "RemoteArea": "1050", "type": "Cosmetic"},
-                    {"Kg": "11", "BKK": "990", "OtherCity": "1100", "RemoteArea": "1155", "type": "Cosmetic"},
-                    {"Kg": "12", "BKK": "1080", "OtherCity": "1200", "RemoteArea": "1260", "type": "Cosmetic"},
-                    {"Kg": "13", "BKK": "1170", "OtherCity": "1300", "RemoteArea": "1365", "type": "Cosmetic"},
-                    {"Kg": "14", "BKK": "1260", "OtherCity": "1400", "RemoteArea": "1470", "type": "Cosmetic"},
-                    {"Kg": "15", "BKK": "1350", "OtherCity": "1500", "RemoteArea": "1575", "type": "Cosmetic"},
-                    {"Kg": "16", "BKK": "1440", "OtherCity": "1600", "RemoteArea": "1680", "type": "Cosmetic"},
-                    {"Kg": "17", "BKK": "1530", "OtherCity": "1700", "RemoteArea": "1785", "type": "Cosmetic"},
-                    {"Kg": "18", "BKK": "1620", "OtherCity": "1800", "RemoteArea": "1890", "type": "Cosmetic"},
-                    {"Kg": "19", "BKK": "1710", "OtherCity": "1900", "RemoteArea": "1995", "type": "Cosmetic"},
-                    {"Kg": "20", "BKK": "1800", "OtherCity": "2000", "RemoteArea": "2100", "type": "Cosmetic"},
-                    {"Kg": "21", "BKK": "1995", "OtherCity": "2205", "RemoteArea": "2310", "type": "Cosmetic"},
-                    {"Kg": "22", "BKK": "2090", "OtherCity": "2310", "RemoteArea": "2420", "type": "Cosmetic"},
-                    {"Kg": "23", "BKK": "2185", "OtherCity": "2415", "RemoteArea": "2530", "type": "Cosmetic"},
-                    {"Kg": "24", "BKK": "2280", "OtherCity": "2520", "RemoteArea": "2640", "type": "Cosmetic"},
-                    {"Kg": "25", "BKK": "2375", "OtherCity": "2625", "RemoteArea": "2750", "type": "Cosmetic"},
-                    {"Kg": "26", "BKK": "2470", "OtherCity": "2730", "RemoteArea": "2860", "type": "Cosmetic"},
-                    {"Kg": "27", "BKK": "2700", "OtherCity": "2970", "RemoteArea": "3105", "type": "Cosmetic"},
-                    {"Kg": "28", "BKK": "2800", "OtherCity": "3080", "RemoteArea": "3220", "type": "Cosmetic"},
-                    {"Kg": "29", "BKK": "2900", "OtherCity": "3190", "RemoteArea": "3335", "type": "Cosmetic"},
-                    {"Kg": "30", "BKK": "3000", "OtherCity": "3300", "RemoteArea": "3450", "type": "Cosmetic"},
-                    {"Kg": "30-50", "BKK": "85/kg", "OtherCity": "95/kg", "RemoteArea": "100/kg", "type": "Cosmetic"},
-                    {"Kg": "50-100", "BKK": "80/kg", "OtherCity": "90/kg", "RemoteArea": "95/kg", "type": "Cosmetic"},
-                    {"Kg": "200", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"},
-                    {"Kg": "300-1000", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"}
-                ]
-            },
-            "HPA-BKK": {
-                "Food": [
-                    {"Kg": "1", "BKK": "85", "OtherCity": "95", "RemoteArea": "100", "type": "Food"},
-                    {"Kg": "2", "BKK": "160", "OtherCity": "180", "RemoteArea": "190", "type": "Food"},
-                    {"Kg": "3", "BKK": "240", "OtherCity": "270", "RemoteArea": "285", "type": "Food"},
-                    {"Kg": "4", "BKK": "320", "OtherCity": "360", "RemoteArea": "380", "type": "Food"},
-                    {"Kg": "5", "BKK": "400", "OtherCity": "450", "RemoteArea": "475", "type": "Food"},
-                    {"Kg": "6", "BKK": "480", "OtherCity": "540", "RemoteArea": "570", "type": "Food"},
-                    {"Kg": "7", "BKK": "560", "OtherCity": "630", "RemoteArea": "665", "type": "Food"},
-                    {"Kg": "8", "BKK": "640", "OtherCity": "720", "RemoteArea": "760", "type": "Food"},
-                    {"Kg": "9", "BKK": "720", "OtherCity": "810", "RemoteArea": "855", "type": "Food"},
-                    {"Kg": "10", "BKK": "800", "OtherCity": "900", "RemoteArea": "950", "type": "Food"},
-                    {"Kg": "11", "BKK": "880", "OtherCity": "990", "RemoteArea": "1045", "type": "Food"},
-                    {"Kg": "12", "BKK": "960", "OtherCity": "1080", "RemoteArea": "1140", "type": "Food"},
-                    {"Kg": "13", "BKK": "1040", "OtherCity": "1170", "RemoteArea": "1235", "type": "Food"},
-                    {"Kg": "14", "BKK": "1092", "OtherCity": "1232", "RemoteArea": "1302", "type": "Food"},
-                    {"Kg": "15", "BKK": "1170", "OtherCity": "1320", "RemoteArea": "1395", "type": "Food"},
-                    {"Kg": "16", "BKK": "1232", "OtherCity": "1392", "RemoteArea": "1472", "type": "Food"},
-                    {"Kg": "17", "BKK": "1309", "OtherCity": "1479", "RemoteArea": "1564", "type": "Food"},
-                    {"Kg": "18", "BKK": "1350", "OtherCity": "1530", "RemoteArea": "1620", "type": "Food"},
-                    {"Kg": "19", "BKK": "1406", "OtherCity": "1596", "RemoteArea": "1691", "type": "Food"},
-                    {"Kg": "20", "BKK": "1440", "OtherCity": "1640", "RemoteArea": "1740", "type": "Food"},
-                    {"Kg": "21", "BKK": "1470", "OtherCity": "1680", "RemoteArea": "1785", "type": "Food"},
-                    {"Kg": "22", "BKK": "1496", "OtherCity": "1716", "RemoteArea": "1826", "type": "Food"},
-                    {"Kg": "23", "BKK": "1518", "OtherCity": "1748", "RemoteArea": "1863", "type": "Food"},
-                    {"Kg": "24", "BKK": "1536", "OtherCity": "1776", "RemoteArea": "1896", "type": "Food"},
-                    {"Kg": "25", "BKK": "1575", "OtherCity": "1825", "RemoteArea": "1950", "type": "Food"},
-                    {"Kg": "26", "BKK": "1612", "OtherCity": "1872", "RemoteArea": "2002", "type": "Food"},
-                    {"Kg": "27", "BKK": "1647", "OtherCity": "1917", "RemoteArea": "2052", "type": "Food"},
-                    {"Kg": "28", "BKK": "1708", "OtherCity": "1988", "RemoteArea": "2128", "type": "Food"},
-                    {"Kg": "29", "BKK": "1740", "OtherCity": "2030", "RemoteArea": "2175", "type": "Food"},
-                    {"Kg": "30", "BKK": "1800", "OtherCity": "2100", "RemoteArea": "2250", "type": "Food"},
-                    {"Kg": "30-40", "BKK": "55/kg", "OtherCity": "65/kg", "RemoteArea": "70/kg", "type": "Food"},
-                    {"Kg": "40-50", "BKK": "53/kg", "OtherCity": "63/kg", "RemoteArea": "68/kg", "type": "Food"},
-                    {"Kg": "50-70", "BKK": "50/kg", "OtherCity": "60/kg", "RemoteArea": "65/kg", "type": "Food"},
-                    {"Kg": "70-100", "BKK": "45/kg", "OtherCity": "55/kg", "RemoteArea": "60/kg", "type": "Food"},
-                    {"Kg": "100", "BKK": "43/kg", "OtherCity": "53/kg", "RemoteArea": "58/kg", "type": "Food"},
-                    {"Kg": "200", "BKK": "42/kg", "OtherCity": "52/kg", "RemoteArea": "57/kg", "type": "Food"},
-                    {"Kg": "300", "BKK": "40/kg", "OtherCity": "50/kg", "RemoteArea": "55/kg", "type": "Food"},
-                    {"Kg": "300-1000", "BKK": "38/kg", "OtherCity": "48/kg", "RemoteArea": "53/kg", "type": "Food"}
-                ],
-                "Cosmetic": [
-                    {"Kg": "1", "BKK": "80", "OtherCity": "90", "RemoteArea": "95", "type": "Cosmetic"},
-                    {"Kg": "2", "BKK": "180", "OtherCity": "200", "RemoteArea": "210", "type": "Cosmetic"},
-                    {"Kg": "3", "BKK": "270", "OtherCity": "300", "RemoteArea": "315", "type": "Cosmetic"},
-                    {"Kg": "4", "BKK": "360", "OtherCity": "400", "RemoteArea": "420", "type": "Cosmetic"},
-                    {"Kg": "5", "BKK": "450", "OtherCity": "500", "RemoteArea": "525", "type": "Cosmetic"},
-                    {"Kg": "6", "BKK": "540", "OtherCity": "600", "RemoteArea": "630", "type": "Cosmetic"},
-                    {"Kg": "7", "BKK": "630", "OtherCity": "700", "RemoteArea": "735", "type": "Cosmetic"},
-                    {"Kg": "8", "BKK": "720", "OtherCity": "800", "RemoteArea": "840", "type": "Cosmetic"},
-                    {"Kg": "9", "BKK": "810", "OtherCity": "900", "RemoteArea": "945", "type": "Cosmetic"},
-                    {"Kg": "10", "BKK": "900", "OtherCity": "1000", "RemoteArea": "1050", "type": "Cosmetic"},
-                    {"Kg": "11", "BKK": "990", "OtherCity": "1100", "RemoteArea": "1155", "type": "Cosmetic"},
-                    {"Kg": "12", "BKK": "1080", "OtherCity": "1200", "RemoteArea": "1260", "type": "Cosmetic"},
-                    {"Kg": "13", "BKK": "1170", "OtherCity": "1300", "RemoteArea": "1365", "type": "Cosmetic"},
-                    {"Kg": "14", "BKK": "1260", "OtherCity": "1400", "RemoteArea": "1470", "type": "Cosmetic"},
-                    {"Kg": "15", "BKK": "1350", "OtherCity": "1500", "RemoteArea": "1575", "type": "Cosmetic"},
-                    {"Kg": "16", "BKK": "1440", "OtherCity": "1600", "RemoteArea": "1680", "type": "Cosmetic"},
-                    {"Kg": "17", "BKK": "1530", "OtherCity": "1700", "RemoteArea": "1785", "type": "Cosmetic"},
-                    {"Kg": "18", "BKK": "1620", "OtherCity": "1800", "RemoteArea": "1890", "type": "Cosmetic"},
-                    {"Kg": "19", "BKK": "1710", "OtherCity": "1900", "RemoteArea": "1995", "type": "Cosmetic"},
-                    {"Kg": "20", "BKK": "1800", "OtherCity": "2000", "RemoteArea": "2100", "type": "Cosmetic"},
-                    {"Kg": "21", "BKK": "1995", "OtherCity": "2205", "RemoteArea": "2310", "type": "Cosmetic"},
-                    {"Kg": "22", "BKK": "2090", "OtherCity": "2310", "RemoteArea": "2420", "type": "Cosmetic"},
-                    {"Kg": "23", "BKK": "2185", "OtherCity": "2415", "RemoteArea": "2530", "type": "Cosmetic"},
-                    {"Kg": "24", "BKK": "2280", "OtherCity": "2520", "RemoteArea": "2640", "type": "Cosmetic"},
-                    {"Kg": "25", "BKK": "2375", "OtherCity": "2625", "RemoteArea": "2750", "type": "Cosmetic"},
-                    {"Kg": "26", "BKK": "2470", "OtherCity": "2730", "RemoteArea": "2860", "type": "Cosmetic"},
-                    {"Kg": "27", "BKK": "2700", "OtherCity": "2970", "RemoteArea": "3105", "type": "Cosmetic"},
-                    {"Kg": "28", "BKK": "2800", "OtherCity": "3080", "RemoteArea": "3220", "type": "Cosmetic"},
-                    {"Kg": "29", "BKK": "2900", "OtherCity": "3190", "RemoteArea": "3335", "type": "Cosmetic"},
-                    {"Kg": "30", "BKK": "3000", "OtherCity": "3300", "RemoteArea": "3450", "type": "Cosmetic"},
-                    {"Kg": "30-50", "BKK": "85/kg", "OtherCity": "95/kg", "RemoteArea": "100/kg", "type": "Cosmetic"},
-                    {"Kg": "50-100", "BKK": "80/kg", "OtherCity": "90/kg", "RemoteArea": "95/kg", "type": "Cosmetic"},
-                    {"Kg": "200", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"},
-                    {"Kg": "300-1000", "BKK": "75/kg", "OtherCity": "85/kg", "RemoteArea": "90/kg", "type": "Cosmetic"}
-                ]
-            }
-        };
-
-            // Set default data to Firebase
-            shippingRatesRef.set(defaultRates)
-                .then(() => {
-                    shippingRates = defaultRates;
-                    console.log("Default data initialized in Firebase");
-                })
-                .catch(error => {
-                    console.error("Error initializing default data:", error);
-                });
-        }
+        const db = firebase.firestore();
+        const storage = firebase.storage();
         
-        function switchTab(tab) {
-            if (tab === 'user') {
-                document.getElementById('user-panel').style.display = 'block';
-                document.getElementById('admin-panel').style.display = 'none';
-                document.getElementById('login-panel').style.display = 'none';
-                document.getElementById('user-tab').classList.add('tab-active');
-                document.getElementById('admin-tab').classList.remove('tab-active');
-                filterRates();
-            }
-        }
-
-        function showLoginForm() {
-            if (isLoggedIn) {
-                document.getElementById('user-panel').style.display = 'none';
-                document.getElementById('login-panel').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                document.getElementById('user-tab').classList.remove('tab-active');
-                document.getElementById('admin-tab').classList.add('tab-active');
-                loadAdminRates();
-            } else {
-                document.getElementById('user-panel').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'none';
-                document.getElementById('login-panel').style.display = 'block';
-                document.getElementById('user-tab').classList.remove('tab-active');
-                document.getElementById('admin-tab').classList.add('tab-active');
-            }
-        }
+        // DOM Elements
+        const navItems = document.querySelectorAll('.nav-item');
+        const pages = document.querySelectorAll('.page');
+        const loginModal = document.getElementById('loginModal');
+        const userProfileHeader = document.getElementById('userProfileHeader');
+        const userDisplayName = document.getElementById('userDisplayName');
+        const authButtons = document.getElementById('authButtons');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const authRequiredMsg = document.getElementById('authRequiredMsg');
         
-        function filterRates() {
-            const route = document.getElementById('route-select').value;
-            const type = document.getElementById('type-select').value;
-            const searchTerm = document.getElementById('weight-search').value.toLowerCase();
-            
-            const container = document.getElementById('results-container');
-            container.innerHTML = '';
-            
-            if (!shippingRates[route]) return;
-            
-            let ratesToShow = [];
-            
-            if (type === 'all') {
-                // Combine all types
-                for (const rateType in shippingRates[route]) {
-                    ratesToShow = ratesToShow.concat(shippingRates[route][rateType] || []);
+        // Page navigation
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const pageId = this.getAttribute('data-page');
+                
+                // Check if page requires authentication
+                const requiresAuth = ['uploadPage', 'profilePage', 'messagesPage'].includes(pageId);
+                
+                if (requiresAuth && !auth.currentUser) {
+                    authRequiredMsg.classList.remove('hidden');
+                    return;
+                } else {
+                    authRequiredMsg.classList.add('hidden');
                 }
-            } else {
-                ratesToShow = shippingRates[route][type] || [];
-            }
-            
-            // Filter by search term if provided
-            if (searchTerm) {
-                ratesToShow = ratesToShow.filter(rate => 
-                    rate.Kg.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            // Sort rates by weight (converting to numbers for proper sorting)
-            ratesToShow.sort((a, b) => {
-                // Handle ranges like "30-40"
-                const aNum = parseFloat(a.Kg.split('-')[0]);
-                const bNum = parseFloat(b.Kg.split('-')[0]);
-                return aNum - bNum;
+                
+                // Update active nav item
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show selected page, hide others
+                pages.forEach(page => {
+                    if (page.id === pageId) {
+                        page.classList.add('active');
+                    } else {
+                        page.classList.remove('active');
+                    }
+                });
             });
-            
-            // Display the rates
-            ratesToShow.forEach(rate => {
-                container.appendChild(createRateCard(rate));
-            });
-            
-            // Show message if no rates found
-            if (ratesToShow.length === 0) {
-                container.innerHTML = 
-                    `<div class="col-span-full text-center p-6 bg-blue-50 rounded-lg">
-                        <p class="text-blue-700">ရှာဖွေမှုနှင့် ကိုက်ညီသော နှုန်းထားများ မရှိပါ</p>
-                    </div>`;
-            }
+        });
+        
+        // Auth modal functions
+        function openLoginModal() {
+            loginModal.classList.remove('hidden');
         }
         
-        function createRateCard(rate) {
-            const typeLabels = {
-                'Food': 'အစားအသောက်',
-                'Cosmetic': 'အလှကုန်ပစ္စည်း'
-            };
-
-            const bgColors = {
-                'Food': 'bg-blue-50',
-                'Cosmetic': 'bg-purple-50'
-            };
-            
-            const card = document.createElement('div');
-            card.className = `rate-card ${bgColors[rate.type]} rounded-lg shadow-sm p-4 mb-4`;
-            
-            const header = document.createElement('div');
-            header.className = 'flex justify-between items-center mb-3 border-b pb-2';
-            
-            const weightLabel = document.createElement('div');
-            weightLabel.className = 'text-lg font-bold';
-            weightLabel.innerHTML = `${rate.Kg} kg`;
-            
-            const typeLabel = document.createElement('div');
-            typeLabel.className = 'text-sm bg-gray-200 px-2 py-1 rounded-full';
-            typeLabel.innerHTML = typeLabels[rate.type];
-            
-            header.appendChild(weightLabel);
-            header.appendChild(typeLabel);
-            
-            const bkk = document.createElement('div');
-            bkk.className = 'flex justify-between py-1';
-            bkk.innerHTML = `<span>ဘန်ကောက်မြို့အတွင်း:</span> <span class="font-semibold">${rate.BKK}</span>`;
-            
-            const otherCity = document.createElement('div');
-            otherCity.className = 'flex justify-between py-1';
-            otherCity.innerHTML = `<span>အရှေ့နောက်မြောက်:</span> <span class="font-semibold">${rate.OtherCity}</span>`;
-            
-            const remoteArea = document.createElement('div');
-            remoteArea.className = 'flex justify-between py-1';
-            remoteArea.innerHTML = `<span>တောင်ပိုင်း:</span> <span class="font-semibold">${rate.RemoteArea}</span>`;
-            
-            card.appendChild(header);
-            card.appendChild(bkk);
-            card.appendChild(otherCity);
-            card.appendChild(remoteArea);
-            
-            return card;
+        function closeLoginModal() {
+            loginModal.classList.add('hidden');
         }
         
-        // Authentication functions
-        function login() {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            
-            if (!email || !password) {
-                showLoginError("အီးမေးလ်နှင့် စကားဝှက် ထည့်သွင်းပေးပါ");
-                return;
-            }
-            
-            document.getElementById('login-error').classList.add('hidden');
+        function toggleAuthMode() {
+            loginForm.classList.toggle('hidden');
+            registerForm.classList.toggle('hidden');
+        }
+        
+        // Authentication listeners
+        document.getElementById('loginSubmitBtn').addEventListener('click', function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
             
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    document.getElementById('login-panel').classList.add('hidden');
-                    document.getElementById('admin-panel').classList.remove('hidden');
-                    document.getElementById('admin-tab').classList.add('tab-active');
-                    document.getElementById('user-tab').classList.remove('tab-active');
-                    isLoggedIn = true;
-                    loadAdminRates();
-                    clearLoginForm();
+                    closeLoginModal();
                 })
                 .catch((error) => {
-                    console.error("Login error:", error);
-                    showLoginError("အကောင့်ဝင်ရန် မအောင်မြင်ပါ။ အီးမေးလ်နှင့် စကားဝှက် စစ်ဆေးပြီး ပြန်ကြိုးစားပါ။");
+                    alert('အကောင့်ဝင်ရာတွင် အမှား ရှိနေပါသည်: ' + error.message);
                 });
-        }
+        });
         
-        function showLoginError(message) {
-            const errorEl = document.getElementById('login-error');
-            errorEl.textContent = message;
-            errorEl.classList.remove('hidden');
-        }
-        
-        function clearLoginForm() {
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-        }
-        
-        function logout() {
-            auth.signOut()
-                .then(() => {
-                    document.getElementById('admin-panel').classList.add('hidden');
-                    document.getElementById('user-panel').classList.remove('hidden');
-                    document.getElementById('admin-tab').classList.remove('tab-active');
-                    document.getElementById('user-tab').classList.add('tab-active');
-                    isLoggedIn = false;
-                })
-                .catch((error) => {
-                    console.error("Logout error:", error);
-                    alert("အကောင့်ထွက်ရန် အမှားရှိနေပါသည်");
-                });
-        }
-
-        // Admin functions
-        function loadAdminRates() {
-            if (!isLoggedIn) return;
-
-            document.getElementById('admin-loading-indicator').classList.remove('hidden');
-            document.getElementById('admin-results').classList.add('hidden');
+        document.getElementById('registerSubmitBtn').addEventListener('click', function() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
             
-            shippingRatesRef.once('value')
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        shippingRates = snapshot.val() || {};
-                    }
-                    
-                    // Process rates for admin view and store in cache
-                    adminRatesCache = [];
-                    for (const route in shippingRates) {
-                        for (const type in shippingRates[route]) {
-                            shippingRates[route][type].forEach(rate => {
-                                // Add route info to each rate for filtering
-                                adminRatesCache.push({
-                                    ...rate,
-                                    route: route
-                                });
-                            });
-                        }
-                    }
-                    
-                    // Initial display of all rates
-                    filterAdminRates();
-                    
-                    document.getElementById('admin-loading-indicator').classList.add('hidden');
-                    document.getElementById('admin-results').classList.remove('hidden');
-                })
-                .catch((error) => {
-                    console.error("Firebase admin data fetch error:", error);
-                    document.getElementById('admin-loading-indicator').classList.add('hidden');
-                    document.getElementById('admin-results').classList.remove('hidden');
-                    document.getElementById('admin-results').innerHTML = 
-                        `<div class="col-span-full text-center p-6 bg-red-100 rounded-lg text-red-700">
-                            <p class="font-bold">ဒေတာရယူရာတွင် အမှားရှိနေပါသည်</p>
-                            <p class="mt-2">${error.message}</p>
-                        </div>`;
-                });
-        }
-
-        // Admin rates filtering function
-        function filterAdminRates() {
-            const route = document.getElementById('admin-search-route').value;
-            const type = document.getElementById('admin-search-type').value;
-            const searchTerm = document.getElementById('admin-search-weight').value.toLowerCase();
-            
-            const container = document.getElementById('admin-results');
-            container.innerHTML = '';
-            
-            if (!adminRatesCache.length) return;
-            
-            // Apply filters
-            let filteredRates = adminRatesCache;
-            
-            // Filter by route if not "all"
-            if (route !== 'all') {
-                filteredRates = filteredRates.filter(rate => rate.route === route);
-            }
-            
-            // Filter by type if not "all"
-            if (type !== 'all') {
-                filteredRates = filteredRates.filter(rate => rate.type === type);
-            }
-            
-            // Filter by weight search term
-            if (searchTerm) {
-                filteredRates = filteredRates.filter(rate => 
-                    rate.Kg.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            // Sort rates by route, type, and then weight
-            filteredRates.sort((a, b) => {
-                if (a.route !== b.route) {
-                    return a.route.localeCompare(b.route);
-                }
-                if (a.type !== b.type) {
-                    return a.type.localeCompare(b.type);
-                }
-                // Handle ranges like "30-40"
-                const aNum = parseFloat(a.Kg.split('-')[0]);
-                const bNum = parseFloat(b.Kg.split('-')[0]);
-                return aNum - bNum;
-            });
-            
-            // Display the filtered rates
-            filteredRates.forEach(rate => {
-                container.appendChild(createAdminRateCard(rate.route, rate.type, rate));
-            });
-            
-            // Show message if no rates found
-            if (filteredRates.length === 0) {
-                container.innerHTML = 
-                    `<div class="col-span-full text-center p-6 bg-blue-50 rounded-lg">
-                        <p class="text-blue-700">ရှာဖွေမှုနှင့် ကိုက်ညီသော နှုန်းထားများ မရှိပါ</p>
-                    </div>`;
-            }
-        }
-        
-        function createAdminRateCard(route, type, rate) {
-            const routeLabels = {
-                'YGN-BKK': 'ရန်ကုန် - ဘန်ကောက်',
-                'MWD-BKK': 'မြဝတီ - ဘန်ကောက်',
-                'MDY-BKK': 'မန္တလေး - ဘန်ကောက်',
-                'HPA-BKK': 'ဘားအံ - ဘန်ကောက်'
-            };
-            
-            const typeLabels = {
-                'Food': 'အစားအသောက်',
-                'Cosmetic': 'အလှကုန်ပစ္စည်း'
-            };
-            
-            const bgColors = {
-                'Food': 'bg-blue-50',
-                'Cosmetic': 'bg-purple-50'
-            };
-            
-            const card = document.createElement('div');
-            card.className = `rate-card ${bgColors[type]} rounded-lg shadow-sm p-4 mb-4`;
-            
-            const header = document.createElement('div');
-            header.className = 'flex justify-between items-center mb-3 border-b pb-2';
-            
-            const routeTypeLabel = document.createElement('div');
-            routeTypeLabel.className = 'text-sm font-medium';
-            routeTypeLabel.innerHTML = `${routeLabels[route]} | ${typeLabels[type]}`;
-            
-            const weightLabel = document.createElement('div');
-            weightLabel.className = 'text-lg font-bold';
-            weightLabel.innerHTML = `${rate.Kg} kg`;
-            
-            header.appendChild(routeTypeLabel);
-            header.appendChild(weightLabel);
-            
-            const bkk = document.createElement('div');
-            bkk.className = 'flex justify-between py-1';
-            bkk.innerHTML = `<span> ဘန်ကောက်မြို့အတွင်း:</span> <span class="font-semibold">${rate.BKK}</span>`;
-            
-            const otherCity = document.createElement('div');
-            otherCity.className = 'flex justify-between py-1';
-            otherCity.innerHTML = `<span>အရှေ့နောက်မြောက်:</span> <span class="font-semibold">${rate.OtherCity}</span>`;
-            
-            const remoteArea = document.createElement('div');
-            remoteArea.className = 'flex justify-between py-1';
-            remoteArea.innerHTML = `<span>တောင်ပိုင်း:</span> <span class="font-semibold">${rate.RemoteArea}</span>`;
-            
-            const btnContainer = document.createElement('div');
-            btnContainer.className = 'mt-3 flex justify-between';
-            
-            const editBtn = document.createElement('button');
-            editBtn.className = 'bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-1 px-3 rounded-md text-sm transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500';
-            editBtn.textContent = 'ပြင်ဆင်ရန်';
-            editBtn.onclick = function() {
-                prepareEditRate(route, type, rate);
-            };
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded-md text-sm transition duration-300 focus:outline-none focus:ring-2 focus:ring-red-500';
-            deleteBtn.textContent = 'ဖျက်ရန်';
-            deleteBtn.onclick = function() {
-                deleteRate(route, type, rate.Kg);
-            };
-            
-            btnContainer.appendChild(editBtn);
-            btnContainer.appendChild(deleteBtn);
-            
-            card.appendChild(header);
-            card.appendChild(bkk);
-            card.appendChild(otherCity);
-            card.appendChild(remoteArea);
-            card.appendChild(btnContainer);
-            
-            return card;
-        }
-        
-        function prepareEditRate(route, type, rate) {
-            currentEditRate = { route, type, kg: rate.Kg };
-            
-            document.getElementById('admin-route').value = route;
-            document.getElementById('admin-type').value = type;
-            document.getElementById('admin-weight').value = rate.Kg;
-            document.getElementById('admin-bkk').value = rate.BKK;
-            document.getElementById('admin-other').value = rate.OtherCity;
-            document.getElementById('admin-remote').value = rate.RemoteArea;
-            
-            // Scroll to form
-            document.getElementById('admin-panel').scrollIntoView({
-                behavior: 'smooth'
-            });
-        }
-        
-        function updateRate() {
-            if (!isLoggedIn) {
-                alert('စီမံခန့်ခွဲခွင့် မရှိပါ။ အကောင့်ဝင်ပြီး ထပ်စမ်းကြည့်ပါ။');
-                return;
-            }
-            
-            if (!currentEditRate) {
-                alert('ပြင်ဆင်ရန် နှုန်းထားကို ရွေးချယ်ပါ');
-                return;
-            }
-            
-            const route = document.getElementById('admin-route').value;
-            const type = document.getElementById('admin-type').value;
-            const weight = document.getElementById('admin-weight').value;
-            const bkkRate = document.getElementById('admin-bkk').value;
-            const otherCityRate = document.getElementById('admin-other').value;
-            const remoteAreaRate = document.getElementById('admin-remote').value;
-            
-            if (!weight || !bkkRate || !otherCityRate || !remoteAreaRate) {
-                alert('အချက်အလက်အားလုံး ဖြည့်စွက်ပေးပါ');
-                return;
-            }
-            
-            // First remove the old rate
-            const oldRateRef = shippingRatesRef.child(currentEditRate.route).child(currentEditRate.type);
-            oldRateRef.once('value')
-                .then((snapshot) => {
-                    const rates = snapshot.val() || [];
-                    const updatedRates = rates.filter((r) => r.Kg !== currentEditRate.kg);
-                    
-                    // Update the old location
-                    oldRateRef.set(updatedRates)
-                        .then(() => {
-                            // If route or type changed, add to new location
-                            const newRateRef = shippingRatesRef.child(route).child(type);
-                            newRateRef.once('value')
-                                .then((snapshot) => {
-                                    const existingRates = snapshot.val() || [];
-                                    const newRate = {
-                                        Kg: weight,
-                                        BKK: bkkRate,
-                                        OtherCity: otherCityRate,
-                                        RemoteArea: remoteAreaRate,
-                                        type: type
-                                    };
-                                    
-                                    // Check if weight already exists in the new location (if it's different from the old location)
-                                    if (route !== currentEditRate.route || type !== currentEditRate.type) {
-                                        const existingRate = existingRates.find(r => r.Kg === weight);
-                                        if (existingRate) {
-                                            alert(`"${weight} kg" သည် ${route} လမ်းကြောင်းတွင် ရှိနှင့်ပြီးဖြစ်သည်`);
-                                            loadAdminRates();
-                                            return;
-                                        }
-                                    }
-                                    
-                                    existingRates.push(newRate);
-                                    
-                                    // Save the updated rates
-                                    newRateRef.set(existingRates)
-                                        .then(() => {
-                                            // Clear form and reset current edit
-                                            clearForm();
-                                            currentEditRate = null;
-                                            
-                                            // Reload rates
-                                            loadAdminRates();
-                                            alert('နှုန်းထား ပြင်ဆင်ပြီးပါပြီ');
-                                        })
-                                        .catch((error) => {
-                                            console.error("Error adding new rate:", error);
-                                            alert('နှုန်းထား ပြင်ဆင်ရာတွင် အမှားရှိနေပါသည်');
-                                        });
-                                })
-                                .catch((error) => {
-                                    console.error("Error fetching new location rates:", error);
-                                    alert('နှုန်းထား ပြင်ဆင်ရာတွင် အမှားရှိနေပါသည်');
-                                });
-                        })
-                        .catch((error) => {
-                            console.error("Error updating old location rates:", error);
-                            alert('နှုန်းထား ပြင်ဆင်ရာတွင် အမှားရှိနေပါသည်');
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    return userCredential.user.updateProfile({
+                        displayName: name
+                    }).then(() => {
+                        return db.collection('users').doc(userCredential.user.uid).set({
+                            name: name,
+                            email: email,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            bio: '',
+                            location: ''
                         });
-                })
-                .catch((error) => {
-                    console.error("Error fetching old rates:", error);
-                    alert('နှုန်းထား ပြင်ဆင်ရာတွင် အမှားရှိနေပါသည်');
-                });
-        }
-        
-        function addRate() {
-            if (!isLoggedIn) {
-                alert('စီမံခန့်ခွဲခွင့် မရှိပါ။ အကောင့်ဝင်ပြီး ထပ်စမ်းကြည့်ပါ။');
-                return;
-            }
-            
-            const route = document.getElementById('admin-route').value;
-            const type = document.getElementById('admin-type').value;
-            const weight = document.getElementById('admin-weight').value;
-            const bkkRate = document.getElementById('admin-bkk').value;
-            const otherCityRate = document.getElementById('admin-other').value;
-            const remoteAreaRate = document.getElementById('admin-remote').value;
-            
-            if (!weight || !bkkRate || !otherCityRate || !remoteAreaRate) {
-                alert('အချက်အလက်အားလုံး ဖြည့်စွက်ပေးပါ');
-                return;
-            }
-            
-            // Get current rates for this route and type
-            const rateRef = shippingRatesRef.child(route).child(type);
-            rateRef.once('value')
-                .then((snapshot) => {
-                    const existingRates = snapshot.val() || [];
-                    
-                    // Check if weight already exists
-                    const existingRate = existingRates.find(r => r.Kg === weight);
-                    if (existingRate) {
-                        alert(`"${weight} kg" သည် ရှိနှင့်ပြီး ဖြစ်သည်`);
-                        return;
-                    }
-                    
-                    const newRate = {
-                        Kg: weight,
-                        BKK: bkkRate,
-                        OtherCity: otherCityRate,
-                        RemoteArea: remoteAreaRate,
-                        type: type
-                    };
-                    
-                    existingRates.push(newRate);
-                    
-                    // Save the updated rates
-                    rateRef.set(existingRates)
-                        .then(() => {
-                            // Clear form
-                            clearForm();
-                            
-                            // Reload rates
-                            loadAdminRates();
-                            alert('နှုန်းထား အသစ် ထည့်သွင်းပြီးပါပြီ');
-                        })
-                        .catch((error) => {
-                            console.error("Error adding rate:", error);
-                            alert('နှုန်းထား ထည့်သွင်းရာတွင် အမှားရှိနေပါသည်');
-                        });
-                })
-                .catch((error) => {
-                    console.error("Error fetching rates:", error);
-                    alert('နှုန်းထား ထည့်သွင်းရာတွင် အမှားရှိနေပါသည်');
-                });
-        }
-        
-        function clearForm() {
-            document.getElementById('admin-weight').value = '';
-            document.getElementById('admin-bkk').value = '';
-            document.getElementById('admin-other').value = '';
-            document.getElementById('admin-remote').value = '';
-        }
-        
-        function deleteRate(route, type, weight) {
-            if (!isLoggedIn) {
-                alert('စီမံခန့်ခွဲခွင့် မရှိပါ။ အကောင့်ဝင်ပြီး ထပ်စမ်းကြည့်ပါ။');
-                return;
-            }
-            
-            if (confirm('ဤနှုန်းထားကို ဖျက်ရန် သေချာပါသလား?')) {
-                const rateRef = shippingRatesRef.child(route).child(type);
-                rateRef.once('value')
-                    .then((snapshot) => {
-                        const existingRates = snapshot.val() || [];
-                        const updatedRates = existingRates.filter(r => r.Kg !== weight);
-                        
-                        // Save the updated rates
-                        rateRef.set(updatedRates)
-                            .then(() => {
-                                // Clear form if deleting the currently edited rate
-                                if (currentEditRate && currentEditRate.route === route && 
-                                    currentEditRate.type === type && currentEditRate.kg === weight) {
-                                    clearForm();
-                                    currentEditRate = null;
-                                }
-                                
-                                // Reload rates
-                                loadAdminRates();
-                                alert('နှုန်းထား ဖျက်ပြီးပါပြီ');
-                            })
-                            .catch((error) => {
-                                console.error("Error deleting rate:", error);
-                                alert('နှုန်းထား ဖျက်ရာတွင် အမှားရှိနေပါသည်');
-                            });
-                    })
-                    .catch((error) => {
-                        console.error("Error fetching rates for deletion:", error);
-                        alert('နှုန်းထား ဖျက်ရာတွင် အမှားရှိနေပါသည်');
                     });
+                })
+                .then(() => {
+                    closeLoginModal();
+                })
+                .catch((error) => {
+                    alert('အကောင့်ဖွင့်ရာတွင် အမှား ရှိနေပါသည်: ' + error.message);
+                });
+        });
+        
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            auth.signOut();
+        });
+        
+        // Auth state observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                userProfileHeader.classList.remove('hidden');
+                authButtons.classList.add('hidden');
+                userDisplayName.textContent = user.displayName || user.email;
+                
+                // Update profile page
+                document.getElementById('profileDisplayName').textContent = user.displayName || 'သုံးစွဲသူ';
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profileInitials').textContent = getInitials(user.displayName || 'သုံးစွဲသူ');
+                document.getElementById('editName').value = user.displayName || '';
+
+                // Hide auth required message if shown
+                authRequiredMsg.classList.add('hidden');
+            } else {
+                // User is signed out
+                userProfileHeader.classList.add('hidden');
+                authButtons.classList.remove('hidden');
+                
+                // If on a protected page, redirect to home
+                const currentPage = document.querySelector('.page.active');
+                if (['uploadPage', 'profilePage', 'messagesPage'].includes(currentPage.id)) {
+                    document.querySelector('[data-page="homePage"]').click();
+                }
+            }
+        });
+        
+        // Profile functions
+        document.getElementById('saveProfileBtn').addEventListener('click', function() {
+            if (!auth.currentUser) return;
+            
+            const name = document.getElementById('editName').value;
+            const bio = document.getElementById('editBio').value;
+            const location = document.getElementById('editLocation').value;
+            
+            // Update profile in Firebase Auth
+            auth.currentUser.updateProfile({
+                displayName: name
+            }).then(() => {
+                // Update profile in Firestore
+                return db.collection('users').doc(auth.currentUser.uid).update({
+                    name: name,
+                    bio: bio,
+                    location: location
+                });
+            }).then(() => {
+                // Update UI
+                document.getElementById('profileDisplayName').textContent = name;
+                document.getElementById('profileInitials').textContent = getInitials(name);
+                userDisplayName.textContent = name;
+                
+                alert('ပရိုဖိုင် အချက်အလက်များ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။');
+            }).catch(error => {
+                alert('အချက်အလက် သိမ်းဆည်းရာတွင် အမှား ရှိနေပါသည်: ' + error.message);
+            });
+        });
+        
+        document.getElementById('changePasswordBtn').addEventListener('click', function() {
+            if (!auth.currentUser) return;
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (newPassword !== confirmNewPassword) {
+                alert('စကားဝှက်အသစ်နှင့် အတည်ပြုစကားဝှက် မတူညီပါ။');
+                return;
+            }
+            
+            // Re-authenticate user
+            const credential = firebase.auth.EmailAuthProvider.credential(
+                auth.currentUser.email, 
+                currentPassword
+            );
+            
+            auth.currentUser.reauthenticateWithCredential(credential)
+                .then(() => {
+                    // Change password
+                    return auth.currentUser.updatePassword(newPassword);
+                })
+                .then(() => {
+                    alert('စကားဝှက် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။');
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                })
+                .catch(error => {
+                    alert('စကားဝှက် ပြောင်းလဲရာတွင် အမှား ရှိနေပါသည်: ' + error.message);
+                });
+        });
+        
+        // Helper function to get initials from name
+        function getInitials(name) {
+            if (!name) return 'သ';
+            return name.charAt(0).toUpperCase();
+        }
+        
+        // Image Upload
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imageUploadLabel = document.getElementById('imageUploadLabel');
+        const imageUploadBtn = document.getElementById('imageUploadBtn');
+        const imageProgressSection = document.getElementById('imageProgressSection');
+        const imageProgressBar = document.getElementById('imageProgressBar');
+        const imageProgressPercent = document.getElementById('imageProgressPercent');
+        
+        // Handle image file selection
+        imageUpload.addEventListener('change', function(e) {
+            const files = e.target.files;
+            
+            if (files.length > 0) {
+                imagePreviewContainer.innerHTML = '';
+                imagePreviewContainer.appendChild(imageUploadLabel);
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = "relative rounded-md overflow-hidden h-32 w-32";
+                    
+                    const img = document.createElement('img');
+                    img.classList.add('h-full', 'w-full', 'object-cover');
+                    img.src = URL.createObjectURL(file);
+                    
+                    imgDiv.appendChild(img);
+                    imagePreviewContainer.appendChild(imgDiv);
+                }
+                
+                imageUploadLabel.classList.add('hidden');
+            }
+        });
+        
+        // Handle image upload
+        imageUploadBtn.addEventListener('click', function() {
+            if (!auth.currentUser) {
+                authRequiredMsg.classList.remove('hidden');
+                return;
+            }
+            
+            const files = imageUpload.files;
+            const imageTitle = document.getElementById('imageTitle').value.trim();
+            
+            if (files.length === 0) {
+                alert('ကျေးဇူးပြု၍ ပုံဖိုင်များ ရွေးချယ်ပါ။');
+                return;
+            }
+            
+            if (!imageTitle) {
+                alert('ကျေးဇူးပြု၍ ခေါင်းစဉ် ရိုက်ထည့်ပါ။');
+                return;
+            }
+            
+            // Show progress UI
+            imageUploadBtn.classList.add('hidden');
+            imageProgressSection.classList.remove('hidden');
+            
+            // Simulate upload process (to be replaced with actual Firebase upload)
+            let progress = 0;
+            const uploadInterval = setInterval(() => {
+                progress += 5;
+                imageProgressBar.style.width = progress + '%';
+                imageProgressPercent.textContent = progress + '% တင်သွင်းပြီးပါပြီ';
+                
+                if (progress >= 100) {
+                    clearInterval(uploadInterval);
+                    
+                    // Simulate Firestore document creation
+                    setTimeout(() => {
+                        alert('ပုံများ အောင်မြင်စွာ တင်သွင်းပြီးပါပြီ။');
+                        
+                        // Reset form
+                        imageUpload.value = '';
+                        document.getElementById('imageTitle').value = '';
+                        document.getElementById('imageDescription').value = '';
+                        document.getElementById('imageDisableComments').checked = false;
+                        document.getElementById('imageDisableSharing').checked = false;
+                        document.getElementById('imageDisableDownload').checked = false;
+                        
+                        // Reset UI
+                        imageUploadBtn.classList.remove('hidden');
+                        imageProgressSection.classList.add('hidden');
+                        imageProgressBar.style.width = '0%';
+                        
+                        // Reset preview
+                        imagePreviewContainer.innerHTML = '';
+                        imagePreviewContainer.appendChild(imageUploadLabel);
+                        imageUploadLabel.classList.remove('hidden');
+                        
+                        // Navigate to home page
+                        document.querySelector('[data-page="homePage"]').click();
+                    }, 500);
+                }
+            }, 100);
+        });
+        
+        // Video Upload
+        const videoUpload = document.getElementById('videoUpload');
+        const videoPreview = document.getElementById('videoPreview');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileDuration = document.getElementById('fileDuration');
+        const uploadBtn = document.getElementById('videoUploadBtn');
+        const videoProgressSection = document.getElementById('videoProgressSection');
+        const videoUploadSection = document.getElementById('videoUploadSection');
+        const videoProgressBar = document.getElementById('videoProgressBar');
+        const videoProgressPercent = document.getElementById('videoProgressPercent');
+        const videoProgressTask = document.getElementById('videoProgressTask');
+        const thumbnailContainer = document.getElementById('thumbnailContainer');
+        
+        // Handle video file selection
+        videoUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Update file info
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+                
+                // Show video preview
+                const videoURL = URL.createObjectURL(file);
+                videoPreview.src = videoURL;
+                videoPreview.classList.remove('hidden');
+                uploadPrompt.classList.add('hidden');
+                
+                // Load video metadata to get duration
+                videoPreview.onloadedmetadata = function() {
+                    const minutes = Math.floor(videoPreview.duration / 60);
+                    const seconds = Math.floor(videoPreview.duration % 60);
+                    fileDuration.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    // Generate thumbnails
+                    generateThumbnails(videoPreview);
+                };
+            }
+        });
+        
+        // Generate video thumbnails
+        function generateThumbnails(video) {
+            thumbnailContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 4; i++) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 160;
+                canvas.height = 90;
+                
+                const thumbnailDiv = document.createElement('div');
+                thumbnailDiv.className = 'bg-gray-200 rounded-md h-16 overflow-hidden';
+                thumbnailDiv.dataset.time = Math.floor(i * (video.duration / 5));
+                
+                thumbnailDiv.addEventListener('click', function() {
+                    // Remove selected class from all thumbnails
+                    document.querySelectorAll('.thumbnail-preview').forEach(t => {
+                        t.classList.remove('border-2', 'border-blue-500');
+                    });
+                    
+                    // Add selected class to clicked thumbnail
+                    this.classList.add('border-2', 'border-blue-500');
+                });
+                
+                thumbnailContainer.appendChild(thumbnailDiv);
+                
+                // Set video to specific time and capture thumbnail
+                setTimeout(() => {
+                    video.currentTime = Math.floor(i * (video.duration / 5));
+                }, i * 300);
+                
+                // When the video is seeked to the time we want
+                video.addEventListener('seeked', function handler() {
+                    const context = canvas.getContext('2d');
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    thumbnailDiv.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                    thumbnailDiv.style.backgroundSize = 'cover';
+                    thumbnailDiv.style.backgroundPosition = 'center';
+                    
+                    // Only remove event after all thumbnails are generated
+                    if (i === 4) {
+                        video.removeEventListener('seeked', handler);
+                    }
+                }, { once: i === 4 });
             }
         }
+        
+        // Handle video upload
+        uploadBtn.addEventListener('click', function() {
+            if (!auth.currentUser) {
+                authRequiredMsg.classList.remove('hidden');
+                return;
+            }
+            
+            const videoFile = videoUpload.files[0];
+            const videoTitle = document.getElementById('videoTitle').value.trim();
+            
+            if (!videoFile) {
+                alert('ကျေးဇူးပြု၍ ဗီဒီယိုဖိုင် ရွေးချယ်ပါ။');
+                return;
+            }
+            
+            if (!videoTitle) {
+                alert('ကျေးဇူးပြု၍ ဗီဒီယိုခေါင်းစဉ် ရိုက်ထည့်ပါ။');
+                return;
+            }
+            
+            // Show progress UI
+            videoUploadSection.classList.add('hidden');
+            videoProgressSection.classList.remove('hidden');
+            
+            // Simulate upload process (to be replaced with actual Firebase upload)
+            let progress = 0;
+            const uploadInterval = setInterval(() => {
+                progress += 1;
+                videoProgressBar.style.width = progress + '%';
+                videoProgressPercent.textContent = progress + '% တင်သွင်းပြီးပါပြီ';
+                
+                if (progress < 33) {
+                    videoProgressTask.textContent = 'လုပ်ငန်း 1/3: ဖိုင်တင်နေသည်';
+                } else if (progress < 66) {
+                    videoProgressTask.textContent = 'လုပ်ငန်း 2/3: ပုံစံပြောင်းနေသည်';
+                } else {
+                    videoProgressTask.textContent = 'လုပ်ငန်း 3/3: စာရင်းသွင်းနေသည်';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(uploadInterval);
+                    
+                    setTimeout(() => {
+                        alert('ဗီဒီယို အောင်မြင်စွာ တင်သွင်းပြီးပါပြီ။');
+                        
+                        // Reset form and UI
+                        videoUpload.value = '';
+                        document.getElementById('videoTitle').value = '';
+                        document.getElementById('videoDescription').value = '';
+                        document.getElementById('videoDisableComments').checked = false;
+                        document.getElementById('videoDisableSharing').checked = false;
+                        document.getElementById('videoDisableDownload').checked = false;
+                        
+                        // Reset UI
+                        videoUploadSection.classList.remove('hidden');
+                        videoProgressSection.classList.add('hidden');
+                        videoProgressBar.style.width = '0%';
+                        videoProgressPercent.textContent = '0% တင်သွင်းပြီးပါပြီ';
+                        videoPreview.classList.add('hidden');
+                        uploadPrompt.classList.remove('hidden');
+                        fileName.textContent = 'ဗီဒီယိုဖိုင် မရွေးရသေးပါ';
+                        fileSize.textContent = '0 MB';
+                        fileDuration.textContent = '00:00';
+                        
+                        // Reset thumbnails
+                        thumbnailContainer.innerHTML = '';
+                        for (let i = 0; i < 4; i++) {
+                            const placeholderDiv = document.createElement('div');
+                            placeholderDiv.className = 'bg-gray-200 rounded-md h-16 flex items-center justify-center';
+                            placeholderDiv.innerHTML = '<span class="text-gray-500 text-xs text-center">ဗီဒီယိုဖိုင် ရွေးချယ်ပြီးမှ<br>ပုံပေါ်လာမည်</span>';
+                            thumbnailContainer.appendChild(placeholderDiv);
+                        }
+                        
+                        // Navigate to home page
+                        document.querySelector('[data-page="homePage"]').click();
+                    }, 500);
+                }
+            }, 50);
+        });
+        
+        // Text post handler
+        document.getElementById('textPostBtn').addEventListener('click', function() {
+            if (!auth.currentUser) {
+                authRequiredMsg.classList.remove('hidden');
+                return;
+            }
+            
+            const postTitle = document.getElementById('postTitle').value.trim();
+            const postContent = document.getElementById('postContent').value.trim();
+            
+            if (!postTitle) {
+                alert('ကျေးဇူးပြု၍ ခေါင်းစဉ် ရိုက်ထည့်ပါ။');
+                return;
+            }
+            
+            if (!postContent) {
+                alert('ကျေးဇူးပြု၍ အကြောင်းအရာ ရိုက်ထည့်ပါ။');
+                return;
+            }
+            
+            // Simulate Firestore document creation
+            setTimeout(() => {
+                alert('စာသား အောင်မြင်စွာ တင်သွင်းပြီးပါပြီ။');
+                
+                // Reset form
+                document.getElementById('postTitle').value = '';
+                document.getElementById('postContent').value = '';
+                document.getElementById('textDisableComments').checked = false;
+                
+                // Navigate to home page
+                document.querySelector('[data-page="homePage"]').click();
+            }, 500);
+        });
+        
+        // Tab switching in upload page
+        const textTabBtn = document.getElementById('textTabBtn');
+        const imageTabBtn = document.getElementById('imageTabBtn');
+        const videoTabBtn = document.getElementById('videoTabBtn');
+        const textPostTab = document.getElementById('textPostTab');
+        const imageUploadTab = document.getElementById('imageUploadTab');
+        const videoUploadTab = document.getElementById('videoUploadTab');
+        
+        textTabBtn.addEventListener('click', function() {
+            textTabBtn.classList.add('bg-indigo-600', 'text-white');
+            textTabBtn.classList.remove('bg-gray-200');
+            imageTabBtn.classList.add('bg-gray-200');
+            imageTabBtn.classList.remove('bg-indigo-600', 'text-white');
+            videoTabBtn.classList.add('bg-gray-200');
+            videoTabBtn.classList.remove('bg-indigo-600', 'text-white');
+            
+            textPostTab.classList.remove('hidden');
+            imageUploadTab.classList.add('hidden');
+            videoUploadTab.classList.add('hidden');
+        });
+        
+        imageTabBtn.addEventListener('click', function() {
+            imageTabBtn.classList.add('bg-indigo-600', 'text-white');
+            imageTabBtn.classList.remove('bg-gray-200');
+            textTabBtn.classList.add('bg-gray-200');
+            textTabBtn.classList.remove('bg-indigo-600', 'text-white');
+            videoTabBtn.classList.add('bg-gray-200');
+            videoTabBtn.classList.remove('bg-indigo-600', 'text-white');
+            
+            imageUploadTab.classList.remove('hidden');
+            textPostTab.classList.add('hidden');
+            videoUploadTab.classList.add('hidden');
+        });
+        
+        videoTabBtn.addEventListener('click', function() {
+            videoTabBtn.classList.add('bg-indigo-600', 'text-white');
+            videoTabBtn.classList.remove('bg-gray-200');
+            textTabBtn.classList.add('bg-gray-200');
+            textTabBtn.classList.remove('bg-indigo-600', 'text-white');
+            imageTabBtn.classList.add('bg-gray-200');
+            imageTabBtn.classList.remove('bg-indigo-600', 'text-white');
+            
+            videoUploadTab.classList.remove('hidden');
+            textPostTab.classList.add('hidden');
+            imageUploadTab.classList.add('hidden');
+        });
     </script>
 </body>
 </html>
