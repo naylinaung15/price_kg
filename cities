@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>မြန်မာမြို့များ ရှာဖွေရေးစနစ်</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #8B4513; /* မြန်မာ့ရိုးရာ သစ်သားအရောင် */
+            --secondary-color: #FFD700; /* ရွှေရောင် */
+            --accent-color: #006400; /* အဝါရောင် */
+            --light-bg: #FFF8DC; /* နုရောင် */
+            --dark-text: #4A4A4A; /* ကာလာမီးသွေးရောင် */
+        }
+        
+        body {
+            font-family: 'Padauk', 'Myanmar Text', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+        
+        .header-bg {
+            background-image: url('https://media.istockphoto.com/id/506266414/photo/shwedagon-pagoda-in-yangon-city-myanmar.jpg?s=612x612&w=0&k=20&c=SgArPmR0cLjRUJmqYIGgItn79Ti5r7VWjtSuM-0Jf1I=');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .header-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .search-container {
+            background-color: white;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .region-card {
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .region-card:hover {
+            border-left-width: 8px;
+            background-color: rgba(139, 69, 19, 0.05);
+        }
+        
+        .city-item {
+            border-left: 2px solid var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .city-item:hover {
+            background-color: rgba(255, 215, 0, 0.2);
+            border-left-width: 4px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #6b340f;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e6c200;
+        }
+        
+        .loading {
+            animation: spin 1s infinite linear;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .badge {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 9999px;
+        }
+        
+        .myanmar-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238b4513' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        @media (max-width: 640px) {
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="myanmar-pattern">
+    <!-- Header Section -->
+    <header class="header-bg w-full">
+        <div class="header-overlay py-12 px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl sm:text-5xl font-bold text-white shadow-text mb-4">မြန်မာမြို့များ ရှာဖွေရေးစနစ်</h1>
+            <p class="text-xl text-gray-200 mb-8">တိုင်းဒေသကြီးနှင့် ပြည်နယ်အသီးသီးမှ မြို့များ</p>
+            
+            <!-- Search Box -->
+            <div class="max-w-xl mx-auto relative">
+                <div class="search-container flex items-center rounded-lg overflow-hidden">
+                    <input 
+                        type="text" 
+                        id="search-input"
+                        class="py-3 px-4 w-full focus:outline-none" 
+                        placeholder="မြို့အမည်ဖြင့် ရှာဖွေရန်..." 
+                    />
+                    <button id="search-button" class="btn-primary p-3">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div id="search-results-container" class="search-results absolute w-full bg-white rounded-b-lg hidden z-10"></div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto py-8 px-4">
+        <div class="flex flex-col sm:flex-row gap-6">
+            <!-- Regions List -->
+            <div class="w-full sm:w-1/4">
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-xl font-bold mb-4 text-center">တိုင်းဒေသကြီး/ပြည်နယ်များ</h2>
+                    <div id="regions-list" class="space-y-2">
+                        <!-- Regions will be loaded here -->
+                        <div class="animate-pulse">
+                            <div class="h-8 bg-gray-200 rounded w-full mb-2"></div>
+                            <div class="h-8 bg-gray-200 rounded w-full mb-2"></div>
+                            <div class="h-8 bg-gray-200 rounded w-full mb-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cities Display -->
+            <div class="w-full sm:w-3/4">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold" id="region-title">မြို့များစာရင်း</h2>
+                        <span class="badge" id="cities-count">0 မြို့</span>
+                    </div>
+                    <div id="cities-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <!-- Cities will be loaded here -->
+                        <div class="animate-pulse">
+                            <div class="h-10 bg-gray-200 rounded w-full mb-2"></div>
+                            <div class="h-10 bg-gray-200 rounded w-full mb-2"></div>
+                            <div class="h-10 bg-gray-200 rounded w-full mb-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 px-4">
+        <div class="container mx-auto text-center">
+            <p>မြန်မာမြို့များ ရှာဖွေရေးစနစ် &copy; ၂၀၂၄</p>
+            <p class="text-sm text-gray-400 mt-2">Firebase Database နှင့် ချိတ်ဆက်ထားပါသည်</p>
+        </div>
+    </footer>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBmPssHMyvVczP5e_IeYr1V0KPOOeUjX9Q",
+            authDomain: "myanmar-cities-search.firebaseapp.com",
+            projectId: "myanmar-cities-search",
+            storageBucket: "myanmar-cities-search.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef1234567890abcdef",
+            databaseURL: "https://myanmar-cities-search-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+        
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // Myanmar regional data (hardcoded in case Firebase connection fails)
+        const myanmarData = {
+            "မန္တလေးတိုင်း": [
+                "မန္တလေး", "ရမည်းသင်း", "ပျော်ဘွယ်", "သာစည်", "ကျောက်ဆည်", 
+                "ကျောက်ပန်းတောင်း", "မိတ္ထီလာ", "သဲတော", "ဝမ်းတွင်း", "ပြင်ဦးလွင်", 
+                "ပုဂံ", "ညောင်ဦး", "မလှိုင်", "စဉ့်ကိုင်", "ကူမဲ", 
+                "နွားထိုးကြီး", "မြင်းခြံ", "မတ္ထရာ", "မိုးညို", "အုတ်ဖို", 
+                "သဲကုန်း", "ဆင်ပေါင်"
+            ],
+            "ပဲခူးတိုင်း": [
+                "ပဲခူး", "တောင်ငူ", "ကြို့ပင်ကောက်", "သာယာဝတီ", "သုံးဆယ်", 
+                "လက်ပံတန်း", "ပြည်", "ပေါင်းတည်", "နတ်လင်း", "ဒိုက်ဦး", 
+                "အောက်မင်းလှ", "အထက်မင်းလှ", "ရွှေတောင်", "ဝေါ", "ရေနီ", 
+                "ဇီးကုန်း", "အုတ်တွင်း", "ရေတာရှည်", "ဆိပ်ဖြူ", "ရေစကြို", 
+                "ပခုက္ကူ"
+            ],
+            "ဧရာဝတီတိုင်း": [
+                "ပုသိမ်", "ဟသ္ဂာတ", "မြောင်းမြ", "ပန်းတနော်", "ဇလွန်", 
+                "ကျုံပျော်", "ရွှေကြည်", "ငါးသိုင်းချောင်း", "မအူပင်", "ဖျာပုံ", 
+                "ဝါးခယ်မ", "ဘိုကလေး", "လပွတ္တာ", "ကြံခင်း", "မြန်အောင်",
+                "ငဖဲ", "စကု", "စလေ"
+            ],
+            "မကွေးတိုင်း": [
+                "သာပေါင်း", "ချောင်းသာ", "ကျောင်းကုန်း", "ညောင်တုန်း", "ဓနုဖြူ", 
+                "အိမ်မဲ", "အထောင်", "ဒေးဒရဲ", "အဂ္ဂပူ", "ကျုံမငေး", 
+                "ထူးကြီး", "အသုတ်", "ဆားမလောက်", "ရွှေလောင်", "ဒါးက"
+            ],
+            "နေပြည်တော်": [
+                "မကွေး", "ချောက်", "မင်းဘူး", "အောင်လံ", "သရက်", 
+                "တောင်တွင်းကြီး", "ရေနံချောင်း", "ဆက်သွား", "ဂွေးချို", "ပွင့်ဖြူ", 
+                "နတ်မောက်", "စလင်း", "ဆင်ဖြူကျွန်း", "မြို့သစ်", "ကံမ"
+            ],
+            "ရှမ်းပြည်နယ်": [
+                "တပ်ကုန်း", "ဘောဂသီရိ", "ပျဥ်းမနား", "လယ်ဝေး", "အောင်ပန်း", 
+                "ဟဲဟိုး", "ညောင်ရွှေ", "လွိုင်လင်", "ပင်းတယ", "ပင်လောင်း", 
+                "လားရှိုး", "နောင်ချို"
+            ]
+        };
+        
+        // DOM elements
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const searchResultsContainer = document.getElementById('search-results-container');
+        const regionsList = document.getElementById('regions-list');
+        const citiesContainer = document.getElementById('cities-container');
+        const regionTitle = document.getElementById('region-title');
+        const citiesCount = document.getElementById('cities-count');
+        
+        // Load data and initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+        
+        // Initialize the application
+        function initializeApp() {
+            loadRegions();
+            setupSearchFunctionality();
+        }
+        
+        // Load regions from Firebase or fallback to hardcoded data
+        function loadRegions() {
+            try {
+                database.ref('/regions').once('value')
+                    .then(snapshot => {
+                        const data = snapshot.val() || myanmarData;
+                        renderRegions(data);
+                    })
+                    .catch(error => {
+                        console.error("Firebase data fetch error:", error);
+                        renderRegions(myanmarData);
+                    });
+            } catch (error) {
+                console.error("Firebase error:", error);
+                renderRegions(myanmarData);
+            }
+        }
+        
+        // Render the regions in the sidebar
+        function renderRegions(data) {
+            regionsList.innerHTML = '';
+            
+            Object.keys(data).forEach(region => {
+                const regionDiv = document.createElement('div');
+                regionDiv.className = 'region-card p-3 mb-2 rounded bg-white cursor-pointer hover:shadow';
+                regionDiv.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">${region}</span>
+                        <span class="text-sm text-gray-500">${data[region].length} မြို့</span>
+                    </div>
+                `;
+                
+                regionDiv.addEventListener('click', () => {
+                    loadCitiesByRegion(region, data[region]);
+                });
+                
+                regionsList.appendChild(regionDiv);
+            });
+            
+            // Load the first region by default
+            const firstRegion = Object.keys(data)[0];
+            loadCitiesByRegion(firstRegion, data[firstRegion]);
+        }
+        
+        // Load cities for a specific region
+        function loadCitiesByRegion(region, cities) {
+            regionTitle.textContent = `${region} မြို့များစာရင်း`;
+            citiesCount.textContent = `${cities.length} မြို့`;
+            
+            citiesContainer.innerHTML = '';
+            cities.forEach(city => {
+                const cityDiv = document.createElement('div');
+                cityDiv.className = 'city-item p-3 bg-white rounded hover:shadow';
+                cityDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-city text-yellow-600 mr-2"></i>
+                        <span>${city}</span>
+                    </div>
+                `;
+                citiesContainer.appendChild(cityDiv);
+            });
+        }
+        
+        // Set up search functionality
+        function setupSearchFunctionality() {
+            // Search input event listener
+            searchInput.addEventListener('input', handleSearch);
+            
+            // Search button click
+            searchButton.addEventListener('click', handleSearch);
+            
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResultsContainer.contains(e.target)) {
+                    searchResultsContainer.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Handle search input
+        function handleSearch() {
+            const searchText = searchInput.value.trim();
+            
+            if (searchText.length < 1) {
+                searchResultsContainer.classList.add('hidden');
+                return;
+            }
+            
+            // Search in all regions
+            const results = searchCities(searchText);
+            renderSearchResults(results);
+        }
+        
+        // Search for cities in all regions
+        function searchCities(searchText) {
+            const results = [];
+            const searchLower = searchText.toLowerCase();
+            
+            try {
+                // Try to search in Firebase data
+                database.ref('/regions').once('value')
+                    .then(snapshot => {
+                        const data = snapshot.val() || myanmarData;
+                        performSearch(data);
+                    })
+                    .catch(error => {
+                        console.error("Firebase search error:", error);
+                        performSearch(myanmarData);
+                    });
+            } catch (error) {
+                console.error("Firebase error during search:", error);
+                performSearch(myanmarData);
+            }
+            
+            // Perform the actual search
+            function performSearch(data) {
+                Object.keys(data).forEach(region => {
+                    data[region].forEach(city => {
+                        if (city.toLowerCase().includes(searchLower)) {
+                            results.push({ city, region });
+                        }
+                    });
+                });
+                
+                renderSearchResults(results);
+            }
+            
+            // For initial rendering, use hardcoded data
+            Object.keys(myanmarData).forEach(region => {
+                myanmarData[region].forEach(city => {
+                    if (city.toLowerCase().includes(searchLower)) {
+                        results.push({ city, region });
+                    }
+                });
+            });
+            
+            return results;
+        }
+        
+        // Render search results
+        function renderSearchResults(results) {
+            if (results.length === 0) {
+                searchResultsContainer.innerHTML = `
+                    <div class="p-3 text-center text-gray-500">
+                        <i class="fas fa-search mr-2"></i>
+                        ရှာဖွေတွေ့ရှိမှု မရှိပါ
+                    </div>
+                `;
+            } else {
+                searchResultsContainer.innerHTML = '';
+                
+                results.forEach(result => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100';
+                    resultDiv.innerHTML = `
+                        <div class="font-medium">${result.city}</div>
+                        <div class="text-sm text-gray-500">${result.region}</div>
+                    `;
+                    
+                    resultDiv.addEventListener('click', () => {
+                        // Load the associated region and city
+                        try {
+                            database.ref('/regions').once('value')
+                                .then(snapshot => {
+                                    const data = snapshot.val() || myanmarData;
+                                    loadCitiesByRegion(result.region, data[result.region]);
+                                    searchResultsContainer.classList.add('hidden');
+                                })
+                                .catch(error => {
+                                    console.error("Error loading city region:", error);
+                                    loadCitiesByRegion(result.region, myanmarData[result.region]);
+                                    searchResultsContainer.classList.add('hidden');
+                                });
+                        } catch (error) {
+                            console.error("Firebase error when clicking result:", error);
+                            loadCitiesByRegion(result.region, myanmarData[result.region]);
+                            searchResultsContainer.classList.add('hidden');
+                        }
+                    });
+                    
+                    searchResultsContainer.appendChild(resultDiv);
+                });
+            }
+            
+            searchResultsContainer.classList.remove('hidden');
+        }
+        
+        // Handle loading errors
+        window.addEventListener('error', function(e) {
+            console.error('Error loading resource:', e.target.src || e.target.href);
+        });
+    </script>
+</body>
+</html>
