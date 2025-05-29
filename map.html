@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thailand & Myanmar Cities - Geographical Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB49vRPX8YaWuTP5GS3lsBDqdAaz_hJYAw&libraries=visualization"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .zone-north { border-left: 4px solid #10B981; }
+        .zone-south { border-left: 4px solid #F59E0B; }
+        .zone-east { border-left: 4px solid #EF4444; }
+        .zone-west { border-left: 4px solid #8B5CF6; }
+        .zone-central { border-left: 4px solid #3B82F6; }
+        .region-mandalay { border-left: 4px solid #EC4899; }
+        .region-bago { border-left: 4px solid #06B6D4; }
+        .region-ayeyarwady { border-left: 4px solid #84CC16; }
+        .region-magway { border-left: 4px solid #F97316; }
+        .region-naypyidaw { border-left: 4px solid #6366F1; }
+        .region-shan { border-left: 4px solid #EF4444; }
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark-mode .bg-white {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        .dark-mode .text-gray-900 {
+            color: #e2e8f0;
+        }
+        .dark-mode .text-gray-600 {
+            color: #a0aec0;
+        }
+        .dark-mode .border-gray-200 {
+            border-color: #4a5568;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-map-marked-alt text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Thailand & Myanmar Cities</h1>
+                        <p class="text-blue-100">Geographical Search & Administrative Data</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="darkModeToggle" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-full transition-all">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="syncBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-sync-alt mr-2"></i>Sync Data
+                    </button>
+                    <div id="connectionStatus" class="flex items-center">
+                        <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                        <span class="text-sm">Connected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search and Filters -->
+    <section class="bg-white shadow-md border-b dark-mode">
+        <div class="container mx-auto px-4 py-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Search cities..." 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark-mode">
+                </div>
+                <select id="countryFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark-mode">
+                    <option value="">All Countries</option>
+                    <option value="thailand">Thailand</option>
+                    <option value="myanmar">Myanmar</option>
+                </select>
+                <select id="zoneFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark-mode">
+                    <option value="">All Zones/Regions</option>
+                    <optgroup label="Thailand Zones">
+                        <option value="north">North Bangkok</option>
+                        <option value="south">South Bangkok</option>
+                        <option value="east">East Bangkok</option>
+                        <option value="west">West Bangkok</option>
+                        <option value="central">Central Bangkok</option>
+                    </optgroup>
+                    <optgroup label="Myanmar Regions">
+                        <option value="mandalay">Mandalay Region</option>
+                        <option value="bago">Bago Region</option>
+                        <option value="ayeyarwady">Ayeyarwady Region</option>
+                        <option value="magway">Magway Region</option>
+                        <option value="naypyidaw">Naypyidaw</option>
+                        <option value="shan">Shan State</option>
+                    </optgroup>
+                </select>
+                <div class="flex space-x-2">
+                    <button id="clearFilters" class="flex-1 bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg transition-all dark-mode">
+                        <i class="fas fa-times mr-2"></i>Clear
+                    </button>
+                    <button id="exportBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">Total Cities</p>
+                            <p id="totalCities" class="text-2xl font-bold">0</p>
+                        </div>
+                        <i class="fas fa-city text-3xl text-blue-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">Thailand Districts</p>
+                            <p id="thailandCount" class="text-2xl font-bold">0</p>
+                        </div>
+                        <i class="fas fa-flag text-3xl text-green-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">Myanmar Cities</p>
+                            <p id="myanmarCount" class="text-2xl font-bold">0</p>
+                        </div>
+                        <i class="fas fa-map text-3xl text-purple-200"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm">Regions</p>
+                            <p id="regionCount" class="text-2xl font-bold">11</p>
+                        </div>
+                        <i class="fas fa-globe text-3xl text-orange-200"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualization Section -->
+    <section class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8 dark-mode">
+            <h2 class="text-xl font-semibold mb-4">Thailand Districts Map</h2>
+            <div id="map"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 dark-mode">
+                <h2 class="text-xl font-semibold mb-4">Population Distribution by Zone</h2>
+                <canvas id="populationChart"></canvas>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 dark-mode">
+                <h2 class="text-xl font-semibold mb-4">Cities by Region</h2>
+                <canvas id="regionChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold">Search Results</h2>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                    <label class="mr-2 text-sm text-gray-600 dark-mode">Sort by:</label>
+                    <select id="sortSelect" class="border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500 dark-mode">
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="population-asc">Population (Low-High)</option>
+                        <option value="population-desc">Population (High-Low)</option>
+                    </select>
+                </div>
+                <div class="text-sm text-gray-600 dark-mode">
+                    Showing <span id="startCount">1</span>-<span id="endCount">10</span> of <span id="totalCount">0</span>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="prevPage" class="px-3 py-1 bg-gray-200 rounded-lg disabled:opacity-50 dark-mode">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button id="nextPage" class="px-3 py-1 bg-gray-200 rounded-lg disabled:opacity-50 dark-mode">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" class="text-center py-8 hidden">
+            <i class="fas fa-spinner loading text-4xl text-blue-500 mb-4"></i>
+            <p class="text-gray-600 dark-mode">Loading cities data...</p>
+        </div>
+
+        <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Results will be populated here -->
+        </div>
+
+        <div id="noResults" class="text-center py-12 hidden">
+            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2 dark-mode">No results found</h3>
+            <p class="text-gray-500 dark-mode">Try adjusting your search terms or filters</p>
+        </div>
+    </main>
+
+    <!-- Modal for City Details -->
+    <div id="cityModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto dark-mode">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 id="modalTitle" class="text-2xl font-bold"></h2>
+                        <button id="closeModal" class="text-gray-500 hover:text-gray-700 dark-mode">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="modalContent">
+                        <!-- Modal content will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB49vRPX8YaWuTP5GS3lsBDqdAaz_hJYAw",
+            authDomain: "onlineshop-849c8.firebaseapp.com",
+            databaseURL: "https://onlineshop-849c8.firebaseio.com",
+            projectId: "onlineshop-849c8",
+            storageBucket: "onlineshop-849c8.appspot.com",
+            messagingSenderId: "883512833370",
+            appId: "1:883512833370:web:a1c8412b158f8744afef63"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+       // Thailand Cities - Complete List of Bangkok Districts
+        const thailandCities = [
+            // North Bangkok
+            { name: "Don Mueang", thai: "ดอนเมือง", zone: "north", lat: 13.913611, lng: 100.589722, population: 166261, postalCode: "10210" },
+            { name: "Sai Mai", thai: "สายไหม", zone: "north", lat: 13.919167, lng: 100.645833, population: 188123, postalCode: "10220" },
+            { name: "Lak Si", thai: "หลักสี่", zone: "north", lat: 13.8875, lng: 100.578889, population: 109770, postalCode: "10210" },
+            { name: "Chatuchak", thai: "จตุจักร", zone: "north", lat: 13.828611, lng: 100.559722, population: 160906, postalCode: "10900" },
+            { name: "Bang Khen", thai: "บางเขน", zone: "north", lat: 13.873889, lng: 100.596389, population: 189539, postalCode: "10220" },
+            { name: "Khlong Sam Wa", thai: "คลองสามวา", zone: "north", lat: 13.859722, lng: 100.704167, population: 169489, postalCode: "10510" },
+            { name: "Nong Chok", thai: "หนองจอก", zone: "north", lat: 13.855556, lng: 100.8625, population: 157138, postalCode: "10530" },
+            { name: "Min Buri", thai: "มีนบุรี", zone: "north", lat: 13.813889, lng: 100.748056, population: 137251, postalCode: "10510" },
+            { name: "Khan Na Yao", thai: "คันนายาว", zone: "north", lat: 13.8271, lng: 100.6743, population: 88678, postalCode: "10230" },
+            { name: "Bang Sue", thai: "บางซื่อ", zone: "north", lat: 13.809722, lng: 100.537222, population: 132234, postalCode: "10800" },
+            { name: "Lat Phrao", thai: "ลาดพร้าว", zone: "north", lat: 13.803611, lng: 100.6075, population: 122182, postalCode: "10230" },
+            { name: "Bang Phlat", thai: "บางพลัด", zone: "north", lat: 13.793889, lng: 100.505, population: 99273, postalCode: "10700" },
+            { name: "Thawi Watthana", thai: "ทวีวัฒนา", zone: "north", lat: 13.7878, lng: 100.3638, population: 76351, postalCode: "10170" },
+            { name: "Wang Thonglang", thai: "วังทองหลาง", zone: "north", lat: 13.7864, lng: 100.6087, population: 114768, postalCode: "10310" },
+            { name: "Bueng Kum", thai: "บึงกุ่ม", zone: "north", lat: 13.785278, lng: 100.669167, population: 145830, postalCode: "10240" },
+
+            // Central Bangkok
+            { name: "Phra Nakhon", thai: "พระนคร", zone: "central", lat: 13.764444, lng: 100.499167, population: 57876, postalCode: "10200" },
+            { name: "Dusit", thai: "ดุสิต", zone: "central", lat: 13.776944, lng: 100.520556, population: 107655, postalCode: "10300" },
+            { name: "Bang Rak", thai: "บางรัก", zone: "central", lat: 13.730833, lng: 100.524167, population: 45875, postalCode: "10500" },
+            { name: "Pathum Wan", thai: "ปทุมวัน", zone: "central", lat: 13.744942, lng: 100.5222, population: 53263, postalCode: "10330" },
+            { name: "Pom Prap Sattru Phai", thai: "ป้อมปราบศัตรูพ่าย", zone: "central", lat: 13.758056, lng: 100.513056, population: 51006, postalCode: "10100" },
+            { name: "Ratchathewi", thai: "ราชเทวี", zone: "central", lat: 13.758889, lng: 100.534444, population: 73035, postalCode: "10400" },
+            { name: "Din Daeng", thai: "ดินแดง", zone: "central", lat: 13.769722, lng: 100.552778, population: 130220, postalCode: "10400" },
+            { name: "Phaya Thai", thai: "พญาไท", zone: "central", lat: 13.78, lng: 100.542778, population: 72952, postalCode: "10400" },
+            { name: "Huai Khwang", thai: "ห้วยขวาง", zone: "central", lat: 13.776667, lng: 100.579444, population: 78175, postalCode: "10310" },
+            { name: "Taling Chan", thai: "ตลิ่งชั่น", zone: "central", lat: 13.776944, lng: 100.456667, population: 106604, postalCode: "10170" },
+            { name: "Bangkok Noi", thai: "บางกอกน้อย", zone: "central", lat: 13.770867, lng: 100.467933, population: 117793, postalCode: "10700" },
+            { name: "Samphanthawong", thai: "สัมพันธวงศ์", zone: "central", lat: 13.731389, lng: 100.514167, population: 27452, postalCode: "10100" },
+            { name: "Khlong San", thai: "คลองสาน", zone: "central", lat: 13.730278, lng: 100.509722, population: 76446, postalCode: "10600" },
+            { name: "Thon Buri", thai: "ธนบุรี", zone: "central", lat: 13.725, lng: 100.485833, population: 119708, postalCode: "10600" },
+            { name: "Bangkok Yai", thai: "บางกอกใหญ่", zone: "central", lat: 13.722778, lng: 100.476389, population: 72321, postalCode: "10600" },
+
+            // East Bangkok
+            { name: "Bang Kapi", thai: "บางกะปิ", zone: "east", lat: 13.765833, lng: 100.647778, population: 148465, postalCode: "10240" },
+            { name: "Saphan Sung", thai: "สะพานสูง", zone: "east", lat: 13.77, lng: 100.684722, population: 89825, postalCode: "10240" },
+            { name: "Prawet", thai: "ประเวศ", zone: "east", lat: 13.716944, lng: 100.694444, population: 160671, postalCode: "10250" },
+            { name: "Suan Luang", thai: "สวนหลวง", zone: "east", lat: 13.730278, lng: 100.651389, population: 115658, postalCode: "10250" },
+            { name: "Phra Khanong", thai: "พระโขนง", zone: "east", lat: 13.702222, lng: 100.601667, population: 93482, postalCode: "10260" },
+            { name: "Watthana", thai: "วัฒนา", zone: "east", lat: 13.742222, lng: 100.585833, population: 81623, postalCode: "10110" },
+            { name: "Khlong Toei", thai: "คลองเตย", zone: "east", lat: 13.708056, lng: 100.583889, population: 109041, postalCode: "10110" },
+            { name: "Bang Na", thai: "บางนา", zone: "east", lat: 13.680081, lng: 100.5918, population: 95912, postalCode: "10260" },
+            { name: "Lat Krabang", thai: "ลาดกระบัง", zone: "east", lat: 13.722317, lng: 100.759669, population: 163175, postalCode: "10520" },
+
+            // South Bangkok
+            { name: "Yan Nawa", thai: "ยานนาวา", zone: "south", lat: 13.696944, lng: 100.543056, population: 81521, postalCode: "10120" },
+            { name: "Sathon", thai: "สาทร", zone: "south", lat: 13.708056, lng: 100.526389, population: 84916, postalCode: "10120" },
+            { name: "Bang Kho Laem", thai: "บางคอแหลม", zone: "south", lat: 13.693333, lng: 100.5025, population: 94956, postalCode: "10120" },
+            { name: "Rat Burana", thai: "ราษฎร์บูรณะ", zone: "south", lat: 13.682222, lng: 100.505556, population: 86695, postalCode: "10140" },
+            { name: "Thung Khru", thai: "ทุ่งครุ", zone: "south", lat: 13.6472, lng: 100.4958, population: 116473, postalCode: "10140" },
+            { name: "Chom Thong", thai: "จอมทอง", zone: "south", lat: 13.677222, lng: 100.484722, population: 158005, postalCode: "10150" },
+            { name: "Bang Khun Thian", thai: "บางขุนเทียน", zone: "south", lat: 13.660833, lng: 100.435833, population: 165491, postalCode: "10150" },
+
+            // West Bangkok
+            { name: "Bang Bon", thai: "บางบอน", zone: "west", lat: 13.6592, lng: 100.3991, population: 105161, postalCode: "10150" },
+            { name: "Phasi Charoen", thai: "ภาษีเจริญ", zone: "west", lat: 13.714722, lng: 100.437222, population: 129827, postalCode: "10160" },
+            { name: "Bang Khae", thai: "บางแค", zone: "west", lat: 13.696111, lng: 100.409444, population: 191781, postalCode: "10160" },
+            { name: "Nong Khaem", thai: "หนองแขม", zone: "west", lat: 13.704722, lng: 100.348889, population: 150218, postalCode: "10160" },
+
+            // Additional Thailand Provinces (Major Cities)
+            { name: "Chiang Mai", thai: "เชียงใหม่", zone: "north", lat: 18.7883, lng: 98.9867, population: 127240, postalCode: "50000" },
+            { name: "Phuket", thai: "ภูเก็ต", zone: "south", lat: 7.8804, lng: 98.3923, population: 78802, postalCode: "83000" },
+            { name: "Pattaya", thai: "พัทยา", zone: "east", lat: 12.9236, lng: 100.8825, population: 119532, postalCode: "20150" },
+            { name: "Hat Yai", thai: "หาดใหญ่", zone: "south", lat: 7.0084, lng: 100.4767, population: 159130, postalCode: "90110" },
+            { name: "Nakhon Ratchasima", thai: "นครราชสีมา", zone: "northeast", lat: 14.9715, lng: 102.1016, population: 174332, postalCode: "30000" }
+        ];
+
+        // Myanmar Cities - Complete List (All States and Regions)
+        const myanmarCities = [
+            // Yangon Region
+            { name: "Yangon", myanmar: "ရန်ကုန်", region: "yangon", township: "Yangon Township", lat: 16.8409, lng: 96.1735 },
+            { name: "Bahan", myanmar: "ဗဟန်း", region: "yangon", township: "Bahan Township", lat: 16.8158, lng: 96.1582 },
+            { name: "Dagon", myanmar: "ဒဂုံ", region: "yangon", township: "Dagon Township", lat: 16.7942, lng: 96.1483 },
+            { name: "Hlaing", myanmar: "လှိုင်", region: "yangon", township: "Hlaing Township", lat: 16.8567, lng: 96.1253 },
+            { name: "Kamayut", myanmar: "ကမာရွတ်", region: "yangon", township: "Kamayut Township", lat: 16.8275, lng: 96.1322 },
+            { name: "Kyauktada", myanmar: "ကျောက်တံတား", region: "yangon", township: "Kyauktada Township", lat: 16.7739, lng: 96.1603 },
+            { name: "Mayangon", myanmar: "မရမ်းကုန်း", region: "yangon", township: "Mayangon Township", lat: 16.8658, lng: 96.1336 },
+            { name: "Pabedan", myanmar: "ပန်းဘဲတန်း", region: "yangon", township: "Pabedan Township", lat: 16.7742, lng: 96.1539 },
+            { name: "Sanchaung", myanmar: "စမ်းချောင်း", region: "yangon", township: "Sanchaung Township", lat: 16.8050, lng: 96.1350 },
+            { name: "Thingangyun", myanmar: "သင်္ဃန်းကျွန်း", region: "yangon", township: "Thingangyun Township", lat: 16.8303, lng: 96.1822 },
+
+            // Mandalay Region
+            { name: "Mandalay", myanmar: "မန္တလေး", region: "mandalay", township: "Mandalay Township", lat: 21.9588, lng: 96.0891 },
+            { name: "Amarapura", myanmar: "အမရပူရ", region: "mandalay", township: "Amarapura Township", lat: 21.8911, lng: 96.0433 },
+            { name: "Patheingyi", myanmar: "ပုသိမ်ကြီး", region: "mandalay", township: "Patheingyi Township", lat: 21.9994, lng: 96.1528 },
+            { name: "Pyin Oo Lwin", myanmar: "ပြင်ဦးလွင်", region: "mandalay", township: "Pyin Oo Lwin Township", lat: 22.0350, lng: 96.4567 },
+            { name: "Meiktila", myanmar: "မိတ္ထီလာ", region: "mandalay", township: "Meiktila Township", lat: 20.8733, lng: 95.8578 },
+            { name: "Myingyan", myanmar: "မြင်းခြံ", region: "mandalay", township: "Myingyan Township", lat: 21.4600, lng: 95.3883 },
+            { name: "Yamethin", myanmar: "ရမည်းသင်း", region: "mandalay", township: "Yamethin Township", lat: 20.4333, lng: 96.1500 },
+
+            // Naypyidaw Union Territory
+            { name: "Naypyidaw", myanmar: "နေပြည်တော်", region: "naypyidaw", township: "Naypyidaw Township", lat: 19.7633, lng: 96.0785 },
+            { name: "Lewe", myanmar: "လယ်ဝေး", region: "naypyidaw", township: "Lewe Township", lat: 19.8133, lng: 96.2083 },
+            { name: "Pyinmana", myanmar: "ပျဉ်းမနား", region: "naypyidaw", township: "Pyinmana Township", lat: 19.7381, lng: 96.2075 },
+            { name: "Tatkon", myanmar: "တပ်ကုန်း", region: "naypyidaw", township: "Tatkon Township", lat: 19.8333, lng: 96.1167 },
+
+            // Shan State
+            { name: "Taunggyi", myanmar: "တောင်ကြီး", region: "shan", township: "Taunggyi Township", lat: 20.7833, lng: 97.0333 },
+            { name: "Lashio", myanmar: "လားရှိုး", region: "shan", township: "Lashio Township", lat: 22.9333, lng: 97.7500 },
+            { name: "Kengtung", myanmar: "ကျိုင်းတုံ", region: "shan", township: "Kengtung Township", lat: 21.3000, lng: 99.6000 },
+            { name: "Tachileik", myanmar: "တာချီလိတ်", region: "shan", township: "Tachileik Township", lat: 20.4500, lng: 99.8833 },
+            { name: "Muse", myanmar: "မူဆယ်", region: "shan", township: "Muse Township", lat: 23.9833, lng: 97.9000 },
+
+            // Kachin State
+            { name: "Myitkyina", myanmar: "မြစ်ကြီးနား", region: "kachin", township: "Myitkyina Township", lat: 25.3833, lng: 97.4000 },
+            { name: "Bhamo", myanmar: "ဗန်းမော်", region: "kachin", township: "Bhamo Township", lat: 24.2667, lng: 97.2333 },
+            { name: "Putao", myanmar: "ပူတာအို", region: "kachin", township: "Putao Township", lat: 27.3333, lng: 97.4167 },
+
+            // Kayah State
+            { name: "Loikaw", myanmar: "လွိုင်ကော်", region: "kayah", township: "Loikaw Township", lat: 19.6667, lng: 97.2167 },
+            { name: "Demoso", myanmar: "ဒီမောဆို", region: "kayah", township: "Demoso Township", lat: 19.6833, lng: 97.1667 },
+
+            // Kayin State
+            { name: "Hpa-an", myanmar: "ဘားအံ", region: "kayin", township: "Hpa-an Township", lat: 16.8833, lng: 97.6333 },
+            { name: "Myawaddy", myanmar: "မြဝတီ", region: "kayin", township: "Myawaddy Township", lat: 16.7000, lng: 98.5000 },
+
+            // Mon State
+            { name: "Mawlamyine", myanmar: "မော်လမြိုင်", region: "mon", township: "Mawlamyine Township", lat: 16.4833, lng: 97.6167 },
+            { name: "Thaton", myanmar: "သထုံ", region: "mon", township: "Thaton Township", lat: 16.9333, lng: 97.3667 },
+
+            // Rakhine State
+            { name: "Sittwe", myanmar: "စစ်တွေ", region: "rakhine", township: "Sittwe Township", lat: 20.1500, lng: 92.9000 },
+            { name: "Mrauk-U", myanmar: "မြောက်ဦး", region: "rakhine", township: "Mrauk-U Township", lat: 20.6000, lng: 93.1833 },
+            { name: "Thandwe", myanmar: "သံတွဲ", region: "rakhine", township: "Thandwe Township", lat: 18.4667, lng: 94.3667 },
+
+            // Bago Region
+            { name: "Bago", myanmar: "ပဲခူး", region: "bago", township: "Bago Township", lat: 17.3333, lng: 96.4833 },
+            { name: "Pyay", myanmar: "ပြည်", region: "bago", township: "Pyay Township", lat: 18.8167, lng: 95.2167 },
+            { name: "Taungoo", myanmar: "တောင်ငူ", region: "bago", township: "Taungoo Township", lat: 18.9333, lng: 96.4333 },
+
+            // Magway Region
+            { name: "Magway", myanmar: "မကွေး", region: "magway", township: "Magway Township", lat: 20.1500, lng: 94.9500 },
+            { name: "Pakokku", myanmar: "ပခုက္ကူ", region: "magway", township: "Pakokku Township", lat: 21.3333, lng: 95.1000 },
+
+            // Sagaing Region
+            { name: "Sagaing", myanmar: "စစ်ကိုင်း", region: "sagaing", township: "Sagaing Township", lat: 21.8833, lng: 95.9667 },
+            { name: "Monywa", myanmar: "မုံရွာ", region: "sagaing", township: "Monywa Township", lat: 22.1167, lng: 95.1333 },
+            { name: "Shwebo", myanmar: "ရွှေဘို", region: "sagaing", township: "Shwebo Township", lat: 22.5667, lng: 95.7000 },
+
+            // Tanintharyi Region
+            { name: "Dawei", myanmar: "ထားဝယ်", region: "tanintharyi", township: "Dawei Township", lat: 14.0833, lng: 98.2000 },
+            { name: "Myeik", myanmar: "မြိတ်", region: "tanintharyi", township: "Myeik Township", lat: 12.4333, lng: 98.6000 },
+            { name: "Kawthoung", myanmar: "ကော့သောင်း", region: "tanintharyi", township: "Kawthoung Township", lat: 9.9833, lng: 98.5500 },
+
+            // Ayeyarwady Region
+            { name: "Pathein", myanmar: "ပုသိမ်", region: "ayeyarwady", township: "Pathein Township", lat: 16.7667, lng: 94.7333 },
+            { name: "Hinthada", myanmar: "ဟင်္သာတ", region: "ayeyarwady", township: "Hinthada Township", lat: 17.6333, lng: 95.4667 },
+            { name: "Myaungmya", myanmar: "မြောင်းမြ", region: "ayeyarwady", township: "Myaungmya Township", lat: 16.5833, lng: 94.9167 }
+        ];
+        // Application State
+        let filteredCities = [];
+        let currentFilter = {
+            search: '',
+            country: '',
+            zone: ''
+        };
+        let currentPage = 1;
+        const itemsPerPage = 9;
+        let map;
+        let populationChart;
+        let regionChart;
+
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const countryFilter = document.getElementById('countryFilter');
+        const zoneFilter = document.getElementById('zoneFilter');
+        const clearFilters = document.getElementById('clearFilters');
+        const exportBtn = document.getElementById('exportBtn');
+        const syncBtn = document.getElementById('syncBtn');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const noResults = document.getElementById('noResults');
+        const cityModal = document.getElementById('cityModal');
+        const closeModal = document.getElementById('closeModal');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const sortSelect = document.getElementById('sortSelect');
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        const startCount = document.getElementById('startCount');
+        const endCount = document.getElementById('endCount');
+        const totalCount = document.getElementById('totalCount');
+
+        // Initialize Application
+        function init() {
+            showLoading();
+            setTimeout(() => {
+                loadAllCities();
+                setupEventListeners();
+                updateStatistics();
+                initMap();
+                initCharts();
+                hideLoading();
+            }, 1000);
+        }
+
+        // Initialize Google Map
+        function initMap() {
+            const bangkokCoords = { lat: 13.7563, lng: 100.5018 };
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 11,
+                center: bangkokCoords,
+                mapTypeId: "terrain",
+            });
+
+            // Add markers for Thailand cities
+            thailandCities.forEach(city => {
+                new google.maps.Marker({
+                    position: { lat: city.lat, lng: city.lng },
+                    map,
+                    title: city.name,
+                    icon: {
+                        url: `https://maps.google.com/mapfiles/ms/icons/${getZoneColor(city.zone)}-dot.png`,
+                    }
+                });
+            });
+        }
+
+        // Get color for zone
+        function getZoneColor(zone) {
+            const colors = {
+                north: 'green',
+                south: 'orange',
+                east: 'red',
+                west: 'purple',
+                central: 'blue'
+            };
+            return colors[zone] || 'blue';
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            // Population by Zone Chart
+            const populationCtx = document.getElementById('populationChart').getContext('2d');
+            const zonePopulation = {
+                north: 0,
+                south: 0,
+                east: 0,
+                west: 0,
+                central: 0
+            };
+
+            thailandCities.forEach(city => {
+                zonePopulation[city.zone] += city.population;
+            });
+
+            populationChart = new Chart(populationCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['North', 'South', 'East', 'West', 'Central'],
+                    datasets: [{
+                        label: 'Population by Zone',
+                        data: [
+                            zonePopulation.north,
+                            zonePopulation.south,
+                            zonePopulation.east,
+                            zonePopulation.west,
+                            zonePopulation.central
+                        ],
+                        backgroundColor: [
+                            '#10B981',
+                            '#F59E0B',
+                            '#EF4444',
+                            '#8B5CF6',
+                            '#3B82F6'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Population'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Cities by Region Chart
+            const regionCtx = document.getElementById('regionChart').getContext('2d');
+            const regionCounts = {
+                mandalay: 0,
+                bago: 0,
+                ayeyarwady: 0,
+                magway: 0,
+                naypyidaw: 0,
+                shan: 0
+            };
+
+            myanmarCities.forEach(city => {
+                regionCounts[city.region]++;
+            });
+
+            regionChart = new Chart(regionCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Mandalay', 'Bago', 'Ayeyarwady', 'Magway', 'Naypyidaw', 'Shan'],
+                    datasets: [{
+                        label: 'Cities by Region',
+                        data: [
+                            regionCounts.mandalay,
+                            regionCounts.bago,
+                            regionCounts.ayeyarwady,
+                            regionCounts.magway,
+                            regionCounts.naypyidaw,
+                            regionCounts.shan
+                        ],
+                        backgroundColor: [
+                            '#EC4899',
+                            '#06B6D4',
+                            '#84CC16',
+                            '#F97316',
+                            '#6366F1',
+                            '#EF4444'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        // Load all cities
+        function loadAllCities() {
+            filteredCities = [...thailandCities, ...myanmarCities];
+            sortCities();
+            renderCities();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            searchInput.addEventListener('input', handleSearch);
+            countryFilter.addEventListener('change', handleCountryFilter);
+            zoneFilter.addEventListener('change', handleZoneFilter);
+            clearFilters.addEventListener('click', handleClearFilters);
+            exportBtn.addEventListener('click', handleExport);
+            syncBtn.addEventListener('click', handleSync);
+            closeModal.addEventListener('click', () => cityModal.classList.add('hidden'));
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+            sortSelect.addEventListener('change', handleSortChange);
+            prevPage.addEventListener('click', () => changePage(-1));
+            nextPage.addEventListener('click', () => changePage(1));
+            
+            // Close modal on outside click
+            cityModal.addEventListener('click', (e) => {
+                if (e.target === cityModal) {
+                    cityModal.classList.add('hidden');
+                }
+            });
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = darkModeToggle.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        // Handle search
+        function handleSearch() {
+            currentFilter.search = searchInput.value.toLowerCase();
+            currentPage = 1;
+            applyFilters();
+        }
+
+        // Handle country filter
+        function handleCountryFilter() {
+            currentFilter.country = countryFilter.value;
+            currentPage = 1;
+            applyFilters();
+        }
+
+        // Handle zone filter
+        function handleZoneFilter() {
+            currentFilter.zone = zoneFilter.value;
+            currentPage = 1;
+            applyFilters();
+        }
+
+        // Handle sort change
+        function handleSortChange() {
+            sortCities();
+            renderCities();
+        }
+
+        // Sort cities
+        function sortCities() {
+            const sortValue = sortSelect.value;
+            
+            filteredCities.sort((a, b) => {
+                switch(sortValue) {
+                    case 'name-asc':
+                        return a.name.localeCompare(b.name);
+                    case 'name-desc':
+                        return b.name.localeCompare(a.name);
+                    case 'population-asc':
+                        return (a.population || 0) - (b.population || 0);
+                    case 'population-desc':
+                        return (b.population || 0) - (a.population || 0);
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        // Change page
+        function changePage(direction) {
+            currentPage += direction;
+            renderCities();
+        }
+
+        // Apply all filters
+        function applyFilters() {
+            let cities = [...thailandCities, ...myanmarCities];
+
+            // Search filter
+            if (currentFilter.search) {
+                cities = cities.filter(city => {
+                    const searchTerm = currentFilter.search.toLowerCase();
+                    return city.name.toLowerCase().includes(searchTerm) ||
+                           (city.thai && city.thai.includes(searchTerm)) ||
+                           (city.myanmar && city.myanmar.includes(searchTerm)) ||
+                           (city.zone && city.zone.toLowerCase().includes(searchTerm)) ||
+                           (city.region && city.region.toLowerCase().includes(searchTerm)) ||
+                           (city.township && city.township.toLowerCase().includes(searchTerm));
+                });
+            }
+
+            // Country filter
+            if (currentFilter.country) {
+                if (currentFilter.country === 'thailand') {
+                    cities = cities.filter(city => city.zone);
+                } else if (currentFilter.country === 'myanmar') {
+                    cities = cities.filter(city => city.region);
+                }
+            }
+
+            // Zone filter
+            if (currentFilter.zone) {
+                cities = cities.filter(city => 
+                    city.zone === currentFilter.zone || city.region === currentFilter.zone
+                );
+            }
+
+            filteredCities = cities;
+            sortCities();
+            renderCities();
+        }
+
+        // Clear all filters
+        function handleClearFilters() {
+            searchInput.value = '';
+            countryFilter.value = '';
+            zoneFilter.value = '';
+            sortSelect.value = 'name-asc';
+            currentFilter = { search: '', country: '', zone: '' };
+            currentPage = 1;
+            loadAllCities();
+        }
+
+        // Handle export
+        function handleExport() {
+            const csvContent = generateCSV(filteredCities);
+            downloadCSV(csvContent, 'cities_data.csv');
+        }
+
+        // Handle sync with Firebase
+        async function handleSync() {
+            const syncIcon = syncBtn.querySelector('i');
+            syncIcon.classList.add('loading');
+            
+            try {
+                // Upload Thailand cities
+                for (const city of thailandCities) {
+                    await db.collection('thailand_cities').doc(city.name).set(city);
+                }
+                
+                // Upload Myanmar cities
+                for (const city of myanmarCities) {
+                    await db.collection('myanmar_cities').doc(city.name).set(city);
+                }
+                
+                showNotification('Data synced successfully!', 'success');
+            } catch (error) {
+                console.error('Sync error:', error);
+                showNotification('Sync failed. Please try again.', 'error');
+            } finally {
+                syncIcon.classList.remove('loading');
+            }
+        }
+
+        // Render cities with pagination
+        function renderCities() {
+            if (filteredCities.length === 0) {
+                resultsContainer.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                updatePaginationControls();
+                return;
+            }
+
+            resultsContainer.classList.remove('hidden');
+            noResults.classList.add('hidden');
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredCities.length);
+            const paginatedCities = filteredCities.slice(startIndex, endIndex);
+
+            resultsContainer.innerHTML = paginatedCities.map(city => {
+                const isThailand = city.zone !== undefined;
+                const zoneClass = isThailand ? `zone-${city.zone}` : `region-${city.region}`;
+                const flag = isThailand ? '🇹🇭' : '🇲🇲';
+                const localName = isThailand ? city.thai : city.myanmar;
+                const location = isThailand ? `${city.zone.charAt(0).toUpperCase() + city.zone.slice(1)} Bangkok` : `${city.region.charAt(0).toUpperCase() + city.region.slice(1)} Region`;
+
+                return `
+                    <div class="bg-white rounded-lg shadow-md ${zoneClass} card-hover cursor-pointer p-6 dark-mode" onclick="showCityDetails('${city.name}')">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">${flag}</span>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark-mode">${city.name}</h3>
+                                    <p class="text-sm text-gray-600 dark-mode">${localName || ''}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${isThailand ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">
+                                    ${location}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            ${isThailand ? `
+                                <div class="flex items-center text-sm text-gray-600 dark-mode">
+                                    <i class="fas fa-users mr-2"></i>
+                                    Population: ${city.population.toLocaleString()}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 dark-mode">
+                                    <i class="fas fa-map-pin mr-2"></i>
+                                    ${city.lat.toFixed(4)}, ${city.lng.toFixed(4)}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 dark-mode">
+                                    <i class="fas fa-mail-bulk mr-2"></i>
+                                    Postal: ${city.postalCode}
+                                </div>
+                            ` : `
+                                <div class="flex items-center text-sm text-gray-600 dark-mode">
+                                    <i class="fas fa-building mr-2"></i>
+                                    ${city.township}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 dark-mode">
+                                    <i class="fas fa-map mr-2"></i>
+                                    ${city.region.charAt(0).toUpperCase() + city.region.slice(1)} Region
+                                </div>
+                            `}
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-200 dark-mode">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-500 dark-mode">
+                                    ${isThailand ? 'Bangkok District' : 'Myanmar Township'}
+                                </span>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updatePaginationControls();
+        }
+
+        // Update pagination controls
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(filteredCities.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentPage * itemsPerPage, filteredCities.length);
+
+            startCount.textContent = startIndex;
+            endCount.textContent = endIndex;
+            totalCount.textContent = filteredCities.length;
+
+            prevPage.disabled = currentPage === 1;
+            nextPage.disabled = currentPage === totalPages || filteredCities.length === 0;
+        }
+
+        // Show city details modal
+        function showCityDetails(cityName) {
+            const city = [...thailandCities, ...myanmarCities].find(c => c.name === cityName);
+            if (!city) return;
+
+            const isThailand = city.zone !== undefined;
+            const flag = isThailand ? '🇹🇭' : '🇲🇲';
+            const localName = isThailand ? city.thai : city.myanmar;
+
+            document.getElementById('modalTitle').innerHTML = `${flag} ${city.name}`;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-gray-50 p-4 rounded-lg dark-mode">
+                        <h3 class="font-semibold text-gray-900 mb-2 dark-mode">Basic Information</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-600 dark-mode">English Name</label>
+                                <p class="text-gray-900 dark-mode">${city.name}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600 dark-mode">${isThailand ? 'Thai Name' : 'Myanmar Name'}</label>
+                                <p class="text-gray-900 dark-mode">${localName || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600 dark-mode">Country</label>
+                                <p class="text-gray-900 dark-mode">${isThailand ? 'Thailand' : 'Myanmar'}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-600 dark-mode">${isThailand ? 'Zone' : 'Region'}</label>
+                                <p class="text-gray-900 dark-mode">${isThailand ? city.zone.charAt(0).toUpperCase() + city.zone.slice(1) : city.region.charAt(0).toUpperCase() + city.region.slice(1)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${isThailand ? `
+                        <div class="bg-blue-50 p-4 rounded-lg dark-mode">
+                            <h3 class="font-semibold text-gray-900 mb-2 dark-mode">Administrative Details</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600 dark-mode">Population</label>
+                                    <p class="text-gray-900 dark-mode">${city.population.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600 dark-mode">Postal Code</label>
+                                    <p class="text-gray-900 dark-mode">${city.postalCode}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600 dark-mode">Latitude</label>
+                                    <p class="text-gray-900 dark-mode">${city.lat.toFixed(6)}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600 dark-mode">Longitude</label>
+                                    <p class="text-gray-900 dark-mode">${city.lng.toFixed(6)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="bg-purple-50 p-4 rounded-lg dark-mode">
+                            <h3 class="font-semibold text-gray-900 mb-2 dark-mode">Administrative Details</h3>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600 dark-mode">Township</label>
+                                    <p class="text-gray-900 dark-mode">${city.township}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600 dark-mode">Administrative Level</label>
+                                    <p class="text-gray-900 dark-mode">Township (မြို့နယ်)</p>
+                                </div>
+                            </div>
+                        </div>
+                    `}
+
+                    <div class="flex space-x-3">
+                        <button onclick="copyToClipboard('${city.name}')" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-copy mr-2"></i>Copy Name
+                        </button>
+                        ${isThailand ? `
+                            <button onclick="copyToClipboard('${city.lat}, ${city.lng}')" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all">
+                                <i class="fas fa-map-pin mr-2"></i>Copy Coordinates
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            cityModal.classList.remove('hidden');
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Copied to clipboard!', 'success');
+            });
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            document.getElementById('totalCities').textContent = (thailandCities.length + myanmarCities.length).toString();
+            document.getElementById('thailandCount').textContent = thailandCities.length.toString();
+            document.getElementById('myanmarCount').textContent = myanmarCities.length.toString();
+        }
+
+        // Generate CSV
+        function generateCSV(cities) {
+            const headers = ['Name', 'Local Name', 'Country', 'Zone/Region', 'Population', 'Postal Code', 'Latitude', 'Longitude', 'Township'];
+            const rows = cities.map(city => {
+                const isThailand = city.zone !== undefined;
+                return [
+                    city.name,
+                    isThailand ? (city.thai || '') : (city.myanmar || ''),
+                    isThailand ? 'Thailand' : 'Myanmar',
+                    isThailand ? city.zone : city.region,
+                    isThailand ? city.population : '',
+                    isThailand ? city.postalCode : '',
+                    isThailand ? city.lat : '',
+                    isThailand ? city.lng : '',
+                    isThailand ? '' : city.township
+                ].map(field => `"${field}"`).join(',');
+            });
+            
+            return [headers.join(','), ...rows].join('\n');
+        }
+
+        // Download CSV
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Show loading
+        function showLoading() {
+            loadingIndicator.classList.remove('hidden');
+            resultsContainer.classList.add('hidden');
+            noResults.classList.add('hidden');
+        }
+
+        // Hide loading
+        function hideLoading() {
+            loadingIndicator.classList.add('hidden');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white transition-all transform translate-x-full`;
+            notification.style.backgroundColor = type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6';
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(full)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
