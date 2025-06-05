@@ -3,260 +3,799 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thailand & Myanmar Cities - Geographical Search</title>
+    <title>Thailand 3D Lottery - Enhanced Admin System</title>
+    
+    <!-- Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB49vRPX8YaWuTP5GS3lsBDqdAaz_hJYAw&libraries=visualization"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s ease;
+        body { font-family: 'Roboto', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass-effect { 
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .lottery-ball {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a52);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        .card-hover {
+        .admin-card {
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+        }
+        .banner-upload {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
             transition: all 0.3s ease;
         }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        .banner-upload:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
         }
-        .zone-north { border-left: 4px solid #10B981; }
-        .zone-south { border-left: 4px solid #F59E0B; }
-        .zone-east { border-left: 4px solid #EF4444; }
-        .zone-west { border-left: 4px solid #8B5CF6; }
-        .zone-central { border-left: 4px solid #3B82F6; }
-        .region-mandalay { border-left: 4px solid #EC4899; }
-        .region-bago { border-left: 4px solid #06B6D4; }
-        .region-ayeyarwady { border-left: 4px solid #84CC16; }
-        .region-magway { border-left: 4px solid #F97316; }
-        .region-naypyidaw { border-left: 4px solid #6366F1; }
-        .region-shan { border-left: 4px solid #EF4444; }
-        .loading {
-            animation: spin 1s linear infinite;
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
         }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .number-cell {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .dark-mode {
-            background-color: #1a202c;
-            color: #e2e8f0;
+        .number-cell:hover {
+            border-color: #667eea;
+            background-color: #f0f4ff;
         }
-        .dark-mode .bg-white {
-            background-color: #2d3748;
-            color: #e2e8f0;
+        .number-cell.closed {
+            background-color: #fee2e2;
+            border-color: #dc2626;
+            color: #dc2626;
         }
-        .dark-mode .text-gray-900 {
-            color: #e2e8f0;
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
         }
-        .dark-mode .text-gray-600 {
-            color: #a0aec0;
+        .notification.show {
+            transform: translateX(0);
         }
-        .dark-mode .border-gray-200 {
-            border-color: #4a5568;
-        }
-        #map {
-            height: 400px;
-            width: 100%;
-            border-radius: 0.5rem;
-        }
+        .notification.success { background-color: #10b981; }
+        .notification.error { background-color: #ef4444; }
+        .notification.warning { background-color: #f59e0b; }
+        .notification.info { background-color: #3b82f6; }
     </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Header -->
-    <header class="gradient-bg text-white shadow-lg">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-map-marked-alt text-3xl"></i>
-                    <div>
-                        <h1 class="text-2xl font-bold">Thailand & Myanmar Cities</h1>
-                        <p class="text-blue-100">Geographical Search & Administrative Data</p>
-                    </div>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="gradient-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-dice text-white text-2xl mr-3"></i>
+                    <span class="text-white text-xl font-bold" id="navTitle">Thailand 3D Lottery</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button id="darkModeToggle" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-full transition-all">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button id="syncBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
-                        <i class="fas fa-sync-alt mr-2"></i>Sync Data
-                    </button>
-                    <div id="connectionStatus" class="flex items-center">
-                        <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
-                        <span class="text-sm">Connected</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Search and Filters -->
-    <section class="bg-white shadow-md border-b dark-mode">
-        <div class="container mx-auto px-4 py-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    <input type="text" id="searchInput" placeholder="Search cities..." 
-                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark-mode">
-                </div>
-                <select id="countryFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark-mode">
-                    <option value="">All Countries</option>
-                    <option value="thailand">Thailand</option>
-                    <option value="myanmar">Myanmar</option>
-                </select>
-                <select id="zoneFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark-mode">
-                    <option value="">All Zones/Regions</option>
-                    <optgroup label="Thailand Zones">
-                        <option value="north">North Bangkok</option>
-                        <option value="south">South Bangkok</option>
-                        <option value="east">East Bangkok</option>
-                        <option value="west">West Bangkok</option>
-                        <option value="central">Central Bangkok</option>
-                    </optgroup>
-                    <optgroup label="Myanmar Regions">
-                        <option value="mandalay">Mandalay Region</option>
-                        <option value="bago">Bago Region</option>
-                        <option value="ayeyarwady">Ayeyarwady Region</option>
-                        <option value="magway">Magway Region</option>
-                        <option value="naypyidaw">Naypyidaw</option>
-                        <option value="shan">Shan State</option>
-                    </optgroup>
-                </select>
-                <div class="flex space-x-2">
-                    <button id="clearFilters" class="flex-1 bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg transition-all dark-mode">
-                        <i class="fas fa-times mr-2"></i>Clear
-                    </button>
-                    <button id="exportBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all">
-                        <i class="fas fa-download mr-2"></i>Export
-                    </button>
-                </div>
-            </div>
-
-            <!-- Statistics -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-blue-100 text-sm">Total Cities</p>
-                            <p id="totalCities" class="text-2xl font-bold">0</p>
-                        </div>
-                        <i class="fas fa-city text-3xl text-blue-200"></i>
-                    </div>
-                </div>
-                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-green-100 text-sm">Thailand Districts</p>
-                            <p id="thailandCount" class="text-2xl font-bold">0</p>
-                        </div>
-                        <i class="fas fa-flag text-3xl text-green-200"></i>
-                    </div>
-                </div>
-                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-purple-100 text-sm">Myanmar Cities</p>
-                            <p id="myanmarCount" class="text-2xl font-bold">0</p>
-                        </div>
-                        <i class="fas fa-map text-3xl text-purple-200"></i>
-                    </div>
-                </div>
-                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-orange-100 text-sm">Regions</p>
-                            <p id="regionCount" class="text-2xl font-bold">11</p>
-                        </div>
-                        <i class="fas fa-globe text-3xl text-orange-200"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Visualization Section -->
-    <section class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8 dark-mode">
-            <h2 class="text-xl font-semibold mb-4">Thailand Districts Map</h2>
-            <div id="map"></div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 dark-mode">
-                <h2 class="text-xl font-semibold mb-4">Population Distribution by Zone</h2>
-                <canvas id="populationChart"></canvas>
-            </div>
-            <div class="bg-white rounded-lg shadow-md p-6 dark-mode">
-                <h2 class="text-xl font-semibold mb-4">Cities by Region</h2>
-                <canvas id="regionChart"></canvas>
-            </div>
-        </div>
-    </section>
-
-    <!-- Results -->
-    <main class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-semibold">Search Results</h2>
-            <div class="flex items-center space-x-4">
-                <div class="flex items-center">
-                    <label class="mr-2 text-sm text-gray-600 dark-mode">Sort by:</label>
-                    <select id="sortSelect" class="border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500 dark-mode">
-                        <option value="name-asc">Name (A-Z)</option>
-                        <option value="name-desc">Name (Z-A)</option>
-                        <option value="population-asc">Population (Low-High)</option>
-                        <option value="population-desc">Population (High-Low)</option>
+                    <!-- Language Selector -->
+                    <select id="languageSelect" class="bg-white bg-opacity-20 text-white border border-white border-opacity-30 rounded px-3 py-1">
+                        <option value="en">English</option>
+                        <option value="my">မြန်မာ</option>
+                        <option value="th">ไทย</option>
                     </select>
-                </div>
-                <div class="text-sm text-gray-600 dark-mode">
-                    Showing <span id="startCount">1</span>-<span id="endCount">10</span> of <span id="totalCount">0</span>
-                </div>
-                <div class="flex space-x-2">
-                    <button id="prevPage" class="px-3 py-1 bg-gray-200 rounded-lg disabled:opacity-50 dark-mode">
-                        <i class="fas fa-chevron-left"></i>
+                    
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="text-white hover:text-gray-300 transition-colors">
+                        <i class="fas fa-moon" id="themeIcon"></i>
                     </button>
-                    <button id="nextPage" class="px-3 py-1 bg-gray-200 rounded-lg disabled:opacity-50 dark-mode">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+                    
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button id="userMenuBtn" class="flex items-center text-white hover:text-gray-300 transition-colors">
+                            <i class="fas fa-user-circle text-2xl"></i>
+                            <span class="ml-2" id="userNameDisplay">Guest</span>
+                        </button>
+                        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
+                            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100" onclick="showProfile()">
+                                <i class="fas fa-user mr-2"></i><span data-translate="profile">Profile</span>
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100" onclick="showWallet()">
+                                <i class="fas fa-wallet mr-2"></i><span data-translate="wallet">Wallet</span>
+                            </a>
+                            <div class="border-t border-gray-100"></div>
+                            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100" onclick="logout()">
+                                <i class="fas fa-sign-out-alt mr-2"></i><span data-translate="logout">Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Auth Section -->
+        <div id="authSection" class="max-w-md mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="text-center mb-6">
+                    <i class="fas fa-dice text-4xl text-purple-600 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800" data-translate="welcome">Welcome to Thailand 3D Lottery</h2>
+                </div>
+                
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <h3 class="text-xl font-semibold mb-4 text-center" data-translate="login">Login</h3>
+                    <form onsubmit="login(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" data-translate="email">Email</label>
+                            <input type="email" id="loginEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" data-translate="password">Password</label>
+                            <input type="password" id="loginPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-sign-in-alt mr-2"></i><span data-translate="login">Login</span>
+                        </button>
+                    </form>
+                    <div class="mt-4 text-center">
+                        <button onclick="showRegisterForm()" class="text-purple-600 hover:text-purple-800" data-translate="createAccount">Create Account</button>
+                    </div>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="registerForm" class="hidden">
+                    <h3 class="text-xl font-semibold mb-4 text-center" data-translate="register">Register</h3>
+                    <form onsubmit="register(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" data-translate="fullName">Full Name</label>
+                            <input type="text" id="registerName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" data-translate="email">Email</label>
+                            <input type="email" id="registerEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" data-translate="phone">Phone Number</label>
+                            <input type="tel" id="registerPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" data-translate="password">Password</label>
+                            <input type="password" id="registerPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-user-plus mr-2"></i><span data-translate="register">Register</span>
+                        </button>
+                    </form>
+                    <div class="mt-4 text-center">
+                        <button onclick="showLoginForm()" class="text-purple-600 hover:text-purple-800" data-translate="backToLogin">Back to Login</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="loadingIndicator" class="text-center py-8 hidden">
-            <i class="fas fa-spinner loading text-4xl text-blue-500 mb-4"></i>
-            <p class="text-gray-600 dark-mode">Loading cities data...</p>
-        </div>
-
-        <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Results will be populated here -->
-        </div>
-
-        <div id="noResults" class="text-center py-12 hidden">
-            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-600 mb-2 dark-mode">No results found</h3>
-            <p class="text-gray-500 dark-mode">Try adjusting your search terms or filters</p>
-        </div>
-    </main>
-
-    <!-- Modal for City Details -->
-    <div id="cityModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto dark-mode">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 id="modalTitle" class="text-2xl font-bold"></h2>
-                        <button id="closeModal" class="text-gray-500 hover:text-gray-700 dark-mode">
-                            <i class="fas fa-times text-xl"></i>
+        <!-- Main App Section -->
+        <div id="appSection" class="hidden">
+            <!-- Banner Section -->
+            <div id="bannerSection" class="mb-8">
+                <div class="swiper-container relative overflow-hidden rounded-lg shadow-lg">
+                    <div id="bannerSlider" class="flex transition-transform duration-500 ease-in-out">
+                        <!-- Banners will be loaded here -->
+                    </div>
+                    <div class="absolute top-1/2 left-4 transform -translate-y-1/2">
+                        <button onclick="previousBanner()" class="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75">
+                            <i class="fas fa-chevron-left"></i>
                         </button>
                     </div>
-                    <div id="modalContent">
-                        <!-- Modal content will be populated here -->
+                    <div class="absolute top-1/2 right-4 transform -translate-y-1/2">
+                        <button onclick="nextBanner()" class="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center">
+                        <div class="text-3xl text-blue-500 mr-4">
+                            <i class="fas fa-tickets-alt"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm" data-translate="totalTickets">Total Tickets</p>
+                            <p class="text-2xl font-bold" id="totalTickets">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center">
+                        <div class="text-3xl text-green-500 mr-4">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm" data-translate="totalWinners">Total Winners</p>
+                            <p class="text-2xl font-bold" id="totalWinners">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center">
+                        <div class="text-3xl text-yellow-500 mr-4">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm" data-translate="totalPrize">Total Prize</p>
+                            <p class="text-2xl font-bold" id="totalPrize">0 THB</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center">
+                        <div class="text-3xl text-purple-500 mr-4">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm" data-translate="myBalance">My Balance</p>
+                            <p class="text-2xl font-bold" id="userBalance">0 THB</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="bg-white rounded-lg shadow-lg mb-8">
+                <div class="border-b border-gray-200">
+                    <nav class="flex">
+                        <button onclick="showTab('lottery')" class="tab-btn active py-4 px-6 text-purple-600 border-b-2 border-purple-600">
+                            <i class="fas fa-dice mr-2"></i><span data-translate="lottery">Lottery</span>
+                        </button>
+                        <button onclick="showTab('results')" class="tab-btn py-4 px-6 text-gray-500 hover:text-purple-600">
+                            <i class="fas fa-chart-line mr-2"></i><span data-translate="results">Results</span>
+                        </button>
+                        <button onclick="showTab('wallet')" class="tab-btn py-4 px-6 text-gray-500 hover:text-purple-600">
+                            <i class="fas fa-wallet mr-2"></i><span data-translate="wallet">Wallet</span>
+                        </button>
+                        <button onclick="showTab('history')" class="tab-btn py-4 px-6 text-gray-500 hover:text-purple-600">
+                            <i class="fas fa-history mr-2"></i><span data-translate="history">History</span>
+                        </button>
+                        <button id="adminTab" onclick="showTab('admin')" class="tab-btn py-4 px-6 text-gray-500 hover:text-purple-600 hidden">
+                            <i class="fas fa-cog mr-2"></i><span data-translate="admin">Admin</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="p-6">
+                    <!-- Lottery Tab -->
+                    <div id="lotteryTab" class="tab-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Next Draw Info -->
+                            <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-6 text-white">
+                                <h3 class="text-xl font-bold mb-4" data-translate="nextDraw">Next Draw</h3>
+                                <div class="mb-4">
+                                    <p class="text-sm opacity-90" data-translate="drawDate">Draw Date</p>
+                                    <p class="text-2xl font-bold" id="nextDrawDate">Loading...</p>
+                                </div>
+                                <div class="mb-4">
+                                    <p class="text-sm opacity-90" data-translate="timeRemaining">Time Remaining</p>
+                                    <p class="text-xl font-semibold" id="countdown">00:00:00</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm opacity-90" data-translate="jackpot">Jackpot Prize</p>
+                                    <p class="text-3xl font-bold" id="jackpotAmount">500,000 THB</p>
+                                </div>
+                            </div>
+
+                            <!-- Number Selection -->
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-xl font-bold mb-4" data-translate="selectNumbers">Select Your Numbers</h3>
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" data-translate="threeDNumber">3D Number (000-999)</label>
+                                    <input type="number" id="selectedNumber" min="0" max="999" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" placeholder="Enter 3-digit number">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" data-translate="betAmount">Bet Amount (THB)</label>
+                                    <select id="betAmount" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+                                        <option value="10">10 THB</option>
+                                        <option value="20">20 THB</option>
+                                        <option value="50">50 THB</option>
+                                        <option value="100">100 THB</option>
+                                        <option value="200">200 THB</option>
+                                        <option value="500">500 THB</option>
+                                        <option value="1000">1000 THB</option>
+                                    </select>
+                                </div>
+                                <button onclick="placeBet()" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-ticket-alt mr-2"></i><span data-translate="placeBet">Place Bet</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Pick Numbers -->
+                        <div class="mt-8">
+                            <h3 class="text-xl font-bold mb-4" data-translate="quickPick">Quick Pick Numbers</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                <button onclick="quickPick()" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-random mr-2"></i><span data-translate="randomNumber">Random</span>
+                                </button>
+                                <button onclick="aiPrediction()" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors">
+                                    <i class="fas fa-robot mr-2"></i><span data-translate="aiPrediction">AI Prediction</span>
+                                </button>
+                                <button onclick="hotNumbers()" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">
+                                    <i class="fas fa-fire mr-2"></i><span data-translate="hotNumbers">Hot Numbers</span>
+                                </button>
+                                <button onclick="coldNumbers()" class="bg-cyan-500 text-white py-2 px-4 rounded-lg hover:bg-cyan-600 transition-colors">
+                                    <i class="fas fa-snowflake mr-2"></i><span data-translate="coldNumbers">Cold Numbers</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Tab -->
+                    <div id="resultsTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Latest Results -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-4" data-translate="latestResults">Latest Results</h3>
+                                <div id="latestResults" class="space-y-4">
+                                    <!-- Results will be loaded here -->
+                                </div>
+                            </div>
+
+                            <!-- Results Chart -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-4" data-translate="resultsChart">Results Chart</h3>
+                                <canvas id="resultsChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Results History Table -->
+                        <div class="mt-8">
+                            <h3 class="text-xl font-bold mb-4" data-translate="resultsHistory">Results History</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Draw No.</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winning Number</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prize Amount</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winners</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
+                                        <!-- Results will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Tab -->
+                    <div id="walletTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Balance Info -->
+                            <div class="bg-gradient-to-r from-green-500 to-blue-500 rounded-lg p-6 text-white">
+                                <h3 class="text-xl font-bold mb-4" data-translate="walletBalance">Wallet Balance</h3>
+                                <p class="text-4xl font-bold mb-2" id="walletBalance">0 THB</p>
+                                <p class="text-sm opacity-90" data-translate="lastUpdated">Last updated: <span id="balanceLastUpdated">-</span></p>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="space-y-4">
+                                <button onclick="showDepositModal()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i><span data-translate="deposit">Deposit Money</span>
+                                </button>
+                                <button onclick="showWithdrawModal()" class="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                                    <i class="fas fa-minus mr-2"></i><span data-translate="withdraw">Withdraw Money</span>
+                                </button>
+                                <button onclick="refreshBalance()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-sync mr-2"></i><span data-translate="refreshBalance">Refresh Balance</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Transaction History -->
+                        <div class="mt-8">
+                            <h3 class="text-xl font-bold mb-4" data-translate="transactionHistory">Transaction History</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactionTableBody" class="bg-white divide-y divide-gray-200">
+                                        <!-- Transactions will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- History Tab -->
+                    <div id="historyTab" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-4" data-translate="myTickets">My Lottery Tickets</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white border border-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Numbers</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bet Amount</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Draw Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prize</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ticketTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Tickets will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Admin Tab -->
+                    <div id="adminTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <!-- Admin Quick Stats -->
+                            <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                                <div class="admin-card rounded-lg p-6">
+                                    <div class="flex items-center">
+                                        <div class="text-3xl text-blue-500 mr-4">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 text-sm">Total Users</p>
+                                            <p class="text-2xl font-bold" id="adminTotalUsers">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="admin-card rounded-lg p-6">
+                                    <div class="flex items-center">
+                                        <div class="text-3xl text-green-500 mr-4">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 text-sm">Total Revenue</p>
+                                            <p class="text-2xl font-bold" id="adminTotalRevenue">0 THB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="admin-card rounded-lg p-6">
+                                    <div class="flex items-center">
+                                        <div class="text-3xl text-yellow-500 mr-4">
+                                            <i class="fas fa-ticket-alt"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 text-sm">Active Tickets</p>
+                                            <p class="text-2xl font-bold" id="adminActiveTickets">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="admin-card rounded-lg p-6">
+                                    <div class="flex items-center">
+                                        <div class="text-3xl text-red-500 mr-4">
+                                            <i class="fas fa-ban"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 text-sm">Closed Numbers</p>
+                                            <p class="text-2xl font-bold" id="adminClosedNumbers">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Banner Management -->
+                            <div class="admin-card rounded-lg p-6">
+                                <h3 class="text-xl font-bold mb-4">
+                                    <i class="fas fa-images mr-2"></i>Banner Management
+                                </h3>
+                                <div class="banner-upload mb-4">
+                                    <input type="file" id="bannerFile" accept="image/*" class="hidden" onchange="previewBanner(event)">
+                                    <div onclick="document.getElementById('bannerFile').click()" class="cursor-pointer">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                        <p class="text-gray-600">Click to upload banner image</p>
+                                        <p class="text-sm text-gray-400">PNG, JPG up to 10MB</p>
+                                    </div>
+                                </div>
+                                <div id="bannerPreview" class="mb-4 hidden">
+                                    <img id="bannerPreviewImg" class="w-full h-32 object-cover rounded-lg">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" id="bannerTitle" placeholder="Banner Title" class="px-3 py-2 border border-gray-300 rounded">
+                                    <input type="url" id="bannerLink" placeholder="Banner Link (optional)" class="px-3 py-2 border border-gray-300 rounded">
+                                </div>
+                                <button onclick="uploadBanner()" class="w-full mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-upload mr-2"></i>Upload Banner
+                                </button>
+                                
+                                <!-- Active Banners -->
+                                <div class="mt-6">
+                                    <h4 class="font-semibold mb-3">Active Banners</h4>
+                                    <div id="activeBanners" class="space-y-2">
+                                        <!-- Banners will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Controls -->
+                            <div class="admin-card rounded-lg p-6">
+                                <h3 class="text-xl font-bold mb-4">
+                                    <i class="fas fa-credit-card mr-2"></i>Payment Controls
+                                </h3>
+                                
+                                <!-- Payment Settings -->
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-sm font-medium">Enable Deposits</label>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="enableDeposits" class="sr-only peer" checked onchange="toggleDeposits()">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-sm font-medium">Enable Withdrawals</label>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="enableWithdrawals" class="sr-only peer" checked onchange="toggleWithdrawals()">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Pending Transactions -->
+                                <div class="mt-6">
+                                    <h4 class="font-semibold mb-3">Pending Approvals</h4>
+                                    <div id="pendingTransactions" class="space-y-2 max-h-60 overflow-y-auto">
+                                        <!-- Pending transactions will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Number Management -->
+                            <div class="admin-card rounded-lg p-6">
+                                <h3 class="text-xl font-bold mb-4">
+                                    <i class="fas fa-ban mr-2"></i>Number Management
+                                </h3>
+                                
+                                <!-- Close Numbers -->
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium mb-2">Close Specific Numbers</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="closeNumberInput" min="0" max="999" placeholder="000-999" class="flex-1 px-3 py-2 border border-gray-300 rounded">
+                                        <button onclick="closeNumber()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Single Digit Control -->
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium mb-2">Single Digit Limits</label>
+                                    <div class="number-grid">
+                                        <div class="number-cell" data-digit="0" onclick="toggleDigit(0)">0</div>
+                                        <div class="number-cell" data-digit="1" onclick="toggleDigit(1)">1</div>
+                                        <div class="number-cell" data-digit="2" onclick="toggleDigit(2)">2</div>
+                                        <div class="number-cell" data-digit="3" onclick="toggleDigit(3)">3</div>
+                                        <div class="number-cell" data-digit="4" onclick="toggleDigit(4)">4</div>
+                                        <div class="number-cell" data-digit="5" onclick="toggleDigit(5)">5</div>
+                                        <div class="number-cell" data-digit="6" onclick="toggleDigit(6)">6</div>
+                                        <div class="number-cell" data-digit="7" onclick="toggleDigit(7)">7</div>
+                                        <div class="number-cell" data-digit="8" onclick="toggleDigit(8)">8</div>
+                                        <div class="number-cell" data-digit="9" onclick="toggleDigit(9)">9</div>
+                                    </div>
+                                </div>
+
+                                <!-- Closed Numbers List -->
+                                <div>
+                                    <h4 class="font-semibold mb-3">Closed Numbers</h4>
+                                    <div id="closedNumbersList" class="max-h-40 overflow-y-auto">
+                                        <!-- Closed numbers will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- System Controls -->
+                            <div class="lg:col-span-3 admin-card rounded-lg p-6">
+                                <h3 class="text-xl font-bold mb-4">
+                                    <i class="fas fa-cogs mr-2"></i>System Controls
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <!-- Lottery Controls -->
+                                    <div>
+                                        <h4 class="font-semibold mb-3">Lottery Controls</h4>
+                                        <div class="space-y-2">
+                                            <button onclick="startNewDraw()" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+                                                <i class="fas fa-play mr-2"></i>Start New Draw
+                                            </button>
+                                            <button onclick="generateResults()" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                                                <i class="fas fa-random mr-2"></i>Generate Results
+                                            </button>
+                                            <button onclick="stopSales()" class="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">
+                                                <i class="fas fa-stop mr-2"></i>Stop Sales
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- User Management -->
+                                    <div>
+                                        <h4 class="font-semibold mb-3">User Management</h4>
+                                        <div class="space-y-2">
+                                            <button onclick="viewAllUsers()" class="w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700">
+                                                <i class="fas fa-users mr-2"></i>View All Users
+                                            </button>
+                                            <button onclick="exportUserData()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">
+                                                <i class="fas fa-download mr-2"></i>Export Data
+                                            </button>
+                                            <button onclick="sendNotification()" class="w-full bg-yellow-600 text-white py-2 px-4 rounded hover:bg-yellow-700">
+                                                <i class="fas fa-bell mr-2"></i>Send Notification
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Reports -->
+                                    <div>
+                                        <h4 class="font-semibold mb-3">Reports & Analytics</h4>
+                                        <div class="space-y-2">
+                                            <button onclick="generateDailyReport()" class="w-full bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700">
+                                                <i class="fas fa-chart-bar mr-2"></i>Daily Report
+                                            </button>
+                                            <button onclick="generateMonthlyReport()" class="w-full bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700">
+                                                <i class="fas fa-chart-line mr-2"></i>Monthly Report
+                                            </button>
+                                            <button onclick="viewAnalytics()" class="w-full bg-orange-600 text-white py-2 px-4 rounded hover:bg-orange-700">
+                                                <i class="fas fa-analytics mr-2"></i>Analytics
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Deposit Money</h3>
+                <button onclick="closeDepositModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form onsubmit="submitDeposit(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Amount (THB)</label>
+                    <input type="number" id="depositAmount" min="10" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Payment Method</label>
+                    <select id="depositMethod" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="bank">Bank Transfer</option>
+                        <option value="card">Credit/Debit Card</option>
+                        <option value="wallet">Digital Wallet</option>
+                    </select>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeDepositModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400">Cancel</button>
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700">Deposit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Withdraw Money</h3>
+                <button onclick="closeWithdrawModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form onsubmit="submitWithdraw(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Amount (THB)</label>
+                    <input type="number" id="withdrawAmount" min="10" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Bank Account</label>
+                    <input type="text" id="bankAccount" placeholder="Bank account number" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Bank Name</label>
+                    <select id="bankName" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="scb">Siam Commercial Bank</option>
+                        <option value="kbank">Kasikorn Bank</option>
+                        <option value="bbl">Bangkok Bank</option>
+                        <option value="tmb">TMB Bank</option>
+                    </select>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeWithdrawModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400">Cancel</button>
+                    <button type="submit" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700">Withdraw</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- AI Chat Widget -->
+    <div id="aiChatWidget" class="fixed bottom-4 right-4 z-50">
+        <button onclick="toggleAIChat()" class="bg-purple-600 text-white p-4 rounded-full shadow-lg hover:bg-purple-700 transition-colors">
+            <i class="fas fa-robot text-xl"></i>
+        </button>
+        <div id="aiChatBox" class="hidden absolute bottom-16 right-0 w-80 h-96 bg-white rounded-lg shadow-xl border">
+            <div class="bg-purple-600 text-white p-4 rounded-t-lg">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-semibold">AI Assistant</h4>
+                    <button onclick="toggleAIChat()" class="text-white hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="aiChatMessages" class="h-72 overflow-y-auto p-4 space-y-2">
+                <div class="bg-gray-100 p-3 rounded-lg">
+                    <p class="text-sm">Hello! I'm your AI assistant. How can I help you with the lottery today?</p>
+                </div>
+            </div>
+            <div class="p-4 border-t">
+                <div class="flex gap-2">
+                    <input type="text" id="aiChatInput" placeholder="Ask me anything..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <button onclick="sendAIMessage()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -265,789 +804,1390 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyB49vRPX8YaWuTP5GS3lsBDqdAaz_hJYAw",
-            authDomain: "onlineshop-849c8.firebaseapp.com",
-            databaseURL: "https://onlineshop-849c8.firebaseio.com",
-            projectId: "onlineshop-849c8",
-            storageBucket: "onlineshop-849c8.appspot.com",
-            messagingSenderId: "883512833370",
-            appId: "1:883512833370:web:a1c8412b158f8744afef63"
+            apiKey: "AIzaSyBkXc7T3K5K5K5K5K5K5K5K5K5K5K5K5K5",
+            authDomain: "thailand-lottery.firebaseapp.com",
+            projectId: "thailand-lottery",
+            storageBucket: "thailand-lottery.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
-       // Thailand Cities - Complete List of Bangkok Districts
-        const thailandCities = [
-            // North Bangkok
-            { name: "Don Mueang", thai: "ดอนเมือง", zone: "north", lat: 13.913611, lng: 100.589722, population: 166261, postalCode: "10210" },
-            { name: "Sai Mai", thai: "สายไหม", zone: "north", lat: 13.919167, lng: 100.645833, population: 188123, postalCode: "10220" },
-            { name: "Lak Si", thai: "หลักสี่", zone: "north", lat: 13.8875, lng: 100.578889, population: 109770, postalCode: "10210" },
-            { name: "Chatuchak", thai: "จตุจักร", zone: "north", lat: 13.828611, lng: 100.559722, population: 160906, postalCode: "10900" },
-            { name: "Bang Khen", thai: "บางเขน", zone: "north", lat: 13.873889, lng: 100.596389, population: 189539, postalCode: "10220" },
-            { name: "Khlong Sam Wa", thai: "คลองสามวา", zone: "north", lat: 13.859722, lng: 100.704167, population: 169489, postalCode: "10510" },
-            { name: "Nong Chok", thai: "หนองจอก", zone: "north", lat: 13.855556, lng: 100.8625, population: 157138, postalCode: "10530" },
-            { name: "Min Buri", thai: "มีนบุรี", zone: "north", lat: 13.813889, lng: 100.748056, population: 137251, postalCode: "10510" },
-            { name: "Khan Na Yao", thai: "คันนายาว", zone: "north", lat: 13.8271, lng: 100.6743, population: 88678, postalCode: "10230" },
-            { name: "Bang Sue", thai: "บางซื่อ", zone: "north", lat: 13.809722, lng: 100.537222, population: 132234, postalCode: "10800" },
-            { name: "Lat Phrao", thai: "ลาดพร้าว", zone: "north", lat: 13.803611, lng: 100.6075, population: 122182, postalCode: "10230" },
-            { name: "Bang Phlat", thai: "บางพลัด", zone: "north", lat: 13.793889, lng: 100.505, population: 99273, postalCode: "10700" },
-            { name: "Thawi Watthana", thai: "ทวีวัฒนา", zone: "north", lat: 13.7878, lng: 100.3638, population: 76351, postalCode: "10170" },
-            { name: "Wang Thonglang", thai: "วังทองหลาง", zone: "north", lat: 13.7864, lng: 100.6087, population: 114768, postalCode: "10310" },
-            { name: "Bueng Kum", thai: "บึงกุ่ม", zone: "north", lat: 13.785278, lng: 100.669167, population: 145830, postalCode: "10240" },
+        // Global Variables
+        let currentUser = null;
+        let isAdmin = false;
+        let currentLanguage = 'en';
+        let currentBannerIndex = 0;
+        let bannerInterval;
+        let closedNumbers = new Set();
+        let closedDigits = new Set();
+        let depositsEnabled = true;
+        let withdrawalsEnabled = true;
 
-            // Central Bangkok
-            { name: "Phra Nakhon", thai: "พระนคร", zone: "central", lat: 13.764444, lng: 100.499167, population: 57876, postalCode: "10200" },
-            { name: "Dusit", thai: "ดุสิต", zone: "central", lat: 13.776944, lng: 100.520556, population: 107655, postalCode: "10300" },
-            { name: "Bang Rak", thai: "บางรัก", zone: "central", lat: 13.730833, lng: 100.524167, population: 45875, postalCode: "10500" },
-            { name: "Pathum Wan", thai: "ปทุมวัน", zone: "central", lat: 13.744942, lng: 100.5222, population: 53263, postalCode: "10330" },
-            { name: "Pom Prap Sattru Phai", thai: "ป้อมปราบศัตรูพ่าย", zone: "central", lat: 13.758056, lng: 100.513056, population: 51006, postalCode: "10100" },
-            { name: "Ratchathewi", thai: "ราชเทวี", zone: "central", lat: 13.758889, lng: 100.534444, population: 73035, postalCode: "10400" },
-            { name: "Din Daeng", thai: "ดินแดง", zone: "central", lat: 13.769722, lng: 100.552778, population: 130220, postalCode: "10400" },
-            { name: "Phaya Thai", thai: "พญาไท", zone: "central", lat: 13.78, lng: 100.542778, population: 72952, postalCode: "10400" },
-            { name: "Huai Khwang", thai: "ห้วยขวาง", zone: "central", lat: 13.776667, lng: 100.579444, population: 78175, postalCode: "10310" },
-            { name: "Taling Chan", thai: "ตลิ่งชั่น", zone: "central", lat: 13.776944, lng: 100.456667, population: 106604, postalCode: "10170" },
-            { name: "Bangkok Noi", thai: "บางกอกน้อย", zone: "central", lat: 13.770867, lng: 100.467933, population: 117793, postalCode: "10700" },
-            { name: "Samphanthawong", thai: "สัมพันธวงศ์", zone: "central", lat: 13.731389, lng: 100.514167, population: 27452, postalCode: "10100" },
-            { name: "Khlong San", thai: "คลองสาน", zone: "central", lat: 13.730278, lng: 100.509722, population: 76446, postalCode: "10600" },
-            { name: "Thon Buri", thai: "ธนบุรี", zone: "central", lat: 13.725, lng: 100.485833, population: 119708, postalCode: "10600" },
-            { name: "Bangkok Yai", thai: "บางกอกใหญ่", zone: "central", lat: 13.722778, lng: 100.476389, population: 72321, postalCode: "10600" },
-
-            // East Bangkok
-            { name: "Bang Kapi", thai: "บางกะปิ", zone: "east", lat: 13.765833, lng: 100.647778, population: 148465, postalCode: "10240" },
-            { name: "Saphan Sung", thai: "สะพานสูง", zone: "east", lat: 13.77, lng: 100.684722, population: 89825, postalCode: "10240" },
-            { name: "Prawet", thai: "ประเวศ", zone: "east", lat: 13.716944, lng: 100.694444, population: 160671, postalCode: "10250" },
-            { name: "Suan Luang", thai: "สวนหลวง", zone: "east", lat: 13.730278, lng: 100.651389, population: 115658, postalCode: "10250" },
-            { name: "Phra Khanong", thai: "พระโขนง", zone: "east", lat: 13.702222, lng: 100.601667, population: 93482, postalCode: "10260" },
-            { name: "Watthana", thai: "วัฒนา", zone: "east", lat: 13.742222, lng: 100.585833, population: 81623, postalCode: "10110" },
-            { name: "Khlong Toei", thai: "คลองเตย", zone: "east", lat: 13.708056, lng: 100.583889, population: 109041, postalCode: "10110" },
-            { name: "Bang Na", thai: "บางนา", zone: "east", lat: 13.680081, lng: 100.5918, population: 95912, postalCode: "10260" },
-            { name: "Lat Krabang", thai: "ลาดกระบัง", zone: "east", lat: 13.722317, lng: 100.759669, population: 163175, postalCode: "10520" },
-
-            // South Bangkok
-            { name: "Yan Nawa", thai: "ยานนาวา", zone: "south", lat: 13.696944, lng: 100.543056, population: 81521, postalCode: "10120" },
-            { name: "Sathon", thai: "สาทร", zone: "south", lat: 13.708056, lng: 100.526389, population: 84916, postalCode: "10120" },
-            { name: "Bang Kho Laem", thai: "บางคอแหลม", zone: "south", lat: 13.693333, lng: 100.5025, population: 94956, postalCode: "10120" },
-            { name: "Rat Burana", thai: "ราษฎร์บูรณะ", zone: "south", lat: 13.682222, lng: 100.505556, population: 86695, postalCode: "10140" },
-            { name: "Thung Khru", thai: "ทุ่งครุ", zone: "south", lat: 13.6472, lng: 100.4958, population: 116473, postalCode: "10140" },
-            { name: "Chom Thong", thai: "จอมทอง", zone: "south", lat: 13.677222, lng: 100.484722, population: 158005, postalCode: "10150" },
-            { name: "Bang Khun Thian", thai: "บางขุนเทียน", zone: "south", lat: 13.660833, lng: 100.435833, population: 165491, postalCode: "10150" },
-
-            // West Bangkok
-            { name: "Bang Bon", thai: "บางบอน", zone: "west", lat: 13.6592, lng: 100.3991, population: 105161, postalCode: "10150" },
-            { name: "Phasi Charoen", thai: "ภาษีเจริญ", zone: "west", lat: 13.714722, lng: 100.437222, population: 129827, postalCode: "10160" },
-            { name: "Bang Khae", thai: "บางแค", zone: "west", lat: 13.696111, lng: 100.409444, population: 191781, postalCode: "10160" },
-            { name: "Nong Khaem", thai: "หนองแขม", zone: "west", lat: 13.704722, lng: 100.348889, population: 150218, postalCode: "10160" },
-
-            // Additional Thailand Provinces (Major Cities)
-            { name: "Chiang Mai", thai: "เชียงใหม่", zone: "north", lat: 18.7883, lng: 98.9867, population: 127240, postalCode: "50000" },
-            { name: "Phuket", thai: "ภูเก็ต", zone: "south", lat: 7.8804, lng: 98.3923, population: 78802, postalCode: "83000" },
-            { name: "Pattaya", thai: "พัทยา", zone: "east", lat: 12.9236, lng: 100.8825, population: 119532, postalCode: "20150" },
-            { name: "Hat Yai", thai: "หาดใหญ่", zone: "south", lat: 7.0084, lng: 100.4767, population: 159130, postalCode: "90110" },
-            { name: "Nakhon Ratchasima", thai: "นครราชสีมา", zone: "northeast", lat: 14.9715, lng: 102.1016, population: 174332, postalCode: "30000" }
-        ];
-
-        // Myanmar Cities - Complete List (All States and Regions)
-        const myanmarCities = [
-            // Yangon Region
-            { name: "Yangon", myanmar: "ရန်ကုန်", region: "yangon", township: "Yangon Township", lat: 16.8409, lng: 96.1735 },
-            { name: "Bahan", myanmar: "ဗဟန်း", region: "yangon", township: "Bahan Township", lat: 16.8158, lng: 96.1582 },
-            { name: "Dagon", myanmar: "ဒဂုံ", region: "yangon", township: "Dagon Township", lat: 16.7942, lng: 96.1483 },
-            { name: "Hlaing", myanmar: "လှိုင်", region: "yangon", township: "Hlaing Township", lat: 16.8567, lng: 96.1253 },
-            { name: "Kamayut", myanmar: "ကမာရွတ်", region: "yangon", township: "Kamayut Township", lat: 16.8275, lng: 96.1322 },
-            { name: "Kyauktada", myanmar: "ကျောက်တံတား", region: "yangon", township: "Kyauktada Township", lat: 16.7739, lng: 96.1603 },
-            { name: "Mayangon", myanmar: "မရမ်းကုန်း", region: "yangon", township: "Mayangon Township", lat: 16.8658, lng: 96.1336 },
-            { name: "Pabedan", myanmar: "ပန်းဘဲတန်း", region: "yangon", township: "Pabedan Township", lat: 16.7742, lng: 96.1539 },
-            { name: "Sanchaung", myanmar: "စမ်းချောင်း", region: "yangon", township: "Sanchaung Township", lat: 16.8050, lng: 96.1350 },
-            { name: "Thingangyun", myanmar: "သင်္ဃန်းကျွန်း", region: "yangon", township: "Thingangyun Township", lat: 16.8303, lng: 96.1822 },
-
-            // Mandalay Region
-            { name: "Mandalay", myanmar: "မန္တလေး", region: "mandalay", township: "Mandalay Township", lat: 21.9588, lng: 96.0891 },
-            { name: "Amarapura", myanmar: "အမရပူရ", region: "mandalay", township: "Amarapura Township", lat: 21.8911, lng: 96.0433 },
-            { name: "Patheingyi", myanmar: "ပုသိမ်ကြီး", region: "mandalay", township: "Patheingyi Township", lat: 21.9994, lng: 96.1528 },
-            { name: "Pyin Oo Lwin", myanmar: "ပြင်ဦးလွင်", region: "mandalay", township: "Pyin Oo Lwin Township", lat: 22.0350, lng: 96.4567 },
-            { name: "Meiktila", myanmar: "မိတ္ထီလာ", region: "mandalay", township: "Meiktila Township", lat: 20.8733, lng: 95.8578 },
-            { name: "Myingyan", myanmar: "မြင်းခြံ", region: "mandalay", township: "Myingyan Township", lat: 21.4600, lng: 95.3883 },
-            { name: "Yamethin", myanmar: "ရမည်းသင်း", region: "mandalay", township: "Yamethin Township", lat: 20.4333, lng: 96.1500 },
-
-            // Naypyidaw Union Territory
-            { name: "Naypyidaw", myanmar: "နေပြည်တော်", region: "naypyidaw", township: "Naypyidaw Township", lat: 19.7633, lng: 96.0785 },
-            { name: "Lewe", myanmar: "လယ်ဝေး", region: "naypyidaw", township: "Lewe Township", lat: 19.8133, lng: 96.2083 },
-            { name: "Pyinmana", myanmar: "ပျဉ်းမနား", region: "naypyidaw", township: "Pyinmana Township", lat: 19.7381, lng: 96.2075 },
-            { name: "Tatkon", myanmar: "တပ်ကုန်း", region: "naypyidaw", township: "Tatkon Township", lat: 19.8333, lng: 96.1167 },
-
-            // Shan State
-            { name: "Taunggyi", myanmar: "တောင်ကြီး", region: "shan", township: "Taunggyi Township", lat: 20.7833, lng: 97.0333 },
-            { name: "Lashio", myanmar: "လားရှိုး", region: "shan", township: "Lashio Township", lat: 22.9333, lng: 97.7500 },
-            { name: "Kengtung", myanmar: "ကျိုင်းတုံ", region: "shan", township: "Kengtung Township", lat: 21.3000, lng: 99.6000 },
-            { name: "Tachileik", myanmar: "တာချီလိတ်", region: "shan", township: "Tachileik Township", lat: 20.4500, lng: 99.8833 },
-            { name: "Muse", myanmar: "မူဆယ်", region: "shan", township: "Muse Township", lat: 23.9833, lng: 97.9000 },
-
-            // Kachin State
-            { name: "Myitkyina", myanmar: "မြစ်ကြီးနား", region: "kachin", township: "Myitkyina Township", lat: 25.3833, lng: 97.4000 },
-            { name: "Bhamo", myanmar: "ဗန်းမော်", region: "kachin", township: "Bhamo Township", lat: 24.2667, lng: 97.2333 },
-            { name: "Putao", myanmar: "ပူတာအို", region: "kachin", township: "Putao Township", lat: 27.3333, lng: 97.4167 },
-
-            // Kayah State
-            { name: "Loikaw", myanmar: "လွိုင်ကော်", region: "kayah", township: "Loikaw Township", lat: 19.6667, lng: 97.2167 },
-            { name: "Demoso", myanmar: "ဒီမောဆို", region: "kayah", township: "Demoso Township", lat: 19.6833, lng: 97.1667 },
-
-            // Kayin State
-            { name: "Hpa-an", myanmar: "ဘားအံ", region: "kayin", township: "Hpa-an Township", lat: 16.8833, lng: 97.6333 },
-            { name: "Myawaddy", myanmar: "မြဝတီ", region: "kayin", township: "Myawaddy Township", lat: 16.7000, lng: 98.5000 },
-
-            // Mon State
-            { name: "Mawlamyine", myanmar: "မော်လမြိုင်", region: "mon", township: "Mawlamyine Township", lat: 16.4833, lng: 97.6167 },
-            { name: "Thaton", myanmar: "သထုံ", region: "mon", township: "Thaton Township", lat: 16.9333, lng: 97.3667 },
-
-            // Rakhine State
-            { name: "Sittwe", myanmar: "စစ်တွေ", region: "rakhine", township: "Sittwe Township", lat: 20.1500, lng: 92.9000 },
-            { name: "Mrauk-U", myanmar: "မြောက်ဦး", region: "rakhine", township: "Mrauk-U Township", lat: 20.6000, lng: 93.1833 },
-            { name: "Thandwe", myanmar: "သံတွဲ", region: "rakhine", township: "Thandwe Township", lat: 18.4667, lng: 94.3667 },
-
-            // Bago Region
-            { name: "Bago", myanmar: "ပဲခူး", region: "bago", township: "Bago Township", lat: 17.3333, lng: 96.4833 },
-            { name: "Pyay", myanmar: "ပြည်", region: "bago", township: "Pyay Township", lat: 18.8167, lng: 95.2167 },
-            { name: "Taungoo", myanmar: "တောင်ငူ", region: "bago", township: "Taungoo Township", lat: 18.9333, lng: 96.4333 },
-
-            // Magway Region
-            { name: "Magway", myanmar: "မကွေး", region: "magway", township: "Magway Township", lat: 20.1500, lng: 94.9500 },
-            { name: "Pakokku", myanmar: "ပခုက္ကူ", region: "magway", township: "Pakokku Township", lat: 21.3333, lng: 95.1000 },
-
-            // Sagaing Region
-            { name: "Sagaing", myanmar: "စစ်ကိုင်း", region: "sagaing", township: "Sagaing Township", lat: 21.8833, lng: 95.9667 },
-            { name: "Monywa", myanmar: "မုံရွာ", region: "sagaing", township: "Monywa Township", lat: 22.1167, lng: 95.1333 },
-            { name: "Shwebo", myanmar: "ရွှေဘို", region: "sagaing", township: "Shwebo Township", lat: 22.5667, lng: 95.7000 },
-
-            // Tanintharyi Region
-            { name: "Dawei", myanmar: "ထားဝယ်", region: "tanintharyi", township: "Dawei Township", lat: 14.0833, lng: 98.2000 },
-            { name: "Myeik", myanmar: "မြိတ်", region: "tanintharyi", township: "Myeik Township", lat: 12.4333, lng: 98.6000 },
-            { name: "Kawthoung", myanmar: "ကော့သောင်း", region: "tanintharyi", township: "Kawthoung Township", lat: 9.9833, lng: 98.5500 },
-
-            // Ayeyarwady Region
-            { name: "Pathein", myanmar: "ပုသိမ်", region: "ayeyarwady", township: "Pathein Township", lat: 16.7667, lng: 94.7333 },
-            { name: "Hinthada", myanmar: "ဟင်္သာတ", region: "ayeyarwady", township: "Hinthada Township", lat: 17.6333, lng: 95.4667 },
-            { name: "Myaungmya", myanmar: "မြောင်းမြ", region: "ayeyarwady", township: "Myaungmya Township", lat: 16.5833, lng: 94.9167 }
-        ];
-        // Application State
-        let filteredCities = [];
-        let currentFilter = {
-            search: '',
-            country: '',
-            zone: ''
+        // Language Translations
+        const translations = {
+            en: {
+                welcome: "Welcome to Thailand 3D Lottery",
+                login: "Login",
+                register: "Register",
+                email: "Email",
+                password: "Password",
+                fullName: "Full Name",
+                phone: "Phone Number",
+                createAccount: "Create Account",
+                backToLogin: "Back to Login",
+                profile: "Profile",
+                wallet: "Wallet",
+                logout: "Logout",
+                lottery: "Lottery",
+                results: "Results",
+                history: "History",
+                admin: "Admin",
+                nextDraw: "Next Draw",
+                drawDate: "Draw Date",
+                timeRemaining: "Time Remaining",
+                jackpot: "Jackpot Prize",
+                selectNumbers: "Select Your Numbers",
+                threeDNumber: "3D Number (000-999)",
+                betAmount: "Bet Amount (THB)",
+                placeBet: "Place Bet",
+                quickPick: "Quick Pick Numbers",
+                randomNumber: "Random",
+                aiPrediction: "AI Prediction",
+                hotNumbers: "Hot Numbers",
+                coldNumbers: "Cold Numbers",
+                latestResults: "Latest Results",
+                resultsChart: "Results Chart",
+                resultsHistory: "Results History",
+                walletBalance: "Wallet Balance",
+                lastUpdated: "Last updated",
+                deposit: "Deposit Money",
+                withdraw: "Withdraw Money",
+                refreshBalance: "Refresh Balance",
+                transactionHistory: "Transaction History",
+                myTickets: "My Lottery Tickets",
+                totalTickets: "Total Tickets",
+                totalWinners: "Total Winners",
+                totalPrize: "Total Prize",
+                myBalance: "My Balance"
+            },
+            my: {
+                welcome: "ထိုင်း 3D လော့ထရီသို့ ကြိုဆိုပါသည်",
+                login: "ဝင်ရောက်ရန်",
+                register: "မှတ်ပုံတင်ရန်",
+                email: "အီးမေး",
+                password: "စကားဝှက်",
+                fullName: "အမည်အပြည့်အစုံ",
+                phone: "ဖုန်းနံပါတ်",
+                createAccount: "အကောင့်ဖွင့်ရန်",
+                backToLogin: "လော့ဂ်အင်သို့ပြန်သွား",
+                profile: "ပရိုဖိုင်",
+                wallet: "ပိုက်ဆံအိတ်",
+                logout: "ထွက်ရန်",
+                lottery: "လော့ထရီ",
+                results: "ရလဒ်များ",
+                history: "မှတ်တမ်း",
+                admin: "စီမံခန့်ခွဲမှု",
+                nextDraw: "နောက်ထွက်ပွဲ",
+                drawDate: "ထွက်ပွဲရက်စွဲ",
+                timeRemaining: "ကျန်ရှိသောအချိန်",
+                jackpot: "ဂျက်ပို့ဆုကြေး",
+                selectNumbers: "သင့်နံပါတ်များရွေးချယ်ပါ",
+                threeDNumber: "3D နံပါတ် (000-999)",
+                betAmount: "လောင်းကြေး (THB)",
+                placeBet: "လောင်းထားရန်",
+                quickPick: "မြန်နံပါတ်ရွေး",
+                randomNumber: "ကျပန်း",
+                aiPrediction: "AI ခန့်မှန်းချက်",
+                hotNumbers: "ပူနံပါတ်များ",
+                coldNumbers: "အေးနံပါတ်များ",
+                latestResults: "နောက်ဆုံးရလဒ်များ",
+                resultsChart: "ရလဒ်ဇယား",
+                resultsHistory: "ရလဒ်မှတ်တမ်း",
+                walletBalance: "ပိုက်ဆံအိတ်လက်ကျန်",
+                lastUpdated: "နောက်ဆုံးအပ်ဒိတ်",
+                deposit: "ငွေသွင်းရန်",
+                withdraw: "ငွေထုတ်ရန်",
+                refreshBalance: "လက်ကျန်ပြန်လည်စစ်ဆေးရန်",
+                transactionHistory: "ငွေကြေးလုပ်ငန်းမှတ်တမ်း",
+                myTickets: "ကျွန်ုပ်၏လော့ထရီလက်မှတ်များ",
+                totalTickets: "စုစုပေါင်းလက်မှတ်များ",
+                totalWinners: "စုစုပေါင်းအနိုင်ရသူများ",
+                totalPrize: "စုစုပေါင်းဆုကြေး",
+                myBalance: "ကျွန်ုပ်၏လက်ကျန်"
+            },
+            th: {
+                welcome: "ยินดีต้อนรับสู่หวย 3D ไทย",
+                login: "เข้าสู่ระบบ",
+                register: "สมัครสมาชิก",
+                email: "อีเมล",
+                password: "รหัสผ่าน",
+                fullName: "ชื่อ-นามสกุล",
+                phone: "หมายเลขโทรศัพท์",
+                createAccount: "สร้างบัญชี",
+                backToLogin: "กลับไปหน้าเข้าสู่ระบบ",
+                profile: "โปรไฟล์",
+                wallet: "กระเป๋าเงิน",
+                logout: "ออกจากระบบ",
+                lottery: "หวย",
+                results: "ผลรางวัล",
+                history: "ประวัติ",
+                admin: "แอดมิน",
+                nextDraw: "งวดต่อไป",
+                drawDate: "วันที่ออกรางวัล",
+                timeRemaining: "เวลาที่เหลือ",
+                jackpot: "รางวัลแจ็คพอต",
+                selectNumbers: "เลือกหมายเลขของคุณ",
+                threeDNumber: "หมายเลข 3D (000-999)",
+                betAmount: "จำนวนเงินเดิมพัน (บาท)",
+                placeBet: "วางเดิมพัน",
+                quickPick: "เลือกหมายเลขด่วน",
+                randomNumber: "สุ่ม",
+                aiPrediction: "คาดการณ์ AI",
+                hotNumbers: "หมายเลขร้อน",
+                coldNumbers: "หมายเลขเย็น",
+                latestResults: "ผลรางวัลล่าสุด",
+                resultsChart: "กราฟผลรางวัล",
+                resultsHistory: "ประวัติผลรางวัล",
+                walletBalance: "ยอดเงินในกระเป๋า",
+                lastUpdated: "อัพเดทล่าสุด",
+                deposit: "ฝากเงิน",
+                withdraw: "ถอนเงิน",
+                refreshBalance: "รีเฟรชยอดเงิน",
+                transactionHistory: "ประวัติการทำธุรกรรม",
+                myTickets: "ลอตเตอรี่ของฉัน",
+                totalTickets: "ลอตเตอรี่ทั้งหมด",
+                totalWinners: "ผู้ชนะทั้งหมด",
+                totalPrize: "รางวัลทั้งหมด",
+                myBalance: "ยอดเงินของฉัน"
+            }
         };
-        let currentPage = 1;
-        const itemsPerPage = 9;
-        let map;
-        let populationChart;
-        let regionChart;
 
-        // DOM Elements
-        const searchInput = document.getElementById('searchInput');
-        const countryFilter = document.getElementById('countryFilter');
-        const zoneFilter = document.getElementById('zoneFilter');
-        const clearFilters = document.getElementById('clearFilters');
-        const exportBtn = document.getElementById('exportBtn');
-        const syncBtn = document.getElementById('syncBtn');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const noResults = document.getElementById('noResults');
-        const cityModal = document.getElementById('cityModal');
-        const closeModal = document.getElementById('closeModal');
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const sortSelect = document.getElementById('sortSelect');
-        const prevPage = document.getElementById('prevPage');
-        const nextPage = document.getElementById('nextPage');
-        const startCount = document.getElementById('startCount');
-        const endCount = document.getElementById('endCount');
-        const totalCount = document.getElementById('totalCount');
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadLanguage();
+            loadBanners();
+            startCountdown();
+            loadSystemSettings();
+        });
+
+        // Auth State Observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                checkUserRole();
+                showApp();
+                loadUserData();
+            } else {
+                currentUser = null;
+                isAdmin = false;
+                showAuth();
+            }
+        });
 
         // Initialize Application
-        function init() {
-            showLoading();
-            setTimeout(() => {
-                loadAllCities();
-                setupEventListeners();
-                updateStatistics();
-                initMap();
-                initCharts();
-                hideLoading();
-            }, 1000);
+        function initializeApp() {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+            
+            // Load saved language
+            const savedLanguage = localStorage.getItem('language') || 'en';
+            currentLanguage = savedLanguage;
+            document.getElementById('languageSelect').value = savedLanguage;
+            
+            // Initialize event listeners
+            document.getElementById('languageSelect').addEventListener('change', changeLanguage);
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            document.getElementById('userMenuBtn').addEventListener('click', toggleUserMenu);
+            
+            // Click outside to close dropdown
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#userMenuBtn')) {
+                    document.getElementById('userDropdown').classList.add('hidden');
+                }
+            });
         }
 
-        // Initialize Google Map
-        function initMap() {
-            const bangkokCoords = { lat: 13.7563, lng: 100.5018 };
-            map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 11,
-                center: bangkokCoords,
-                mapTypeId: "terrain",
-            });
+        // Authentication Functions
+        async function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showNotification('Login successful!', 'success');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
 
-            // Add markers for Thailand cities
-            thailandCities.forEach(city => {
-                new google.maps.Marker({
-                    position: { lat: city.lat, lng: city.lng },
-                    map,
-                    title: city.name,
-                    icon: {
-                        url: `https://maps.google.com/mapfiles/ms/icons/${getZoneColor(city.zone)}-dot.png`,
-                    }
+        async function register(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Save user profile
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    balance: 0,
+                    role: 'user',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
+                showNotification('Registration successful!', 'success');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                showNotification('Logged out successfully!', 'success');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        // User Role Check
+        async function checkUserRole() {
+            if (currentUser) {
+                try {
+                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                    const userData = userDoc.data();
+                    
+                    if (userData && userData.role === 'admin') {
+                        isAdmin = true;
+                        document.getElementById('adminTab').classList.remove('hidden');
+                    } else {
+                        isAdmin = false;
+                        document.getElementById('adminTab').classList.add('hidden');
+                    }
+                    
+                    document.getElementById('userNameDisplay').textContent = userData?.name || currentUser.email;
+                } catch (error) {
+                    console.error('Error checking user role:', error);
+                }
+            }
+        }
+
+        // UI Functions
+        function showAuth() {
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('appSection').classList.add('hidden');
+        }
+
+        function showApp() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('hidden');
+        }
+
+        // Tab Functions
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+            
+            // Remove active class from all tab buttons
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.classList.remove('active', 'text-purple-600', 'border-purple-600');
+                btn.classList.add('text-gray-500');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            
+            // Add active class to selected tab button
+            event.target.classList.add('active', 'text-purple-600', 'border-purple-600');
+            event.target.classList.remove('text-gray-500');
+            
+            // Load tab-specific data
+            switch(tabName) {
+                case 'results':
+                    loadResults();
+                    loadResultsChart();
+                    break;
+                case 'wallet':
+                    loadWallet();
+                    break;
+                case 'history':
+                    loadHistory();
+                    break;
+                case 'admin':
+                    if (isAdmin) {
+                        loadAdminData();
+                    }
+                    break;
+            }
+        }
+
+        // Language Functions
+        function changeLanguage() {
+            currentLanguage = document.getElementById('languageSelect').value;
+            localStorage.setItem('language', currentLanguage);
+            loadLanguage();
+        }
+
+        function loadLanguage() {
+            const elements = document.querySelectorAll('[data-translate]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
             });
         }
 
-        // Get color for zone
-        function getZoneColor(zone) {
-            const colors = {
-                north: 'green',
-                south: 'orange',
-                east: 'red',
-                west: 'purple',
-                central: 'blue'
-            };
-            return colors[zone] || 'blue';
+        // Theme Functions
+        function toggleTheme() {
+            const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
         }
 
-        // Initialize Charts
-        function initCharts() {
-            // Population by Zone Chart
-            const populationCtx = document.getElementById('populationChart').getContext('2d');
-            const zonePopulation = {
-                north: 0,
-                south: 0,
-                east: 0,
-                west: 0,
-                central: 0
+        function applyTheme(theme) {
+            const themeIcon = document.getElementById('themeIcon');
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                document.body.classList.remove('dark');
+                themeIcon.className = 'fas fa-moon';
+            }
+        }
+
+        // Banner Functions
+        async function loadBanners() {
+            try {
+                const bannersSnapshot = await db.collection('banners').where('active', '==', true).orderBy('order').get();
+                const banners = bannersSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                
+                if (banners.length > 0) {
+                    displayBanners(banners);
+                    startBannerSlider();
+                } else {
+                    // Show default banner
+                    document.getElementById('bannerSlider').innerHTML = `
+                        <div class="w-full h-48 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                            <div class="text-center">
+                                <h2 class="text-3xl font-bold mb-2">Thailand 3D Lottery</h2>
+                                <p class="text-xl">Win up to 500,000 THB!</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading banners:', error);
+            }
+        }
+
+        function displayBanners(banners) {
+            const bannerSlider = document.getElementById('bannerSlider');
+            bannerSlider.innerHTML = banners.map(banner => `
+                <div class="w-full h-48 flex-shrink-0 relative">
+                    <img src="${banner.imageUrl}" alt="${banner.title}" class="w-full h-full object-cover">
+                    ${banner.link ? `<a href="${banner.link}" class="absolute inset-0"></a>` : ''}
+                    <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                        <h3 class="text-xl font-bold">${banner.title}</h3>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startBannerSlider() {
+            const banners = document.querySelectorAll('#bannerSlider > div');
+            if (banners.length > 1) {
+                bannerInterval = setInterval(() => {
+                    nextBanner();
+                }, 5000);
+            }
+        }
+
+        function nextBanner() {
+            const bannerSlider = document.getElementById('bannerSlider');
+            const banners = bannerSlider.children;
+            if (banners.length > 1) {
+                currentBannerIndex = (currentBannerIndex + 1) % banners.length;
+                bannerSlider.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+            }
+        }
+
+        function previousBanner() {
+            const bannerSlider = document.getElementById('bannerSlider');
+            const banners = bannerSlider.children;
+            if (banners.length > 1) {
+                currentBannerIndex = currentBannerIndex === 0 ? banners.length - 1 : currentBannerIndex - 1;
+                bannerSlider.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+            }
+        }
+
+        // Admin Banner Functions
+        function previewBanner(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('bannerPreviewImg').src = e.target.result;
+                    document.getElementById('bannerPreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function uploadBanner() {
+            const file = document.getElementById('bannerFile').files[0];
+            const title = document.getElementById('bannerTitle').value;
+            const link = document.getElementById('bannerLink').value;
+            
+            if (!file || !title) {
+                showNotification('Please select a file and enter a title', 'error');
+                return;
+            }
+            
+            try {
+                // Upload image to Firebase Storage
+                const storageRef = storage.ref().child(`banners/${Date.now()}_${file.name}`);
+                const snapshot = await storageRef.put(file);
+                const imageUrl = await snapshot.ref.getDownloadURL();
+                
+                // Save banner to Firestore
+                await db.collection('banners').add({
+                    title: title,
+                    imageUrl: imageUrl,
+                    link: link || null,
+                    active: true,
+                    order: Date.now(),
+                    createdBy: currentUser.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Banner uploaded successfully!', 'success');
+                
+                // Clear form
+                document.getElementById('bannerFile').value = '';
+                document.getElementById('bannerTitle').value = '';
+                document.getElementById('bannerLink').value = '';
+                document.getElementById('bannerPreview').classList.add('hidden');
+                
+                // Reload banners
+                loadBanners();
+                loadActiveBanners();
+                
+            } catch (error) {
+                showNotification('Error uploading banner: ' + error.message, 'error');
+            }
+        }
+
+        async function loadActiveBanners() {
+            if (!isAdmin) return;
+            
+            try {
+                const bannersSnapshot = await db.collection('banners').orderBy('createdAt', 'desc').get();
+                const banners = bannersSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                
+                const activeBannersDiv = document.getElementById('activeBanners');
+                activeBannersDiv.innerHTML = banners.map(banner => `
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div class="flex items-center">
+                            <img src="${banner.imageUrl}" alt="${banner.title}" class="w-12 h-8 object-cover rounded mr-2">
+                            <span class="text-sm">${banner.title}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" ${banner.active ? 'checked' : ''} class="sr-only peer" onchange="toggleBanner('${banner.id}', this.checked)">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                            <button onclick="deleteBanner('${banner.id}')" class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading active banners:', error);
+            }
+        }
+
+        async function toggleBanner(bannerId, active) {
+            try {
+                await db.collection('banners').doc(bannerId).update({
+                    active: active
+                });
+                showNotification(`Banner ${active ? 'activated' : 'deactivated'}`, 'success');
+                loadBanners();
+            } catch (error) {
+                showNotification('Error updating banner: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteBanner(bannerId) {
+            if (confirm('Are you sure you want to delete this banner?')) {
+                try {
+                    await db.collection('banners').doc(bannerId).delete();
+                    showNotification('Banner deleted successfully', 'success');
+                    loadActiveBanners();
+                    loadBanners();
+                } catch (error) {
+                    showNotification('Error deleting banner: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Payment Control Functions
+        async function toggleDeposits() {
+            const enabled = document.getElementById('enableDeposits').checked;
+            depositsEnabled = enabled;
+            
+            try {
+                await db.collection('system_settings').doc('payments').set({
+                    depositsEnabled: enabled
+                }, { merge: true });
+                
+                showNotification(`Deposits ${enabled ? 'enabled' : 'disabled'}`, 'success');
+            } catch (error) {
+                showNotification('Error updating deposit settings: ' + error.message, 'error');
+            }
+        }
+
+        async function toggleWithdrawals() {
+            const enabled = document.getElementById('enableWithdrawals').checked;
+            withdrawalsEnabled = enabled;
+            
+            try {
+                await db.collection('system_settings').doc('payments').set({
+                    withdrawalsEnabled: enabled
+                }, { merge: true });
+                
+                showNotification(`Withdrawals ${enabled ? 'enabled' : 'disabled'}`, 'success');
+            } catch (error) {
+                showNotification('Error updating withdrawal settings: ' + error.message, 'error');
+            }
+        }
+
+        async function loadSystemSettings() {
+            try {
+                const settingsDoc = await db.collection('system_settings').doc('payments').get();
+                const settings = settingsDoc.data();
+                
+                if (settings) {
+                    depositsEnabled = settings.depositsEnabled !== false;
+                    withdrawalsEnabled = settings.withdrawalsEnabled !== false;
+                    
+                    if (isAdmin) {
+                        document.getElementById('enableDeposits').checked = depositsEnabled;
+                        document.getElementById('enableWithdrawals').checked = withdrawalsEnabled;
+                    }
+                }
+                
+                // Load closed numbers
+                const numbersDoc = await db.collection('system_settings').doc('closed_numbers').get();
+                const numbersData = numbersDoc.data();
+                
+                if (numbersData) {
+                    closedNumbers = new Set(numbersData.numbers || []);
+                    closedDigits = new Set(numbersData.digits || []);
+                    updateClosedNumbersDisplay();
+                }
+                
+            } catch (error) {
+                console.error('Error loading system settings:', error);
+            }
+        }
+
+        async function loadPendingTransactions() {
+            if (!isAdmin) return;
+            
+            try {
+                const transactionsSnapshot = await db.collection('transactions')
+                    .where('status', '==', 'pending')
+                    .orderBy('createdAt', 'desc')
+                    .limit(10)
+                    .get();
+                
+                const transactions = transactionsSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                
+                const pendingDiv = document.getElementById('pendingTransactions');
+                if (transactions.length === 0) {
+                    pendingDiv.innerHTML = '<p class="text-gray-500 text-sm">No pending transactions</p>';
+                } else {
+                    pendingDiv.innerHTML = transactions.map(transaction => `
+                        <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                            <div>
+                                <p class="text-sm font-medium">${transaction.type} - ${transaction.amount} THB</p>
+                                <p class="text-xs text-gray-600">${transaction.userEmail}</p>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button onclick="approveTransaction('${transaction.id}')" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button onclick="rejectTransaction('${transaction.id}')" class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading pending transactions:', error);
+            }
+        }
+
+        async function approveTransaction(transactionId) {
+            try {
+                await db.collection('transactions').doc(transactionId).update({
+                    status: 'approved',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    approvedBy: currentUser.uid
+                });
+                
+                showNotification('Transaction approved', 'success');
+                loadPendingTransactions();
+            } catch (error) {
+                showNotification('Error approving transaction: ' + error.message, 'error');
+            }
+        }
+
+        async function rejectTransaction(transactionId) {
+            if (confirm('Are you sure you want to reject this transaction?')) {
+                try {
+                    await db.collection('transactions').doc(transactionId).update({
+                        status: 'rejected',
+                        rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        rejectedBy: currentUser.uid
+                    });
+                    
+                    showNotification('Transaction rejected', 'success');
+                    loadPendingTransactions();
+                } catch (error) {
+                    showNotification('Error rejecting transaction: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Number Management Functions
+        async function closeNumber() {
+            const numberInput = document.getElementById('closeNumberInput');
+            const number = numberInput.value.padStart(3, '0');
+            
+            if (number < 0 || number > 999) {
+                showNotification('Please enter a valid number (000-999)', 'error');
+                return;
+            }
+            
+            closedNumbers.add(number);
+            await updateClosedNumbers();
+            numberInput.value = '';
+            updateClosedNumbersDisplay();
+            showNotification(`Number ${number} closed`, 'success');
+        }
+
+        function toggleDigit(digit) {
+            const digitCell = document.querySelector(`[data-digit="${digit}"]`);
+            
+            if (closedDigits.has(digit)) {
+                closedDigits.delete(digit);
+                digitCell.classList.remove('closed');
+            } else {
+                closedDigits.add(digit);
+                digitCell.classList.add('closed');
+            }
+            
+            updateClosedNumbers();
+        }
+
+        async function updateClosedNumbers() {
+            try {
+                await db.collection('system_settings').doc('closed_numbers').set({
+                    numbers: Array.from(closedNumbers),
+                    digits: Array.from(closedDigits),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: currentUser.uid
+                });
+            } catch (error) {
+                console.error('Error updating closed numbers:', error);
+            }
+        }
+
+        function updateClosedNumbersDisplay() {
+            // Update closed numbers list
+            const closedNumbersList = document.getElementById('closedNumbersList');
+            if (closedNumbersList) {
+                if (closedNumbers.size === 0) {
+                    closedNumbersList.innerHTML = '<p class="text-gray-500 text-sm">No closed numbers</p>';
+                } else {
+                    closedNumbersList.innerHTML = Array.from(closedNumbers).map(number => `
+                        <span class="inline-block bg-red-100 text-red-800 px-2 py-1 rounded text-sm mr-1 mb-1">
+                            ${number}
+                            <button onclick="reopenNumber('${number}')" class="ml-1 text-red-600 hover:text-red-800">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </span>
+                    `).join('');
+                }
+            }
+            
+            // Update digit cells
+            for (let i = 0; i <= 9; i++) {
+                const digitCell = document.querySelector(`[data-digit="${i}"]`);
+                if (digitCell) {
+                    if (closedDigits.has(i)) {
+                        digitCell.classList.add('closed');
+                    } else {
+                        digitCell.classList.remove('closed');
+                    }
+                }
+            }
+            
+            // Update admin stats
+            const adminClosedNumbers = document.getElementById('adminClosedNumbers');
+            if (adminClosedNumbers) {
+                adminClosedNumbers.textContent = closedNumbers.size;
+            }
+        }
+
+        async function reopenNumber(number) {
+            closedNumbers.delete(number);
+            await updateClosedNumbers();
+            updateClosedNumbersDisplay();
+            showNotification(`Number ${number} reopened`, 'success');
+        }
+
+        // Lottery Functions
+        async function placeBet() {
+            const selectedNumber = document.getElementById('selectedNumber').value;
+            const betAmount = parseInt(document.getElementById('betAmount').value);
+            
+            if (!selectedNumber || selectedNumber.length !== 3) {
+                showNotification('Please enter a valid 3-digit number', 'error');
+                return;
+            }
+            
+            const paddedNumber = selectedNumber.padStart(3, '0');
+            
+            // Check if number is closed
+            if (closedNumbers.has(paddedNumber)) {
+                showNotification(`Number ${paddedNumber} is currently closed for betting`, 'error');
+                return;
+            }
+            
+            // Check if any digit is closed
+            for (let digit of paddedNumber) {
+                if (closedDigits.has(parseInt(digit))) {
+                    showNotification(`Digit ${digit} is currently restricted`, 'error');
+                    return;
+                }
+            }
+            
+            // Check user balance
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            const userData = userDoc.data();
+            
+            if (userData.balance < betAmount) {
+                showNotification('Insufficient balance. Please deposit money first.', 'error');
+                return;
+            }
+            
+            try {
+                // Create ticket
+                await db.collection('tickets').add({
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    number: paddedNumber,
+                    betAmount: betAmount,
+                    status: 'active',
+                    drawDate: getNextDrawDate(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update user balance
+                await db.collection('users').doc(currentUser.uid).update({
+                    balance: firebase.firestore.FieldValue.increment(-betAmount)
+                });
+                
+                // Create transaction record
+                await db.collection('transactions').add({
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    type: 'bet',
+                    amount: betAmount,
+                    description: `Bet on number ${paddedNumber}`,
+                    status: 'completed',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification(`Bet placed successfully! Number: ${paddedNumber}, Amount: ${betAmount} THB`, 'success');
+                
+                // Clear form
+                document.getElementById('selectedNumber').value = '';
+                
+                // Refresh user data
+                loadUserData();
+                
+            } catch (error) {
+                showNotification('Error placing bet: ' + error.message, 'error');
+            }
+        }
+
+        function getNextDrawDate() {
+            const now = new Date();
+            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            return nextMonth;
+        }
+
+        function quickPick() {
+            const randomNumber = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            document.getElementById('selectedNumber').value = randomNumber;
+        }
+
+        function aiPrediction() {
+            // Simple AI prediction based on historical data (mock implementation)
+            const predictions = ['123', '456', '789', '234', '567', '890', '345', '678', '901'];
+            const randomPrediction = predictions[Math.floor(Math.random() * predictions.length)];
+            document.getElementById('selectedNumber').value = randomPrediction;
+            showNotification('AI has predicted a lucky number for you!', 'info');
+        }
+
+        function hotNumbers() {
+            // Mock hot numbers (in real implementation, this would be based on statistical analysis)
+            const hotNumbers = ['111', '222', '333', '444', '555'];
+            const randomHot = hotNumbers[Math.floor(Math.random() * hotNumbers.length)];
+            document.getElementById('selectedNumber').value = randomHot;
+            showNotification('Hot number selected!', 'info');
+        }
+
+        function coldNumbers() {
+            // Mock cold numbers (in real implementation, this would be based on statistical analysis)
+            const coldNumbers = ['013', '269', '478', '156', '037'];
+            const randomCold = coldNumbers[Math.floor(Math.random() * coldNumbers.length)];
+            document.getElementById('selectedNumber').value = randomCold;
+            showNotification('Cold number selected!', 'info');
+        }
+
+        // Countdown Timer
+        function startCountdown() {
+            setInterval(updateCountdown, 1000);
+        }
+
+        function updateCountdown() {
+            const nextDraw = getNextDrawDate();
+            const now = new Date();
+            const diff = nextDraw - now;
+            
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                document.getElementById('nextDrawDate').textContent = nextDraw.toLocaleDateString();
+            } else {
+                document.getElementById('countdown').textContent = 'Draw in progress...';
+            }
+        }
+
+        // Wallet Functions
+        function showDepositModal() {
+            if (!depositsEnabled) {
+                showNotification('Deposits are currently disabled', 'warning');
+                return;
+            }
+            document.getElementById('depositModal').classList.remove('hidden');
+            document.getElementById('depositModal').classList.add('flex');
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').classList.add('hidden');
+            document.getElementById('depositModal').classList.remove('flex');
+        }
+
+        function showWithdrawModal() {
+            if (!withdrawalsEnabled) {
+                showNotification('Withdrawals are currently disabled', 'warning');
+                return;
+            }
+            document.getElementById('withdrawModal').classList.remove('hidden');
+            document.getElementById('withdrawModal').classList.add('flex');
+        }
+
+        function closeWithdrawModal() {
+            document.getElementById('withdrawModal').classList.add('hidden');
+            document.getElementById('withdrawModal').classList.remove('flex');
+        }
+
+        async function submitDeposit(event) {
+            event.preventDefault();
+            const amount = parseInt(document.getElementById('depositAmount').value);
+            const method = document.getElementById('depositMethod').value;
+            
+            try {
+                await db.collection('transactions').add({
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    type: 'deposit',
+                    amount: amount,
+                    method: method,
+                    status: 'pending',
+                    description: `Deposit via ${method}`,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Deposit request submitted! Waiting for admin approval.', 'success');
+                closeDepositModal();
+                
+            } catch (error) {
+                showNotification('Error submitting deposit: ' + error.message, 'error');
+            }
+        }
+
+        async function submitWithdraw(event) {
+            event.preventDefault();
+            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            const bankAccount = document.getElementById('bankAccount').value;
+            const bankName = document.getElementById('bankName').value;
+            
+            // Check user balance
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            const userData = userDoc.data();
+            
+            if (userData.balance < amount) {
+                showNotification('Insufficient balance', 'error');
+                return;
+            }
+            
+            try {
+                await db.collection('transactions').add({
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    type: 'withdrawal',
+                    amount: amount,
+                    bankAccount: bankAccount,
+                    bankName: bankName,
+                    status: 'pending',
+                    description: `Withdrawal to ${bankName}`,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Withdrawal request submitted! Waiting for admin approval.', 'success');
+                closeWithdrawModal();
+                
+            } catch (error) {
+                showNotification('Error submitting withdrawal: ' + error.message, 'error');
+            }
+        }
+
+        async function refreshBalance() {
+            await loadUserData();
+            showNotification('Balance refreshed!', 'success');
+        }
+
+        // Data Loading Functions
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                
+                if (userData) {
+                    document.getElementById('userBalance').textContent = `${userData.balance || 0} THB`;
+                    document.getElementById('walletBalance').textContent = `${userData.balance || 0} THB`;
+                    document.getElementById('balanceLastUpdated').textContent = new Date().toLocaleString();
+                }
+                
+                // Load user stats
+                const ticketsSnapshot = await db.collection('tickets').where('userId', '==', currentUser.uid).get();
+                document.getElementById('totalTickets').textContent = ticketsSnapshot.size;
+                
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        async function loadResults() {
+            try {
+                const resultsSnapshot = await db.collection('results').orderBy('drawDate', 'desc').limit(10).get();
+                const results = resultsSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                
+                // Display latest results
+                const latestResultsDiv = document.getElementById('latestResults');
+                if (results.length === 0) {
+                    latestResultsDiv.innerHTML = '<p class="text-gray-500">No results available yet</p>';
+                } else {
+                    latestResultsDiv.innerHTML = results.slice(0, 3).map(result => `
+                        <div class="bg-white p-4 rounded-lg shadow border">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-semibold">Draw #${result.drawNumber}</h4>
+                                    <p class="text-sm text-gray-600">${result.drawDate?.toDate().toLocaleDateString()}</p>
+                                </div>
+                                <div class="lottery-ball">
+                                    ${result.winningNumber}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                // Display results table
+                const resultsTableBody = document.getElementById('resultsTableBody');
+                resultsTableBody.innerHTML = results.map(result => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${result.drawDate?.toDate().toLocaleDateString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            #${result.drawNumber}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                ${result.winningNumber}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${result.prizeAmount?.toLocaleString()} THB
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${result.winnersCount || 0}
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading results:', error);
+            }
+        }
+
+        function loadResultsChart() {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            
+            // Mock data for chart
+            const chartData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Winners',
+                    data: [12, 19, 3, 5, 2, 3],
+                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderWidth: 2
+                }]
             };
-
-            thailandCities.forEach(city => {
-                zonePopulation[city.zone] += city.population;
-            });
-
-            populationChart = new Chart(populationCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['North', 'South', 'East', 'West', 'Central'],
-                    datasets: [{
-                        label: 'Population by Zone',
-                        data: [
-                            zonePopulation.north,
-                            zonePopulation.south,
-                            zonePopulation.east,
-                            zonePopulation.west,
-                            zonePopulation.central
-                        ],
-                        backgroundColor: [
-                            '#10B981',
-                            '#F59E0B',
-                            '#EF4444',
-                            '#8B5CF6',
-                            '#3B82F6'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: chartData,
                 options: {
                     responsive: true,
                     scales: {
                         y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Population'
-                            }
+                            beginAtZero: true
                         }
                     }
                 }
             });
-
-            // Cities by Region Chart
-            const regionCtx = document.getElementById('regionChart').getContext('2d');
-            const regionCounts = {
-                mandalay: 0,
-                bago: 0,
-                ayeyarwady: 0,
-                magway: 0,
-                naypyidaw: 0,
-                shan: 0
-            };
-
-            myanmarCities.forEach(city => {
-                regionCounts[city.region]++;
-            });
-
-            regionChart = new Chart(regionCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Mandalay', 'Bago', 'Ayeyarwady', 'Magway', 'Naypyidaw', 'Shan'],
-                    datasets: [{
-                        label: 'Cities by Region',
-                        data: [
-                            regionCounts.mandalay,
-                            regionCounts.bago,
-                            regionCounts.ayeyarwady,
-                            regionCounts.magway,
-                            regionCounts.naypyidaw,
-                            regionCounts.shan
-                        ],
-                        backgroundColor: [
-                            '#EC4899',
-                            '#06B6D4',
-                            '#84CC16',
-                            '#F97316',
-                            '#6366F1',
-                            '#EF4444'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
         }
 
-        // Load all cities
-        function loadAllCities() {
-            filteredCities = [...thailandCities, ...myanmarCities];
-            sortCities();
-            renderCities();
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            searchInput.addEventListener('input', handleSearch);
-            countryFilter.addEventListener('change', handleCountryFilter);
-            zoneFilter.addEventListener('change', handleZoneFilter);
-            clearFilters.addEventListener('click', handleClearFilters);
-            exportBtn.addEventListener('click', handleExport);
-            syncBtn.addEventListener('click', handleSync);
-            closeModal.addEventListener('click', () => cityModal.classList.add('hidden'));
-            darkModeToggle.addEventListener('click', toggleDarkMode);
-            sortSelect.addEventListener('change', handleSortChange);
-            prevPage.addEventListener('click', () => changePage(-1));
-            nextPage.addEventListener('click', () => changePage(1));
-            
-            // Close modal on outside click
-            cityModal.addEventListener('click', (e) => {
-                if (e.target === cityModal) {
-                    cityModal.classList.add('hidden');
-                }
-            });
-        }
-
-        // Toggle dark mode
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const icon = darkModeToggle.querySelector('i');
-            if (document.body.classList.contains('dark-mode')) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            }
-        }
-
-        // Handle search
-        function handleSearch() {
-            currentFilter.search = searchInput.value.toLowerCase();
-            currentPage = 1;
-            applyFilters();
-        }
-
-        // Handle country filter
-        function handleCountryFilter() {
-            currentFilter.country = countryFilter.value;
-            currentPage = 1;
-            applyFilters();
-        }
-
-        // Handle zone filter
-        function handleZoneFilter() {
-            currentFilter.zone = zoneFilter.value;
-            currentPage = 1;
-            applyFilters();
-        }
-
-        // Handle sort change
-        function handleSortChange() {
-            sortCities();
-            renderCities();
-        }
-
-        // Sort cities
-        function sortCities() {
-            const sortValue = sortSelect.value;
-            
-            filteredCities.sort((a, b) => {
-                switch(sortValue) {
-                    case 'name-asc':
-                        return a.name.localeCompare(b.name);
-                    case 'name-desc':
-                        return b.name.localeCompare(a.name);
-                    case 'population-asc':
-                        return (a.population || 0) - (b.population || 0);
-                    case 'population-desc':
-                        return (b.population || 0) - (a.population || 0);
-                    default:
-                        return 0;
-                }
-            });
-        }
-
-        // Change page
-        function changePage(direction) {
-            currentPage += direction;
-            renderCities();
-        }
-
-        // Apply all filters
-        function applyFilters() {
-            let cities = [...thailandCities, ...myanmarCities];
-
-            // Search filter
-            if (currentFilter.search) {
-                cities = cities.filter(city => {
-                    const searchTerm = currentFilter.search.toLowerCase();
-                    return city.name.toLowerCase().includes(searchTerm) ||
-                           (city.thai && city.thai.includes(searchTerm)) ||
-                           (city.myanmar && city.myanmar.includes(searchTerm)) ||
-                           (city.zone && city.zone.toLowerCase().includes(searchTerm)) ||
-                           (city.region && city.region.toLowerCase().includes(searchTerm)) ||
-                           (city.township && city.township.toLowerCase().includes(searchTerm));
-                });
-            }
-
-            // Country filter
-            if (currentFilter.country) {
-                if (currentFilter.country === 'thailand') {
-                    cities = cities.filter(city => city.zone);
-                } else if (currentFilter.country === 'myanmar') {
-                    cities = cities.filter(city => city.region);
-                }
-            }
-
-            // Zone filter
-            if (currentFilter.zone) {
-                cities = cities.filter(city => 
-                    city.zone === currentFilter.zone || city.region === currentFilter.zone
-                );
-            }
-
-            filteredCities = cities;
-            sortCities();
-            renderCities();
-        }
-
-        // Clear all filters
-        function handleClearFilters() {
-            searchInput.value = '';
-            countryFilter.value = '';
-            zoneFilter.value = '';
-            sortSelect.value = 'name-asc';
-            currentFilter = { search: '', country: '', zone: '' };
-            currentPage = 1;
-            loadAllCities();
-        }
-
-        // Handle export
-        function handleExport() {
-            const csvContent = generateCSV(filteredCities);
-            downloadCSV(csvContent, 'cities_data.csv');
-        }
-
-        // Handle sync with Firebase
-        async function handleSync() {
-            const syncIcon = syncBtn.querySelector('i');
-            syncIcon.classList.add('loading');
+        async function loadWallet() {
+            if (!currentUser) return;
             
             try {
-                // Upload Thailand cities
-                for (const city of thailandCities) {
-                    await db.collection('thailand_cities').doc(city.name).set(city);
+                // Load transactions
+                const transactionsSnapshot = await db.collection('transactions')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .get();
+                
+                const transactions = transactionsSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                
+                const transactionTableBody = document.getElementById('transactionTableBody');
+                if (transactions.length === 0) {
+                    transactionTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">No transactions found</td>
+                        </tr>
+                    `;
+                } else {
+                    transactionTableBody.innerHTML = transactions.map(transaction => `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${transaction.createdAt?.toDate().toLocaleDateString()}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTransactionTypeColor(transaction.type)}">
+                                    ${transaction.type}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${transaction.amount} THB
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}">
+                                    ${transaction.status}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${transaction.description}
+                            </td>
+                        </tr>
+                    `).join('');
                 }
                 
-                // Upload Myanmar cities
-                for (const city of myanmarCities) {
-                    await db.collection('myanmar_cities').doc(city.name).set(city);
-                }
-                
-                showNotification('Data synced successfully!', 'success');
             } catch (error) {
-                console.error('Sync error:', error);
-                showNotification('Sync failed. Please try again.', 'error');
-            } finally {
-                syncIcon.classList.remove('loading');
+                console.error('Error loading wallet:', error);
             }
         }
 
-        // Render cities with pagination
-        function renderCities() {
-            if (filteredCities.length === 0) {
-                resultsContainer.classList.add('hidden');
-                noResults.classList.remove('hidden');
-                updatePaginationControls();
-                return;
-            }
-
-            resultsContainer.classList.remove('hidden');
-            noResults.classList.add('hidden');
-
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = Math.min(startIndex + itemsPerPage, filteredCities.length);
-            const paginatedCities = filteredCities.slice(startIndex, endIndex);
-
-            resultsContainer.innerHTML = paginatedCities.map(city => {
-                const isThailand = city.zone !== undefined;
-                const zoneClass = isThailand ? `zone-${city.zone}` : `region-${city.region}`;
-                const flag = isThailand ? '🇹🇭' : '🇲🇲';
-                const localName = isThailand ? city.thai : city.myanmar;
-                const location = isThailand ? `${city.zone.charAt(0).toUpperCase() + city.zone.slice(1)} Bangkok` : `${city.region.charAt(0).toUpperCase() + city.region.slice(1)} Region`;
-
-                return `
-                    <div class="bg-white rounded-lg shadow-md ${zoneClass} card-hover cursor-pointer p-6 dark-mode" onclick="showCityDetails('${city.name}')">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex items-center">
-                                <span class="text-2xl mr-2">${flag}</span>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900 dark-mode">${city.name}</h3>
-                                    <p class="text-sm text-gray-600 dark-mode">${localName || ''}</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${isThailand ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">
-                                    ${location}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            ${isThailand ? `
-                                <div class="flex items-center text-sm text-gray-600 dark-mode">
-                                    <i class="fas fa-users mr-2"></i>
-                                    Population: ${city.population.toLocaleString()}
-                                </div>
-                                <div class="flex items-center text-sm text-gray-600 dark-mode">
-                                    <i class="fas fa-map-pin mr-2"></i>
-                                    ${city.lat.toFixed(4)}, ${city.lng.toFixed(4)}
-                                </div>
-                                <div class="flex items-center text-sm text-gray-600 dark-mode">
-                                    <i class="fas fa-mail-bulk mr-2"></i>
-                                    Postal: ${city.postalCode}
-                                </div>
-                            ` : `
-                                <div class="flex items-center text-sm text-gray-600 dark-mode">
-                                    <i class="fas fa-building mr-2"></i>
-                                    ${city.township}
-                                </div>
-                                <div class="flex items-center text-sm text-gray-600 dark-mode">
-                                    <i class="fas fa-map mr-2"></i>
-                                    ${city.region.charAt(0).toUpperCase() + city.region.slice(1)} Region
-                                </div>
-                            `}
-                        </div>
-                        
-                        <div class="mt-4 pt-4 border-t border-gray-200 dark-mode">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-gray-500 dark-mode">
-                                    ${isThailand ? 'Bangkok District' : 'Myanmar Township'}
-                                </span>
-                                <i class="fas fa-chevron-right text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            updatePaginationControls();
-        }
-
-        // Update pagination controls
-        function updatePaginationControls() {
-            const totalPages = Math.ceil(filteredCities.length / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage + 1;
-            const endIndex = Math.min(currentPage * itemsPerPage, filteredCities.length);
-
-            startCount.textContent = startIndex;
-            endCount.textContent = endIndex;
-            totalCount.textContent = filteredCities.length;
-
-            prevPage.disabled = currentPage === 1;
-            nextPage.disabled = currentPage === totalPages || filteredCities.length === 0;
-        }
-
-        // Show city details modal
-        function showCityDetails(cityName) {
-            const city = [...thailandCities, ...myanmarCities].find(c => c.name === cityName);
-            if (!city) return;
-
-            const isThailand = city.zone !== undefined;
-            const flag = isThailand ? '🇹🇭' : '🇲🇲';
-            const localName = isThailand ? city.thai : city.myanmar;
-
-            document.getElementById('modalTitle').innerHTML = `${flag} ${city.name}`;
-            document.getElementById('modalContent').innerHTML = `
-                <div class="space-y-6">
-                    <div class="bg-gray-50 p-4 rounded-lg dark-mode">
-                        <h3 class="font-semibold text-gray-900 mb-2 dark-mode">Basic Information</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-sm font-medium text-gray-600 dark-mode">English Name</label>
-                                <p class="text-gray-900 dark-mode">${city.name}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium text-gray-600 dark-mode">${isThailand ? 'Thai Name' : 'Myanmar Name'}</label>
-                                <p class="text-gray-900 dark-mode">${localName || 'N/A'}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium text-gray-600 dark-mode">Country</label>
-                                <p class="text-gray-900 dark-mode">${isThailand ? 'Thailand' : 'Myanmar'}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium text-gray-600 dark-mode">${isThailand ? 'Zone' : 'Region'}</label>
-                                <p class="text-gray-900 dark-mode">${isThailand ? city.zone.charAt(0).toUpperCase() + city.zone.slice(1) : city.region.charAt(0).toUpperCase() + city.region.slice(1)}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    ${isThailand ? `
-                        <div class="bg-blue-50 p-4 rounded-lg dark-mode">
-                            <h3 class="font-semibold text-gray-900 mb-2 dark-mode">Administrative Details</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-sm font-medium text-gray-600 dark-mode">Population</label>
-                                    <p class="text-gray-900 dark-mode">${city.population.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-600 dark-mode">Postal Code</label>
-                                    <p class="text-gray-900 dark-mode">${city.postalCode}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-600 dark-mode">Latitude</label>
-                                    <p class="text-gray-900 dark-mode">${city.lat.toFixed(6)}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-600 dark-mode">Longitude</label>
-                                    <p class="text-gray-900 dark-mode">${city.lng.toFixed(6)}</p>
-                                </div>
-                            </div>
-                        </div>
-                    ` : `
-                        <div class="bg-purple-50 p-4 rounded-lg dark-mode">
-                            <h3 class="font-semibold text-gray-900 mb-2 dark-mode">Administrative Details</h3>
-                            <div class="space-y-2">
-                                <div>
-                                    <label class="text-sm font-medium text-gray-600 dark-mode">Township</label>
-                                    <p class="text-gray-900 dark-mode">${city.township}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-600 dark-mode">Administrative Level</label>
-                                    <p class="text-gray-900 dark-mode">Township (မြို့နယ်)</p>
-                                </div>
-                            </div>
-                        </div>
-                    `}
-
-                    <div class="flex space-x-3">
-                        <button onclick="copyToClipboard('${city.name}')" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all">
-                            <i class="fas fa-copy mr-2"></i>Copy Name
-                        </button>
-                        ${isThailand ? `
-                            <button onclick="copyToClipboard('${city.lat}, ${city.lng}')" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all">
-                                <i class="fas fa-map-pin mr-2"></i>Copy Coordinates
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-
-            cityModal.classList.remove('hidden');
-        }
-
-        // Copy to clipboard
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification('Copied to clipboard!', 'success');
-            });
-        }
-
-        // Update statistics
-        function updateStatistics() {
-            document.getElementById('totalCities').textContent = (thailandCities.length + myanmarCities.length).toString();
-            document.getElementById('thailandCount').textContent = thailandCities.length.toString();
-            document.getElementById('myanmarCount').textContent = myanmarCities.length.toString();
-        }
-
-        // Generate CSV
-        function generateCSV(cities) {
-            const headers = ['Name', 'Local Name', 'Country', 'Zone/Region', 'Population', 'Postal Code', 'Latitude', 'Longitude', 'Township'];
-            const rows = cities.map(city => {
-                const isThailand = city.zone !== undefined;
-                return [
-                    city.name,
-                    isThailand ? (city.thai || '') : (city.myanmar || ''),
-                    isThailand ? 'Thailand' : 'Myanmar',
-                    isThailand ? city.zone : city.region,
-                    isThailand ? city.population : '',
-                    isThailand ? city.postalCode : '',
-                    isThailand ? city.lat : '',
-                    isThailand ? city.lng : '',
-                    isThailand ? '' : city.township
-                ].map(field => `"${field}"`).join(',');
-            });
+        async function loadHistory() {
+            if (!currentUser) return;
             
-            return [headers.join(','), ...rows].join('\n');
+            try {
+                const ticketsSnapshot = await db.collection('tickets')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                const tickets = ticketsSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                
+                const ticketTableBody = document.getElementById('ticketTableBody');
+                if (tickets.length === 0) {
+                    ticketTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">No tickets found</td>
+                        </tr>
+                    `;
+                } else {
+                    ticketTableBody.innerHTML = tickets.map(ticket => `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${ticket.id.substr(-8)}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                    ${ticket.number}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${ticket.betAmount} THB
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${ticket.drawDate?.toDate ? ticket.drawDate.toDate().toLocaleDateString() : 'TBD'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}">
+                                    ${ticket.status}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${ticket.prize || '-'}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
         }
 
-        // Download CSV
-        function downloadCSV(content, filename) {
-            const blob = new Blob([content], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            window.URL.revokeObjectURL(url);
+        async function loadAdminData() {
+            if (!isAdmin) return;
+            
+            try {
+                // Load admin stats
+                const usersSnapshot = await db.collection('users').get();
+                document.getElementById('adminTotalUsers').textContent = usersSnapshot.size;
+                
+                const ticketsSnapshot = await db.collection('tickets').where('status', '==', 'active').get();
+                document.getElementById('adminActiveTickets').textContent = ticketsSnapshot.size;
+                
+                // Load pending transactions
+                loadPendingTransactions();
+                
+                // Load active banners
+                loadActiveBanners();
+                
+                // Update closed numbers display
+                updateClosedNumbersDisplay();
+                
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+            }
         }
 
-        // Show loading
-        function showLoading() {
-            loadingIndicator.classList.remove('hidden');
-            resultsContainer.classList.add('hidden');
-            noResults.classList.add('hidden');
+        // Utility Functions
+        function getTransactionTypeColor(type) {
+            switch(type) {
+                case 'deposit': return 'bg-green-100 text-green-800';
+                case 'withdrawal': return 'bg-red-100 text-red-800';
+                case 'bet': return 'bg-blue-100 text-blue-800';
+                case 'win': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
         }
 
-        // Hide loading
-        function hideLoading() {
-            loadingIndicator.classList.add('hidden');
+        function getStatusColor(status) {
+            switch(status) {
+                case 'completed': case 'approved': case 'won': return 'bg-green-100 text-green-800';
+                case 'pending': return 'bg-yellow-100 text-yellow-800';
+                case 'rejected': case 'lost': return 'bg-red-100 text-red-800';
+                case 'active': return 'bg-blue-100 text-blue-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
         }
 
-        // Show notification
         function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white transition-all transform translate-x-full`;
-            notification.style.backgroundColor = type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6';
+            const notification = document.getElementById('notification');
             notification.textContent = message;
-
-            document.body.appendChild(notification);
-
+            notification.className = `notification ${type} show`;
+            
             setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-
-            setTimeout(() => {
-                notification.style.transform = 'translateX(full)';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
+                notification.classList.remove('show');
+            }, 5000);
         }
 
-        // Initialize the application
-        init();
+        // Admin System Functions
+        function startNewDraw() {
+            if (confirm('Are you sure you want to start a new lottery draw?')) {
+                // Implementation for starting new draw
+                showNotification('New lottery draw started', 'success');
+            }
+        }
+
+        function generateResults() {
+            if (confirm('Are you sure you want to generate lottery results?')) {
+                // Implementation for generating results
+                const winningNumber = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                showNotification(`Results generated! Winning number: ${winningNumber}`, 'success');
+            }
+        }
+
+        function stopSales() {
+            if (confirm('Are you sure you want to stop all lottery sales?')) {
+                // Implementation for stopping sales
+                showNotification('Lottery sales stopped', 'warning');
+            }
+        }
+
+        function viewAllUsers() {
+            showNotification('Loading all users...', 'info');
+            // Implementation for viewing all users
+        }
+
+        function exportUserData() {
+            showNotification('Exporting user data...', 'info');
+            // Implementation for exporting data
+        }
+
+        function sendNotification() {
+            const message = prompt('Enter notification message:');
+            if (message) {
+                showNotification('Notification sent to all users', 'success');
+            }
+        }
+
+        function generateDailyReport() {
+            showNotification('Generating daily report...', 'info');
+            // Implementation for daily report
+        }
+
+        function generateMonthlyReport() {
+            showNotification('Generating monthly report...', 'info');
+            // Implementation for monthly report
+        }
+
+        function viewAnalytics() {
+            showNotification('Loading analytics...', 'info');
+            // Implementation for analytics
+        }
+
+        // AI Chat Functions
+        function toggleAIChat() {
+            const chatBox = document.getElementById('aiChatBox');
+            chatBox.classList.toggle('hidden');
+        }
+
+        function sendAIMessage() {
+            const input = document.getElementById('aiChatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addChatMessage(message, 'user');
+                input.value = '';
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    const responses = [
+                        "I can help you with lottery predictions!",
+                        "The current jackpot is 500,000 THB.",
+                        "Your lucky numbers for today are: 123, 456, 789",
+                        "Hot numbers this month: 111, 222, 333",
+                        "Remember to bet responsibly!"
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addChatMessage(randomResponse, 'ai');
+                }, 1000);
+            }
+        }
+
+        function addChatMessage(message, sender) {
+            const messagesDiv = document.getElementById('aiChatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = sender === 'user' 
+                ? 'bg-purple-100 p-3 rounded-lg ml-8' 
+                : 'bg-gray-100 p-3 rounded-lg mr-8';
+            messageDiv.innerHTML = `<p class="text-sm">${message}</p>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Profile and other utility functions
+        function showProfile() {
+            showNotification('Profile feature coming soon!', 'info');
+        }
+
+        function showWallet() {
+            showTab('wallet');
+        }
+
+        // Enter key support for AI chat
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.id === 'aiChatInput') {
+                sendAIMessage();
+            }
+        });
     </script>
 </body>
 </html>
