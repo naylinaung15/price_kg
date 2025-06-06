@@ -1,768 +1,1665 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thailand 3D Lottery - ลอตเตอรี่ไทย 3D</title>
+    <title>Thailand 3D Lottery - Mobile Payment System</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     <style>
-        .thai-number {
-            font-family: 'Noto Sans Thai', sans-serif;
+        :root {
+            --primary-green: #8fbc8f;
+            --secondary-orange: #ffa366;
+            --accent-brown: #d2b48c;
+            --soft-pink: #ffb3ba;
+            --light-yellow: #ffffba;
         }
-        .lottery-ball {
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-orange) 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-container {
+            max-width: 420px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .number-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        
+        .number-btn {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .number-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .selected {
+            background: var(--secondary-orange) !important;
+            color: white;
+        }
+        
+        .payment-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 8px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            margin: 0 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab.active {
+            background: var(--secondary-orange);
+            color: white;
+        }
+        
+        .lottery-ball {
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-weight: bold;
-            font-size: 1.5rem;
-            width: 60px;
-            height: 60px;
-            margin: 0 5px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .winner-animation {
+            font-size: 20px;
+            margin: 5px;
             animation: bounce 2s infinite;
         }
+        
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-30px); }
-            60% { transform: translateY(-15px); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
         }
-        .chat-container {
-            max-height: 300px;
+        
+        .transaction-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0;
+            border-left: 4px solid var(--primary-green);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .admin-control {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            border-radius: 16px;
+            color: white;
+            padding: 16px;
+            margin: 8px 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 90%;
+            max-height: 90%;
             overflow-y: auto;
         }
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-orange));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin: 0 auto;
         }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--secondary-orange);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            z-index: 3000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring__circle {
+            stroke: var(--secondary-orange);
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.35s;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 8px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 16px;
+        }
+        
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #daa520); }
+        .rank-other { background: linear-gradient(135deg, var(--primary-green), var(--accent-brown)); }
     </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Navigation -->
-    <nav class="bg-blue-600 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold"><i class="fas fa-dice"></i> Thailand 3D Lottery</h1>
-            <div id="nav-buttons">
-                <button onclick="showLogin()" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded mr-2">เข้าสู่ระบบ</button>
-                <button onclick="showRegister()" class="bg-green-500 hover:bg-green-700 px-4 py-2 rounded">สมัครสมาชิก</button>
+<body class="bg-gray-50">
+    <!-- Mobile Container -->
+    <div class="mobile-container bg-white">
+        <!-- Header -->
+        <div class="gradient-bg p-4 text-white">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="toggleMenu()" class="text-white">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">Thailand 3D Lottery</h1>
+                <div class="relative">
+                    <button onclick="toggleNotifications()" class="text-white">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span id="notificationBadge" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">3</span>
+                    </button>
+                </div>
             </div>
-            <div id="user-menu" class="hidden">
-                <span id="user-name" class="mr-4"></span>
-                <button onclick="logout()" class="bg-red-500 hover:bg-red-700 px-4 py-2 rounded">ออกจากระบบ</button>
+            
+            <!-- User Profile Section -->
+            <div id="userProfile" class="flex items-center space-x-4 hidden">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h3 id="userName" class="font-bold text-lg">Welcome User!</h3>
+                    <p id="userBalance" class="text-sm opacity-90">Balance: $0.00</p>
+                </div>
+            </div>
+            
+            <!-- Admin Profile Section -->
+            <div id="adminProfile" class="flex items-center space-x-4 hidden">
+                <div class="user-avatar">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Admin Dashboard</h3>
+                    <p class="text-sm opacity-90">System Control Panel</p>
+                </div>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="space-y-4">
+                <h2 class="text-2xl font-bold text-center mb-6">Welcome to Thailand 3D Lottery</h2>
+                <div class="space-y-3">
+                    <input type="email" id="loginEmail" placeholder="Email Address" class="w-full p-3 rounded-lg text-gray-800">
+                    <input type="password" id="loginPassword" placeholder="Password" class="w-full p-3 rounded-lg text-gray-800">
+                    <button onclick="login()" class="w-full bg-white text-gray-800 p-3 rounded-lg font-bold hover:bg-gray-100 transition">
+                        <span id="loginBtn">Sign In</span>
+                        <span id="loginLoading" class="loading hidden"></span>
+                    </button>
+                    <button onclick="showRegister()" class="w-full border border-white text-white p-3 rounded-lg font-bold hover:bg-white hover:text-gray-800 transition">
+                        Create Account
+                    </button>
+                    <button onclick="showAdminLogin()" class="w-full text-center text-sm opacity-90 hover:opacity-100">
+                        Admin Login
+                    </button>
+                </div>
             </div>
         </div>
-    </nav>
 
-    <!-- Main Container -->
-    <div class="container mx-auto p-4">
-        
-        <!-- Login Form -->
-        <div id="login-form" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-bold mb-6 text-center">เข้าสู่ระบบ</h2>
-            <form onsubmit="login(event)">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">อีเมล</label>
-                    <input type="email" id="login-email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+        <!-- Navigation Tabs -->
+        <div id="navigationTabs" class="bg-white p-4 border-b hidden">
+            <div class="flex space-x-2">
+                <button onclick="showTab('home')" class="nav-tab active" id="homeTab">
+                    <i class="fas fa-home mb-1"></i>
+                    <div class="text-xs">Home</div>
+                </button>
+                <button onclick="showTab('lottery')" class="nav-tab" id="lotteryTab">
+                    <i class="fas fa-ticket-alt mb-1"></i>
+                    <div class="text-xs">Lottery</div>
+                </button>
+                <button onclick="showTab('payment')" class="nav-tab" id="paymentTab">
+                    <i class="fas fa-credit-card mb-1"></i>
+                    <div class="text-xs">Payment</div>
+                </button>
+                <button onclick="showTab('results')" class="nav-tab" id="resultsTab">
+                    <i class="fas fa-trophy mb-1"></i>
+                    <div class="text-xs">Results</div>
+                </button>
+                <button onclick="showTab('profile')" class="nav-tab" id="profileTab">
+                    <i class="fas fa-user mb-1"></i>
+                    <div class="text-xs">Profile</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Admin Navigation -->
+        <div id="adminNavigation" class="bg-white p-4 border-b hidden">
+            <div class="flex space-x-2 overflow-x-auto">
+                <button onclick="showAdminTab('dashboard')" class="nav-tab active" id="dashboardTab">
+                    <i class="fas fa-chart-bar mb-1"></i>
+                    <div class="text-xs">Dashboard</div>
+                </button>
+                <button onclick="showAdminTab('users')" class="nav-tab" id="usersTab">
+                    <i class="fas fa-users mb-1"></i>
+                    <div class="text-xs">Users</div>
+                </button>
+                <button onclick="showAdminTab('payments')" class="nav-tab" id="paymentsTab">
+                    <i class="fas fa-money-bill mb-1"></i>
+                    <div class="text-xs">Payments</div>
+                </button>
+                <button onclick="showAdminTab('lottery-mgmt')" class="nav-tab" id="lotteryMgmtTab">
+                    <i class="fas fa-cogs mb-1"></i>
+                    <div class="text-xs">Lottery</div>
+                </button>
+                <button onclick="showAdminTab('banners')" class="nav-tab" id="bannersTab">
+                    <i class="fas fa-image mb-1"></i>
+                    <div class="text-xs">Banners</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div id="mainContent" class="flex-1 overflow-y-auto">
+            
+            <!-- Home Tab -->
+            <div id="homeContent" class="p-4 hidden">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-coins text-3xl text-yellow-500 mb-2"></i>
+                        <div class="text-2xl font-bold" id="homeBalance">$0.00</div>
+                        <div class="text-sm text-gray-600">Current Balance</div>
+                    </div>
+                    <div class="stats-card text-center">
+                        <i class="fas fa-ticket-alt text-3xl text-blue-500 mb-2"></i>
+                        <div class="text-2xl font-bold" id="activeBets">0</div>
+                        <div class="text-sm text-gray-600">Active Bets</div>
+                    </div>
                 </div>
+
+                <!-- Quick Actions -->
                 <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">รหัสผ่าน</label>
-                    <input type="password" id="login-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="showTab('lottery')" class="stats-card text-center hover:shadow-lg transition">
+                            <i class="fas fa-plus-circle text-3xl text-green-500 mb-2"></i>
+                            <div class="font-bold">Buy Lottery</div>
+                        </button>
+                        <button onclick="showTab('payment')" class="stats-card text-center hover:shadow-lg transition">
+                            <i class="fas fa-wallet text-3xl text-purple-500 mb-2"></i>
+                            <div class="font-bold">Add Money</div>
+                        </button>
+                    </div>
                 </div>
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">เข้าสู่ระบบ</button>
-            </form>
-            <p class="text-center mt-4">ยังไม่มีบัญชี? <a href="#" onclick="showRegister()" class="text-blue-500">สมัครสมาชิก</a></p>
-        </div>
 
-        <!-- Register Form -->
-        <div id="register-form" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md hidden">
-            <h2 class="text-2xl font-bold mb-6 text-center">สมัครสมาชิก</h2>
-            <form onsubmit="register(event)">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">ชื่อ-นามสกุล</label>
-                    <input type="text" id="register-name" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">อีเมล</label>
-                    <input type="email" id="register-email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">เบอร์โทรศัพท์</label>
-                    <input type="tel" id="register-phone" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
-                </div>
+                <!-- Recent Results -->
                 <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">รหัสผ่าน</label>
-                    <input type="password" id="register-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    <h3 class="text-lg font-bold mb-4">Latest Results</h3>
+                    <div id="recentResults" class="space-y-3">
+                        <!-- Results will be loaded here -->
+                    </div>
                 </div>
-                <button type="submit" class="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">สมัครสมาชิก</button>
-            </form>
-            <p class="text-center mt-4">มีบัญชีแล้ว? <a href="#" onclick="showLogin()" class="text-blue-500">เข้าสู่ระบบ</a></p>
+
+                <!-- Hot Numbers -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-4">Hot Numbers</h3>
+                    <div id="hotNumbers" class="flex space-x-2 overflow-x-auto">
+                        <!-- Hot numbers will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lottery Tab -->
+            <div id="lotteryContent" class="p-4 hidden">
+                <div class="stats-card mb-6">
+                    <h3 class="text-lg font-bold mb-4">Select Your Lucky Numbers</h3>
+                    <div class="number-selector mb-4" id="numberSelector">
+                        <!-- Numbers 000-999 will be generated here -->
+                    </div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="font-bold">Bet Amount:</span>
+                        <select id="betAmount" class="p-2 border rounded-lg">
+                            <option value="10">$10</option>
+                            <option value="20">$20</option>
+                            <option value="50">$50</option>
+                            <option value="100">$100</option>
+                        </select>
+                    </div>
+                    <button onclick="placeBet()" class="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white p-3 rounded-lg font-bold hover:shadow-lg transition">
+                        Place Bet
+                    </button>
+                </div>
+
+                <!-- Current Bets -->
+                <div class="stats-card">
+                    <h3 class="text-lg font-bold mb-4">Your Current Bets</h3>
+                    <div id="currentBets" class="space-y-3">
+                        <!-- Current bets will be displayed here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Tab -->
+            <div id="paymentContent" class="p-4 hidden">
+                <!-- Balance Card -->
+                <div class="payment-card mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm opacity-90">Current Balance</div>
+                            <div class="text-3xl font-bold" id="paymentBalance">$0.00</div>
+                        </div>
+                        <i class="fas fa-wallet text-4xl opacity-50"></i>
+                    </div>
+                </div>
+
+                <!-- Payment Actions -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <button onclick="showDepositModal()" class="stats-card text-center hover:shadow-lg transition">
+                        <i class="fas fa-plus text-3xl text-green-500 mb-2"></i>
+                        <div class="font-bold">Deposit</div>
+                    </button>
+                    <button onclick="showWithdrawModal()" class="stats-card text-center hover:shadow-lg transition">
+                        <i class="fas fa-minus text-3xl text-red-500 mb-2"></i>
+                        <div class="font-bold">Withdraw</div>
+                    </button>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-4">Transaction History</h3>
+                    <div id="transactionHistory" class="space-y-3">
+                        <!-- Transactions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Tab -->
+            <div id="resultsContent" class="p-4 hidden">
+                <!-- Latest Draw -->
+                <div class="stats-card mb-6 text-center">
+                    <h3 class="text-lg font-bold mb-4">Latest Draw Results</h3>
+                    <div class="flex justify-center items-center space-x-4 mb-4">
+                        <div class="lottery-ball bg-red-500 text-white" id="result1">1</div>
+                        <div class="lottery-ball bg-green-500 text-white" id="result2">2</div>
+                        <div class="lottery-ball bg-blue-500 text-white" id="result3">3</div>
+                    </div>
+                    <div class="text-sm text-gray-600" id="drawDate">Draw Date: Loading...</div>
+                </div>
+
+                <!-- Check Results -->
+                <div class="stats-card mb-6">
+                    <h3 class="text-lg font-bold mb-4">Check Your Numbers</h3>
+                    <input type="text" id="checkNumber" placeholder="Enter your 3-digit number" class="w-full p-3 border rounded-lg mb-4">
+                    <button onclick="checkResults()" class="w-full bg-blue-500 text-white p-3 rounded-lg font-bold hover:bg-blue-600 transition">
+                        Check Results
+                    </button>
+                    <div id="checkResultDisplay" class="mt-4 hidden"></div>
+                </div>
+
+                <!-- Historical Results -->
+                <div class="stats-card">
+                    <h3 class="text-lg font-bold mb-4">Historical Results</h3>
+                    <div id="historicalResults" class="space-y-3">
+                        <!-- Historical results will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profileContent" class="p-4 hidden">
+                <div class="stats-card mb-6 text-center">
+                    <div class="user-avatar mb-4">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" id="profileName">User Name</h3>
+                    <p class="text-gray-600" id="profileEmail">user@email.com</p>
+                </div>
+
+                <!-- Profile Stats -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="stats-card text-center">
+                        <div class="text-2xl font-bold text-blue-500" id="totalBets">0</div>
+                        <div class="text-xs text-gray-600">Total Bets</div>
+                    </div>
+                    <div class="stats-card text-center">
+                        <div class="text-2xl font-bold text-green-500" id="totalWins">0</div>
+                        <div class="text-xs text-gray-600">Total Wins</div>
+                    </div>
+                    <div class="stats-card text-center">
+                        <div class="text-2xl font-bold text-purple-500" id="winRate">0%</div>
+                        <div class="text-xs text-gray-600">Win Rate</div>
+                    </div>
+                </div>
+
+                <!-- Profile Actions -->
+                <div class="space-y-3">
+                    <button onclick="editProfile()" class="w-full stats-card text-left flex items-center justify-between hover:shadow-lg transition">
+                        <span><i class="fas fa-edit mr-3"></i>Edit Profile</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="changePassword()" class="w-full stats-card text-left flex items-center justify-between hover:shadow-lg transition">
+                        <span><i class="fas fa-key mr-3"></i>Change Password</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="logout()" class="w-full stats-card text-left flex items-center justify-between hover:shadow-lg transition text-red-500">
+                        <span><i class="fas fa-sign-out-alt mr-3"></i>Logout</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div id="adminDashboard" class="p-4 hidden">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-users text-3xl text-blue-500 mb-2"></i>
+                        <div class="text-2xl font-bold" id="totalUsers">0</div>
+                        <div class="text-sm text-gray-600">Total Users</div>
+                    </div>
+                    <div class="stats-card text-center">
+                        <i class="fas fa-dollar-sign text-3xl text-green-500 mb-2"></i>
+                        <div class="text-2xl font-bold" id="totalRevenue">$0</div>
+                        <div class="text-sm text-gray-600">Total Revenue</div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="stats-card mb-6">
+                    <h3 class="text-lg font-bold mb-4">Revenue Chart</h3>
+                    <canvas id="revenueChart" width="400" height="200"></canvas>
+                </div>
+
+                <!-- System Controls -->
+                <div class="admin-control mb-4">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold">Lottery Sales</span>
+                        <label class="switch">
+                            <input type="checkbox" id="lotterySalesToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="admin-control mb-4">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold">Payments System</span>
+                        <label class="switch">
+                            <input type="checkbox" id="paymentsToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Users Management -->
+            <div id="adminUsers" class="p-4 hidden">
+                <div class="stats-card mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold">Users Management</h3>
+                        <button onclick="refreshUsers()" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                    <div id="usersList" class="space-y-3">
+                        <!-- Users list will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Payments Management -->
+            <div id="adminPayments" class="p-4 hidden">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="admin-control text-center">
+                        <div class="text-2xl font-bold mb-2" id="pendingDeposits">0</div>
+                        <div class="text-sm">Pending Deposits</div>
+                    </div>
+                    <div class="admin-control text-center">
+                        <div class="text-2xl font-bold mb-2" id="pendingWithdrawals">0</div>
+                        <div class="text-sm">Pending Withdrawals</div>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <h3 class="text-lg font-bold mb-4">Pending Transactions</h3>
+                    <div id="pendingTransactions" class="space-y-3">
+                        <!-- Pending transactions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Lottery Management -->
+            <div id="adminLotteryMgmt" class="p-4 hidden">
+                <div class="stats-card mb-6">
+                    <h3 class="text-lg font-bold mb-4">Lottery Draw Controls</h3>
+                    <button onclick="generateLotteryResults()" class="w-full bg-red-500 text-white p-3 rounded-lg font-bold mb-4">
+                        Generate New Draw Results
+                    </button>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Block Numbers:</label>
+                            <input type="text" id="blockNumbers" placeholder="e.g., 123,456,789" class="w-full p-3 border rounded-lg">
+                            <button onclick="blockNumbers()" class="w-full bg-orange-500 text-white p-2 rounded-lg mt-2">
+                                Block Selected Numbers
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <h3 class="text-lg font-bold mb-4">Current Draw Status</h3>
+                    <div id="currentDrawStatus">
+                        <!-- Draw status will be displayed here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Banners Management -->
+            <div id="adminBanners" class="p-4 hidden">
+                <div class="stats-card mb-6">
+                    <h3 class="text-lg font-bold mb-4">Banner Management</h3>
+                    <button onclick="showAddBannerModal()" class="w-full bg-green-500 text-white p-3 rounded-lg font-bold mb-4">
+                        Add New Banner
+                    </button>
+                    
+                    <div id="bannersList" class="space-y-3">
+                        <!-- Banners list will be displayed here -->
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Admin Dashboard -->
-        <div id="admin-dashboard" class="hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-users"></i> จัดการผู้ใช้</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span>ผู้ใช้ทั้งหมด:</span>
-                            <span id="total-users" class="font-bold">0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>ผู้ใช้ออนไลน์:</span>
-                            <span id="online-users" class="font-bold text-green-500">0</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-money-bill-wave"></i> การเงิน</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span>ยอดขายรวม:</span>
-                            <span id="total-sales" class="font-bold text-green-500">฿0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>รออนุมัติ:</span>
-                            <span id="pending-approvals" class="font-bold text-yellow-500">0</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-trophy"></i> ลอตเตอรี่</h3>
-                    <button onclick="generateLotteryResult()" class="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600">
-                        <i class="fas fa-dice"></i> ออกรางวัล
-                    </button>
-                </div>
-            </div>
-
-            <!-- Pending Approvals -->
-            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h3 class="text-xl font-bold mb-4"><i class="fas fa-clock"></i> รายการรออนุมัติ</h3>
-                <div id="pending-transactions" class="space-y-3">
-                    <!-- Pending transactions will be loaded here -->
-                </div>
-            </div>
-
-            <!-- Chart -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold mb-4"><i class="fas fa-chart-line"></i> สิ่งที่วิทยาการ</h3>
-                <canvas id="admin-chart" width="400" height="200"></canvas>
-            </div>
-        </div>
-
-        <!-- User Dashboard -->
-        <div id="user-dashboard" class="hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-wallet"></i> กระเป๋าเงิน</h3>
-                    <div class="text-3xl font-bold text-green-500 mb-4">฿<span id="user-balance">0</span></div>
-                    <div class="flex space-x-2">
-                        <button onclick="showDepositModal()" class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">
-                            <i class="fas fa-plus"></i> ฝากเงิน
-                        </button>
-                        <button onclick="showWithdrawModal()" class="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
-                            <i class="fas fa-minus"></i> ถอนเงิน
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-ticket-alt"></i> ลอตเตอรี่ของฉัน</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span>ตั๋วทั้งหมด:</span>
-                            <span id="user-tickets" class="font-bold">0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>ชนะแล้ว:</span>
-                            <span id="user-wins" class="font-bold text-green-500">0</span>
-                        </div>
-                    </div>
-                    <button onclick="showLotteryModal()" class="w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
-                        <i class="fas fa-shopping-cart"></i> ซื้อลอตเตอรี่
-                    </button>
-                </div>
-                
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-search"></i> ตรวจผลรางวัล</h3>
-                    <input type="text" id="check-number" placeholder="กรอกหมายเลข 3 หลัก" class="w-full px-3 py-2 border rounded-lg mb-3" maxlength="3">
-                    <button onclick="checkResult()" class="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600">
-                        <i class="fas fa-search"></i> ตรวจผล
-                    </button>
-                </div>
-            </div>
-
-            <!-- Latest Results -->
-            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h3 class="text-xl font-bold mb-4"><i class="fas fa-trophy"></i> ผลรางวัลล่าสุด</h3>
-                <div id="latest-results" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Results will be loaded here -->
-                </div>
-            </div>
-
-            <!-- AI Assistant -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold mb-4"><i class="fas fa-robot"></i> ผู้ช่วย AI</h3>
-                <div id="chat-container" class="chat-container bg-gray-50 p-4 rounded-lg mb-4">
-                    <div class="text-gray-500 text-center">สวัสดีครับ! ผมสามารถช่วยวิเคราะห์ตัวเลขลอตเตอรี่และให้คำแนะนำได้ครับ</div>
-                </div>
-                <div class="flex">
-                    <input type="text" id="ai-input" placeholder="ถามผู้ช่วย AI..." class="flex-1 px-3 py-2 border rounded-l-lg">
-                    <button onclick="sendToAI()" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
+        <!-- Bottom Tab Bar -->
+        <div id="bottomTabBar" class="bg-white border-t p-2 hidden">
+            <div class="flex justify-around">
+                <button onclick="showTab('home')" class="p-2 text-center" id="bottomHomeTab">
+                    <i class="fas fa-home text-lg"></i>
+                    <div class="text-xs">Home</div>
+                </button>
+                <button onclick="showTab('lottery')" class="p-2 text-center" id="bottomLotteryTab">
+                    <i class="fas fa-ticket-alt text-lg"></i>
+                    <div class="text-xs">Lottery</div>
+                </button>
+                <button onclick="showTab('results')" class="p-2 text-center" id="bottomResultsTab">
+                    <i class="fas fa-trophy text-lg"></i>
+                    <div class="text-xs">Results</div>
+                </button>
+                <button onclick="showTab('profile')" class="p-2 text-center" id="bottomProfileTab">
+                    <i class="fas fa-user text-lg"></i>
+                    <div class="text-xs">Profile</div>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Modals -->
+    
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">Create Account</h3>
+                <button onclick="closeModal('registerModal')" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="regName" placeholder="Full Name" class="w-full p-3 border rounded-lg">
+                <input type="email" id="regEmail" placeholder="Email Address" class="w-full p-3 border rounded-lg">
+                <input type="password" id="regPassword" placeholder="Password" class="w-full p-3 border rounded-lg">
+                <input type="password" id="regConfirmPassword" placeholder="Confirm Password" class="w-full p-3 border rounded-lg">
+                <button onclick="register()" class="w-full bg-blue-500 text-white p-3 rounded-lg font-bold">
+                    Create Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">Admin Login</h3>
+                <button onclick="closeModal('adminLoginModal')" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <input type="email" id="adminEmail" placeholder="Admin Email" class="w-full p-3 border rounded-lg">
+                <input type="password" id="adminPassword" placeholder="Admin Password" class="w-full p-3 border rounded-lg">
+                <input type="text" id="adminSecret" placeholder="Admin Secret Key" class="w-full p-3 border rounded-lg">
+                <button onclick="adminLogin()" class="w-full bg-red-500 text-white p-3 rounded-lg font-bold">
+                    Admin Login
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Deposit Modal -->
-    <div id="deposit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 class="text-xl font-bold mb-4">ฝากเงิน</h3>
-            <form onsubmit="deposit(event)">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">จำนวนเงิน (บาท)</label>
-                    <input type="number" id="deposit-amount" class="w-full px-3 py-2 border rounded-lg" min="100" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">ช่องทางการชำระ</label>
-                    <select id="deposit-method" class="w-full px-3 py-2 border rounded-lg">
-                        <option value="bank">โอนธนาคาร</option>
-                        <option value="truemoney">TrueMoney Wallet</option>
-                        <option value="promptpay">PromptPay</option>
+    <div id="depositModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">Deposit Money</h3>
+                <button onclick="closeModal('depositModal')" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2">Amount</label>
+                    <select id="depositAmount" class="w-full p-3 border rounded-lg">
+                        <option value="10">$10</option>
+                        <option value="20">$20</option>
+                        <option value="50">$50</option>
+                        <option value="100">$100</option>
+                        <option value="200">$200</option>
+                        <option value="500">$500</option>
                     </select>
                 </div>
-                <div class="flex space-x-3">
-                    <button type="button" onclick="closeDepositModal()" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg">ยกเลิก</button>
-                    <button type="submit" class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg">ฝากเงิน</button>
+                <div>
+                    <label class="block text-sm font-bold mb-2">Payment Method</label>
+                    <select id="depositMethod" class="w-full p-3 border rounded-lg">
+                        <option value="bank">Bank Transfer</option>
+                        <option value="credit">Credit Card</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="crypto">Cryptocurrency</option>
+                    </select>
                 </div>
-            </form>
+                <button onclick="processDeposit()" class="w-full bg-green-500 text-white p-3 rounded-lg font-bold">
+                    Submit Deposit Request
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Withdraw Modal -->
-    <div id="withdraw-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 class="text-xl font-bold mb-4">ถอนเงิน</h3>
-            <form onsubmit="withdraw(event)">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">จำนวนเงิน (บาท)</label>
-                    <input type="number" id="withdraw-amount" class="w-full px-3 py-2 border rounded-lg" min="100" required>
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">Withdraw Money</h3>
+                <button onclick="closeModal('withdrawModal')" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2">Amount</label>
+                    <input type="number" id="withdrawAmount" placeholder="Enter amount" class="w-full p-3 border rounded-lg">
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">เลขบัญชีธนาคาร</label>
-                    <input type="text" id="withdraw-account" class="w-full px-3 py-2 border rounded-lg" required>
+                <div>
+                    <label class="block text-sm font-bold mb-2">Bank Account</label>
+                    <input type="text" id="withdrawAccount" placeholder="Account Number" class="w-full p-3 border rounded-lg">
                 </div>
-                <div class="flex space-x-3">
-                    <button type="button" onclick="closeWithdrawModal()" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg">ยกเลิก</button>
-                    <button type="submit" class="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg">ถอนเงิน</button>
-                </div>
-            </form>
+                <button onclick="processWithdraw()" class="w-full bg-red-500 text-white p-3 rounded-lg font-bold">
+                    Submit Withdrawal Request
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Lottery Modal -->
-    <div id="lottery-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 class="text-xl font-bold mb-4">ซื้อลอตเตอรี่ 3D</h3>
-            <form onsubmit="buyLottery(event)">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">เลขที่ต้องการ (3 หลัก)</label>
-                    <input type="text" id="lottery-number" class="w-full px-3 py-2 border rounded-lg text-center text-2xl" maxlength="3" pattern="[0-9]{3}" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">จำนวนเงิน (บาท)</label>
-                    <select id="lottery-amount" class="w-full px-3 py-2 border rounded-lg">
-                        <option value="100">100 บาท</option>
-                        <option value="200">200 บาท</option>
-                        <option value="500">500 บาท</option>
-                        <option value="1000">1,000 บาท</option>
-                    </select>
-                </div>
-                <div class="mb-4 p-3 bg-yellow-100 rounded-lg">
-                    <p class="text-sm text-yellow-800">
-                        <i class="fas fa-info-circle"></i> อัตราจ่าย: 1 ต่อ 500 (ถูกรางวัลจะได้เงินคืน 500 เท่า)
-                    </p>
-                </div>
-                <div class="flex space-x-3">
-                    <button type="button" onclick="closeLotteryModal()" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg">ยกเลิก</button>
-                    <button type="submit" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg">ซื้อ</button>
-                </div>
-            </form>
+    <!-- Add Banner Modal -->
+    <div id="addBannerModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">Add New Banner</h3>
+                <button onclick="closeModal('addBannerModal')" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="bannerTitle" placeholder="Banner Title" class="w-full p-3 border rounded-lg">
+                <input type="url" id="bannerImageUrl" placeholder="Image URL" class="w-full p-3 border rounded-lg">
+                <input type="url" id="bannerLinkUrl" placeholder="Link URL (optional)" class="w-full p-3 border rounded-lg">
+                <select id="bannerPosition" class="w-full p-3 border rounded-lg">
+                    <option value="header">Header</option>
+                    <option value="sidebar">Sidebar</option>
+                    <option value="footer">Footer</option>
+                </select>
+                <button onclick="addBanner()" class="w-full bg-green-500 text-white p-3 rounded-lg font-bold">
+                    Add Banner
+                </button>
+            </div>
         </div>
     </div>
 
-    <script>
-       // Firebase configuration
+    <!-- Floating Action Button -->
+    <button id="floatingBtn" class="floating-btn bg-orange-500 text-white w-16 h-16 rounded-full shadow-lg hidden" onclick="quickAction()">
+        <i class="fas fa-plus text-xl"></i>
+    </button>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <div id="notificationText">Notification message</div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, collection, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyB49vRPX8YaWuTP5GS3lsBDqdAaz_hJYAw",
-            authDomain: "onlineshop-849c8.firebaseapp.com",
-            databaseURL: "https://onlineshop-849c8.firebaseio.com",
-            projectId: "onlineshop-849c8",
-            storageBucket: "onlineshop-849c8.appspot.com",
-            messagingSenderId: "883512833370",
-            appId: "1:883512833370:web:a1c8412b158f8744afef63"
+            apiKey: "AIzaSyB8Q1234567890abcdefghijklmnopqrstuvwxyz",
+            authDomain: "thailand-lottery-demo.firebaseapp.com",
+            projectId: "thailand-lottery-demo",
+            storageBucket: "thailand-lottery-demo.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdefghijklmnopqrstuvwxyz"
         };
 
-
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // Global Variables
-        let currentUser = null;
-        let isAdmin = false;
-        let userBalance = 0;
-        let lotteryResults = [];
+        // Global variables
+        window.auth = auth;
+        window.db = db;
+        window.currentUser = null;
+        window.isAdmin = false;
+        window.selectedNumbers = [];
 
-        // Demo data for testing
-        const demoUsers = [
-            { id: '1', email: 'admin@demo.com', password: 'admin123', role: 'admin', name: 'Admin', balance: 0 },
-            { id: '2', email: 'user@demo.com', password: 'user123', role: 'user', name: 'ผู้ใช้ทดสอบ', balance: 5000 }
-        ];
+        // Sample data
+        window.sampleData = {
+            users: [
+                { id: '1', name: 'John Doe', email: 'john@example.com', balance: 150.00, totalBets: 25, totalWins: 8 },
+                { id: '2', name: 'Jane Smith', email: 'jane@example.com', balance: 275.50, totalBets: 42, totalWins: 15 },
+                { id: '3', name: 'Mike Johnson', email: 'mike@example.com', balance: 89.25, totalBets: 18, totalWins: 3 }
+            ],
+            transactions: [
+                { id: '1', type: 'deposit', amount: 100, status: 'completed', date: new Date(), user: 'John Doe' },
+                { id: '2', type: 'withdrawal', amount: 50, status: 'pending', date: new Date(), user: 'Jane Smith' },
+                { id: '3', type: 'bet', amount: 20, status: 'completed', date: new Date(), user: 'Mike Johnson' }
+            ],
+            results: [
+                { numbers: [1, 2, 3], date: new Date('2024-01-01'), prize: 10000 },
+                { numbers: [4, 5, 6], date: new Date('2024-01-02'), prize: 15000 },
+                { numbers: [7, 8, 9], date: new Date('2024-01-03'), prize: 8000 }
+            ],
+            banners: [
+                { id: '1', title: 'Welcome Bonus', imageUrl: 'https://via.placeholder.com/300x100/ff6b6b/ffffff?text=Welcome+Bonus', position: 'header', isActive: true },
+                { id: '2', title: 'Lucky Numbers', imageUrl: 'https://via.placeholder.com/300x100/4ecdc4/ffffff?text=Lucky+Numbers', position: 'sidebar', isActive: true }
+            ]
+        };
 
-        // Initialize App
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
+        // Authentication state listener
+        onAuthStateChanged(auth, (user) => {
+            window.currentUser = user;
+            if (user) {
+                checkUserRole(user.uid);
+                updateUI();
+            } else {
+                showLoginForm();
+            }
         });
 
-        function initializeApp() {
-            // Generate demo lottery results
-            generateDemoResults();
-            
-            // Check for saved user session
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                userLoggedIn();
+        // Make functions globally available
+        window.login = login;
+        window.register = register;
+        window.logout = logout;
+        window.adminLogin = adminLogin;
+        window.showRegister = showRegister;
+        window.showAdminLogin = showAdminLogin;
+        window.showTab = showTab;
+        window.showAdminTab = showAdminTab;
+        window.placeBet = placeBet;
+        window.showDepositModal = showDepositModal;
+        window.showWithdrawModal = showWithdrawModal;
+        window.processDeposit = processDeposit;
+        window.processWithdraw = processWithdraw;
+        window.checkResults = checkResults;
+        window.closeModal = closeModal;
+        window.showNotification = showNotification;
+        window.generateLotteryResults = generateLotteryResults;
+        window.blockNumbers = blockNumbers;
+        window.showAddBannerModal = showAddBannerModal;
+        window.addBanner = addBanner;
+        window.refreshUsers = refreshUsers;
+        window.toggleMenu = toggleMenu;
+        window.toggleNotifications = toggleNotifications;
+        window.quickAction = quickAction;
+        window.editProfile = editProfile;
+        window.changePassword = changePassword;
+
+        // Authentication functions
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showNotification('Please enter email and password', 'error');
+                return;
             }
-            
-            // Initialize charts if admin
-            if (isAdmin) {
-                initializeAdminChart();
+
+            try {
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('loginLoading').classList.remove('hidden');
+
+                await signInWithEmailAndPassword(auth, email, password);
+                showNotification('Login successful!', 'success');
+            } catch (error) {
+                showNotification('Login failed: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loginBtn').classList.remove('hidden');
+                document.getElementById('loginLoading').classList.add('hidden');
             }
         }
 
-        // Authentication Functions
-        function showLogin() {
-            document.getElementById('login-form').classList.remove('hidden');
-            document.getElementById('register-form').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('user-dashboard').classList.add('hidden');
-        }
+        async function register() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
 
-        function showRegister() {
-            document.getElementById('register-form').classList.remove('hidden');
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('user-dashboard').classList.add('hidden');
-        }
+            if (!name || !email || !password || !confirmPassword) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
 
-        function login(event) {
-            event.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match', 'error');
+                return;
+            }
 
-            // Demo authentication
-            const user = demoUsers.find(u => u.email === email && u.password === password);
-            if (user) {
-                currentUser = user;
-                isAdmin = user.role === 'admin';
-                userBalance = user.balance;
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                userLoggedIn();
-                showNotification('เข้าสู่ระบบสำเร็จ', 'success');
-            } else {
-                showNotification('อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'error');
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Create user profile in Firestore
+                await setDoc(doc(db, 'users', user.uid), {
+                    name: name,
+                    email: email,
+                    balance: 0,
+                    role: 'user',
+                    createdAt: serverTimestamp(),
+                    totalBets: 0,
+                    totalWins: 0
+                });
+
+                showNotification('Account created successfully!', 'success');
+                closeModal('registerModal');
+            } catch (error) {
+                showNotification('Registration failed: ' + error.message, 'error');
             }
         }
 
-        function register(event) {
-            event.preventDefault();
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const phone = document.getElementById('register-phone').value;
-            const password = document.getElementById('register-password').value;
+        async function adminLogin() {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const secret = document.getElementById('adminSecret').value;
 
-            // Demo registration
-            const newUser = {
-                id: Date.now().toString(),
-                email: email,
-                password: password,
-                role: 'user',
-                name: name,
-                phone: phone,
-                balance: 0
-            };
-            
-            demoUsers.push(newUser);
-            currentUser = newUser;
-            userBalance = 0;
-            localStorage.setItem('currentUser', JSON.stringify(newUser));
-            userLoggedIn();
-            showNotification('สมัครสมาชิกสำเร็จ', 'success');
+            const ADMIN_SECRET = "THAI_LOTTERY_ADMIN_2024";
+
+            if (secret !== ADMIN_SECRET) {
+                showNotification('Invalid admin secret key', 'error');
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.isAdmin = true;
+                showNotification('Admin login successful!', 'success');
+                closeModal('adminLoginModal');
+            } catch (error) {
+                showNotification('Admin login failed: ' + error.message, 'error');
+            }
         }
 
-        function logout() {
-            currentUser = null;
-            isAdmin = false;
-            userBalance = 0;
-            localStorage.removeItem('currentUser');
-            
-            document.getElementById('nav-buttons').classList.remove('hidden');
-            document.getElementById('user-menu').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('user-dashboard').classList.add('hidden');
-            
-            showLogin();
-            showNotification('ออกจากระบบสำเร็จ', 'success');
+        async function logout() {
+            try {
+                await signOut(auth);
+                window.isAdmin = false;
+                showNotification('Logged out successfully', 'success');
+            } catch (error) {
+                showNotification('Logout failed: ' + error.message, 'error');
+            }
         }
 
-        function userLoggedIn() {
-            document.getElementById('nav-buttons').classList.add('hidden');
-            document.getElementById('user-menu').classList.remove('hidden');
-            document.getElementById('user-name').textContent = currentUser.name;
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('register-form').classList.add('hidden');
+        async function checkUserRole(uid) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    window.isAdmin = userData.role === 'admin';
+                }
+            } catch (error) {
+                console.error('Error checking user role:', error);
+            }
+        }
 
-            if (isAdmin) {
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                document.getElementById('user-dashboard').classList.add('hidden');
-                loadAdminData();
-            } else {
-                document.getElementById('user-dashboard').classList.remove('hidden');
-                document.getElementById('admin-dashboard').classList.add('hidden');
+        // UI Functions
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('userProfile').classList.add('hidden');
+            document.getElementById('adminProfile').classList.add('hidden');
+            document.getElementById('navigationTabs').classList.add('hidden');
+            document.getElementById('adminNavigation').classList.add('hidden');
+            document.getElementById('bottomTabBar').classList.add('hidden');
+            document.getElementById('floatingBtn').classList.add('hidden');
+            hideAllContent();
+        }
+
+        function updateUI() {
+            if (window.currentUser) {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('bottomTabBar').classList.remove('hidden');
+                document.getElementById('floatingBtn').classList.remove('hidden');
+
+                if (window.isAdmin) {
+                    document.getElementById('adminProfile').classList.remove('hidden');
+                    document.getElementById('userProfile').classList.add('hidden');
+                    document.getElementById('adminNavigation').classList.remove('hidden');
+                    document.getElementById('navigationTabs').classList.add('hidden');
+                    showAdminTab('dashboard');
+                } else {
+                    document.getElementById('userProfile').classList.remove('hidden');
+                    document.getElementById('adminProfile').classList.add('hidden');
+                    document.getElementById('navigationTabs').classList.remove('hidden');
+                    document.getElementById('adminNavigation').classList.add('hidden');
+                    showTab('home');
+                }
+
                 loadUserData();
             }
         }
 
-        // Admin Functions
-        function loadAdminData() {
-            document.getElementById('total-users').textContent = demoUsers.length;
-            document.getElementById('online-users').textContent = '1';
-            document.getElementById('total-sales').textContent = '฿50,000';
-            document.getElementById('pending-approvals').textContent = '3';
-            loadPendingTransactions();
-            initializeAdminChart();
+        function showTab(tabName) {
+            // Hide all content
+            hideAllContent();
+            
+            // Show selected content
+            document.getElementById(tabName + 'Content').classList.remove('hidden');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Update bottom tab
+            document.querySelectorAll('#bottomTabBar button').forEach(tab => tab.classList.remove('text-orange-500'));
+            document.getElementById('bottom' + tabName.charAt(0).toUpperCase() + tabName.slice(1) + 'Tab').classList.add('text-orange-500');
+            
+            // Load content based on tab
+            switch(tabName) {
+                case 'home':
+                    loadHomeContent();
+                    break;
+                case 'lottery':
+                    loadLotteryContent();
+                    break;
+                case 'payment':
+                    loadPaymentContent();
+                    break;
+                case 'results':
+                    loadResultsContent();
+                    break;
+                case 'profile':
+                    loadProfileContent();
+                    break;
+            }
         }
 
-        function loadPendingTransactions() {
-            const container = document.getElementById('pending-transactions');
-            container.innerHTML = `
-                <div class="flex justify-between items-center p-3 bg-yellow-50 rounded border">
-                    <div>
-                        <p class="font-semibold">ฝากเงิน - ${demoUsers[1].name}</p>
-                        <p class="text-sm text-gray-600">จำนวน: ฿1,000 | โอนธนาคาร</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="approveTransaction(1)" class="bg-green-500 text-white px-3 py-1 rounded text-sm">อนุมัติ</button>
-                        <button onclick="rejectTransaction(1)" class="bg-red-500 text-white px-3 py-1 rounded text-sm">ปฏิเสธ</button>
-                    </div>
-                </div>
-                <div class="flex justify-between items-center p-3 bg-yellow-50 rounded border">
-                    <div>
-                        <p class="font-semibold">ถอนเงิน - ${demoUsers[1].name}</p>
-                        <p class="text-sm text-gray-600">จำนวน: ฿500 | บัญชี: xxx-xxx-xxxx</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="approveTransaction(2)" class="bg-green-500 text-white px-3 py-1 rounded text-sm">อนุมัติ</button>
-                        <button onclick="rejectTransaction(2)" class="bg-red-500 text-white px-3 py-1 rounded text-sm">ปฏิเสธ</button>
+        function showAdminTab(tabName) {
+            // Hide all admin content
+            const adminSections = ['adminDashboard', 'adminUsers', 'adminPayments', 'adminLotteryMgmt', 'adminBanners'];
+            adminSections.forEach(section => {
+                document.getElementById(section).classList.add('hidden');
+            });
+            
+            // Show selected admin content
+            if (tabName === 'dashboard') {
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                loadAdminDashboard();
+            } else if (tabName === 'users') {
+                document.getElementById('adminUsers').classList.remove('hidden');
+                loadAdminUsers();
+            } else if (tabName === 'payments') {
+                document.getElementById('adminPayments').classList.remove('hidden');
+                loadAdminPayments();
+            } else if (tabName === 'lottery-mgmt') {
+                document.getElementById('adminLotteryMgmt').classList.remove('hidden');
+                loadAdminLotteryMgmt();
+            } else if (tabName === 'banners') {
+                document.getElementById('adminBanners').classList.remove('hidden');
+                loadAdminBanners();
+            }
+            
+            // Update navigation
+            document.querySelectorAll('#adminNavigation .nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName.replace('-', '') + 'Tab').classList.add('active');
+        }
+
+        function hideAllContent() {
+            const contents = ['homeContent', 'lotteryContent', 'paymentContent', 'resultsContent', 'profileContent'];
+            contents.forEach(content => {
+                document.getElementById(content).classList.add('hidden');
+            });
+        }
+
+        // Content Loading Functions
+        function loadHomeContent() {
+            // Load user balance
+            document.getElementById('homeBalance').textContent = '$' + (Math.random() * 1000).toFixed(2);
+            document.getElementById('activeBets').textContent = Math.floor(Math.random() * 10);
+            
+            // Load recent results
+            loadRecentResults();
+            loadHotNumbers();
+        }
+
+        function loadLotteryContent() {
+            generateNumberSelector();
+            loadCurrentBets();
+        }
+
+        function loadPaymentContent() {
+            document.getElementById('paymentBalance').textContent = '$' + (Math.random() * 1000).toFixed(2);
+            loadTransactionHistory();
+        }
+
+        function loadResultsContent() {
+            loadLatestResults();
+            loadHistoricalResults();
+        }
+
+        function loadProfileContent() {
+            if (window.currentUser) {
+                document.getElementById('profileName').textContent = window.currentUser.email.split('@')[0];
+                document.getElementById('profileEmail').textContent = window.currentUser.email;
+                document.getElementById('totalBets').textContent = Math.floor(Math.random() * 100);
+                document.getElementById('totalWins').textContent = Math.floor(Math.random() * 30);
+                document.getElementById('winRate').textContent = Math.floor(Math.random() * 50) + '%';
+            }
+        }
+
+        function generateNumberSelector() {
+            const selector = document.getElementById('numberSelector');
+            selector.innerHTML = '';
+            
+            // Generate numbers 000-999 (show first 50 for performance)
+            for (let i = 0; i < 50; i++) {
+                const number = i.toString().padStart(3, '0');
+                const btn = document.createElement('button');
+                btn.className = 'number-btn bg-gray-100 hover:bg-orange-200';
+                btn.textContent = number;
+                btn.onclick = () => selectNumber(number, btn);
+                selector.appendChild(btn);
+            }
+        }
+
+        function selectNumber(number, btn) {
+            if (window.selectedNumbers.includes(number)) {
+                window.selectedNumbers = window.selectedNumbers.filter(n => n !== number);
+                btn.classList.remove('selected');
+            } else {
+                if (window.selectedNumbers.length < 3) {
+                    window.selectedNumbers.push(number);
+                    btn.classList.add('selected');
+                } else {
+                    showNotification('You can select maximum 3 numbers', 'error');
+                }
+            }
+        }
+
+        function placeBet() {
+            if (window.selectedNumbers.length === 0) {
+                showNotification('Please select at least one number', 'error');
+                return;
+            }
+            
+            const amount = document.getElementById('betAmount').value;
+            showNotification(`Bet placed for numbers: ${window.selectedNumbers.join(', ')} with amount $${amount}`, 'success');
+            
+            // Reset selection
+            window.selectedNumbers = [];
+            document.querySelectorAll('.number-btn').forEach(btn => btn.classList.remove('selected'));
+            
+            loadCurrentBets();
+        }
+
+        function loadCurrentBets() {
+            const bets = document.getElementById('currentBets');
+            bets.innerHTML = `
+                <div class="transaction-item">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-bold">Numbers: 123, 456</div>
+                            <div class="text-sm text-gray-600">Bet Amount: $20</div>
+                        </div>
+                        <div class="text-orange-500 font-bold">Active</div>
                     </div>
                 </div>
             `;
         }
 
-        function approveTransaction(id) {
-            showNotification('อนุมัติรายการสำเร็จ', 'success');
-            loadPendingTransactions();
+        function loadRecentResults() {
+            const results = document.getElementById('recentResults');
+            results.innerHTML = `
+                <div class="stats-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-bold">Latest Draw: 123</div>
+                            <div class="text-sm text-gray-600">Jan 15, 2024</div>
+                        </div>
+                        <div class="text-green-500 font-bold">$10,000</div>
+                    </div>
+                </div>
+            `;
         }
 
-        function rejectTransaction(id) {
-            showNotification('ปฏิเสธรายการสำเร็จ', 'success');
-            loadPendingTransactions();
+        function loadHotNumbers() {
+            const hot = document.getElementById('hotNumbers');
+            hot.innerHTML = '';
+            const hotNumbers = ['123', '456', '789', '012', '345'];
+            hotNumbers.forEach(num => {
+                const div = document.createElement('div');
+                div.className = 'lottery-ball bg-red-500 text-white';
+                div.textContent = num;
+                hot.appendChild(div);
+            });
         }
 
-        function generateLotteryResult() {
-            const winningNumber = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            const result = {
-                id: Date.now(),
-                number: winningNumber,
-                date: new Date().toLocaleDateString('th-TH'),
-                time: new Date().toLocaleTimeString('th-TH')
-            };
+        function loadTransactionHistory() {
+            const history = document.getElementById('transactionHistory');
+            history.innerHTML = `
+                <div class="transaction-item">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-bold">Deposit</div>
+                            <div class="text-sm text-gray-600">Jan 15, 2024</div>
+                        </div>
+                        <div class="text-green-500 font-bold">+$100</div>
+                    </div>
+                </div>
+                <div class="transaction-item">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-bold">Bet</div>
+                            <div class="text-sm text-gray-600">Jan 14, 2024</div>
+                        </div>
+                        <div class="text-red-500 font-bold">-$20</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadLatestResults() {
+            document.getElementById('result1').textContent = Math.floor(Math.random() * 10);
+            document.getElementById('result2').textContent = Math.floor(Math.random() * 10);
+            document.getElementById('result3').textContent = Math.floor(Math.random() * 10);
+            document.getElementById('drawDate').textContent = 'Draw Date: ' + new Date().toLocaleDateString();
+        }
+
+        function loadHistoricalResults() {
+            const historical = document.getElementById('historicalResults');
+            historical.innerHTML = `
+                <div class="stats-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-bold">Draw: 789</div>
+                            <div class="text-sm text-gray-600">Jan 10, 2024</div>
+                        </div>
+                        <div class="text-purple-500 font-bold">$15,000</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Admin Functions
+        function loadAdminDashboard() {
+            document.getElementById('totalUsers').textContent = window.sampleData.users.length;
+            document.getElementById('totalRevenue').textContent = '$50,000';
             
-            lotteryResults.unshift(result);
-            if (lotteryResults.length > 10) lotteryResults.pop();
-            
-            showNotification(`ออกรางวัลแล้ว! หมายเลข ${winningNumber}`, 'success');
-            loadUserData(); // Update user dashboard
-        }
-
-        function initializeAdminChart() {
-            const ctx = document.getElementById('admin-chart').getContext('2d');
+            // Create revenue chart
+            const ctx = document.getElementById('revenueChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'],
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
-                        label: 'ยอดขาย (บาท)',
-                        data: [12000, 19000, 3000, 5000, 2000, 3000],
-                        borderColor: 'rgb(75, 192, 192)',
+                        label: 'Revenue',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000],
+                        borderColor: 'rgb(255, 163, 102)',
                         tension: 0.1
                     }]
                 },
                 options: {
                     responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    maintainAspectRatio: false
                 }
             });
         }
 
-        // User Functions
-        function loadUserData() {
-            document.getElementById('user-balance').textContent = userBalance.toLocaleString();
-            document.getElementById('user-tickets').textContent = '5';
-            document.getElementById('user-wins').textContent = '1';
-            loadLatestResults();
-        }
-
-        function loadLatestResults() {
-            const container = document.getElementById('latest-results');
-            if (lotteryResults.length === 0) {
-                container.innerHTML = '<div class="col-span-3 text-center text-gray-500">ยังไม่มีผลรางวัล</div>';
-                return;
-            }
-
-            container.innerHTML = lotteryResults.slice(0, 3).map(result => `
-                <div class="text-center p-4 border rounded-lg">
-                    <div class="lottery-ball mx-auto mb-2">${result.number}</div>
-                    <p class="text-sm text-gray-600">${result.date}</p>
-                    <p class="text-xs text-gray-500">${result.time}</p>
-                </div>
-            `).join('');
-        }
-
-        function generateDemoResults() {
-            for (let i = 0; i < 5; i++) {
-                lotteryResults.push({
-                    id: Date.now() - i * 86400000,
-                    number: Math.floor(Math.random() * 1000).toString().padStart(3, '0'),
-                    date: new Date(Date.now() - i * 86400000).toLocaleDateString('th-TH'),
-                    time: new Date(Date.now() - i * 86400000).toLocaleTimeString('th-TH')
-                });
-            }
-        }
-
-        // Modal Functions
-        function showDepositModal() {
-            document.getElementById('deposit-modal').classList.remove('hidden');
-        }
-
-        function closeDepositModal() {
-            document.getElementById('deposit-modal').classList.add('hidden');
-        }
-
-        function showWithdrawModal() {
-            document.getElementById('withdraw-modal').classList.remove('hidden');
-        }
-
-        function closeWithdrawModal() {
-            document.getElementById('withdraw-modal').classList.add('hidden');
-        }
-
-        function showLotteryModal() {
-            document.getElementById('lottery-modal').classList.remove('hidden');
-        }
-
-        function closeLotteryModal() {
-            document.getElementById('lottery-modal').classList.add('hidden');
-        }
-
-        // Transaction Functions
-        function deposit(event) {
-            event.preventDefault();
-            const amount = parseInt(document.getElementById('deposit-amount').value);
-            const method = document.getElementById('deposit-method').value;
+        function loadAdminUsers() {
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
             
-            showNotification(`ส่งคำขอฝากเงิน ฿${amount.toLocaleString()} สำเร็จ รอการอนุมัติ`, 'success');
-            closeDepositModal();
-        }
-
-        function withdraw(event) {
-            event.preventDefault();
-            const amount = parseInt(document.getElementById('withdraw-amount').value);
-            const account = document.getElementById('withdraw-account').value;
-            
-            if (amount > userBalance) {
-                showNotification('ยอดเงินไม่เพียงพอ', 'error');
-                return;
-            }
-            
-            showNotification(`ส่งคำขอถอนเงิน ฿${amount.toLocaleString()} สำเร็จ รอการอนุมัติ`, 'success');
-            closeWithdrawModal();
-        }
-
-        function buyLottery(event) {
-            event.preventDefault();
-            const number = document.getElementById('lottery-number').value;
-            const amount = parseInt(document.getElementById('lottery-amount').value);
-            
-            if (amount > userBalance) {
-                showNotification('ยอดเงินไม่เพียงพอ', 'error');
-                return;
-            }
-            
-            userBalance -= amount;
-            currentUser.balance = userBalance;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            showNotification(`ซื้อลอตเตอรี่หมายเลข ${number} จำนวน ฿${amount.toLocaleString()} สำเร็จ`, 'success');
-            closeLotteryModal();
-            loadUserData();
-        }
-
-        // Result Check Function
-        function checkResult() {
-            const number = document.getElementById('check-number').value;
-            if (number.length !== 3) {
-                showNotification('กรุณากรอกหมายเลข 3 หลัก', 'error');
-                return;
-            }
-            
-            const latestResult = lotteryResults[0];
-            if (!latestResult) {
-                showNotification('ยังไม่มีผลรางวัล', 'error');
-                return;
-            }
-            
-            if (number === latestResult.number) {
-                showNotification(`🎉 ยินดีด้วย! หมายเลข ${number} ถูกรางวัล!`, 'success');
-                // Add win animation
-                document.querySelector('.lottery-ball').classList.add('winner-animation');
-            } else {
-                showNotification(`หมายเลข ${number} ไม่ถูกรางวัล ผลล่าสุด: ${latestResult.number}`, 'info');
-            }
-        }
-
-        // AI Assistant Functions
-        function sendToAI() {
-            const input = document.getElementById('ai-input');
-            const message = input.value.trim();
-            if (!message) return;
-            
-            const chatContainer = document.getElementById('chat-container');
-            
-            // Add user message
-            chatContainer.innerHTML += `
-                <div class="mb-3 text-right">
-                    <div class="inline-block bg-blue-500 text-white p-2 rounded-lg max-w-xs">
-                        ${message}
+            window.sampleData.users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'leaderboard-item';
+                userDiv.innerHTML = `
+                    <div class="rank-badge rank-other">${user.id}</div>
+                    <div class="flex-1">
+                        <div class="font-bold">${user.name}</div>
+                        <div class="text-sm text-gray-600">${user.email}</div>
+                        <div class="text-sm text-gray-600">Balance: $${user.balance}</div>
                     </div>
-                </div>
-            `;
-            
-            // Add loading indicator
-            chatContainer.innerHTML += `
-                <div class="mb-3" id="ai-loading">
-                    <div class="inline-block bg-gray-200 p-2 rounded-lg">
-                        <div class="loading-spinner"></div>
+                    <div class="text-right">
+                        <div class="text-sm font-bold">${user.totalBets} bets</div>
+                        <div class="text-sm text-green-500">${user.totalWins} wins</div>
                     </div>
-                </div>
-            `;
+                `;
+                usersList.appendChild(userDiv);
+            });
+        }
+
+        function loadAdminPayments() {
+            document.getElementById('pendingDeposits').textContent = '5';
+            document.getElementById('pendingWithdrawals').textContent = '3';
             
-            input.value = '';
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            const pending = document.getElementById('pendingTransactions');
+            pending.innerHTML = '';
             
-            // Simulate AI response
-            setTimeout(() => {
-                document.getElementById('ai-loading').remove();
-                const response = generateAIResponse(message);
-                chatContainer.innerHTML += `
-                    <div class="mb-3">
-                        <div class="inline-block bg-gray-200 p-2 rounded-lg max-w-xs">
-                            <i class="fas fa-robot"></i> ${response}
+            window.sampleData.transactions.forEach(transaction => {
+                const transDiv = document.createElement('div');
+                transDiv.className = 'transaction-item';
+                transDiv.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-bold">${transaction.type.toUpperCase()}</div>
+                            <div class="text-sm text-gray-600">${transaction.user}</div>
+                            <div class="text-sm text-gray-600">$${transaction.amount}</div>
+                        </div>
+                        <div class="space-x-2">
+                            <button onclick="approveTransaction('${transaction.id}')" class="bg-green-500 text-white px-3 py-1 rounded text-sm">
+                                Approve
+                            </button>
+                            <button onclick="rejectTransaction('${transaction.id}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm">
+                                Reject
+                            </button>
                         </div>
                     </div>
                 `;
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 1500);
+                pending.appendChild(transDiv);
+            });
         }
 
-        function generateAIResponse(message) {
-            const responses = {
-                'สวัสดี': 'สวัสดีครับ! ผมสามารถช่วยวิเคราะห์ตัวเลขลอตเตอรี่และให้คำแนะนำได้ครับ',
-                'เลขเด็ด': 'ตามสถิติย้อนหลัง เลข 123, 456, 789 มีแนวโน้มออกบ่อย แต่อย่าลืมว่าลอตเตอรี่เป็นเรื่องของโชคนะครับ',
-                'วิเคราะห์': 'จากข้อมูลย้อนหลัง 30 งวด พบว่าเลขที่ออกบ่อยสุดคือ 1, 2, 3 และเลขหน้า 4, 5, 6',
-                'ราคา': 'อัตราจ่ายปัจจุบันคือ 1 ต่อ 500 หมายความว่าซื้อ 100 บาท ถูกได้ 50,000 บาท',
-                'เทคนิค': 'แนะนำให้ซื้อหลายหมายเลข แต่ในจำนวนเงินที่เหมาะสม และไม่ควรเสี่ยงเงินที่จำเป็นต้องใช้ครับ'
-            };
+        function loadAdminLotteryMgmt() {
+            const status = document.getElementById('currentDrawStatus');
+            status.innerHTML = `
+                <div class="stats-card">
+                    <div class="text-lg font-bold mb-2">Current Draw Status</div>
+                    <div class="text-sm text-gray-600">Next Draw: January 31, 2024</div>
+                    <div class="text-sm text-gray-600">Total Bets: 1,234</div>
+                    <div class="text-sm text-gray-600">Prize Pool: $45,000</div>
+                </div>
+            `;
+        }
+
+        function loadAdminBanners() {
+            const banners = document.getElementById('bannersList');
+            banners.innerHTML = '';
             
-            for (let key in responses) {
-                if (message.includes(key)) {
-                    return responses[key];
-                }
+            window.sampleData.banners.forEach(banner => {
+                const bannerDiv = document.createElement('div');
+                bannerDiv.className = 'stats-card';
+                bannerDiv.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <img src="${banner.imageUrl}" alt="${banner.title}" class="w-16 h-16 object-cover rounded">
+                        <div class="flex-1">
+                            <div class="font-bold">${banner.title}</div>
+                            <div class="text-sm text-gray-600">Position: ${banner.position}</div>
+                            <div class="text-sm ${banner.isActive ? 'text-green-500' : 'text-red-500'}">
+                                ${banner.isActive ? 'Active' : 'Inactive'}
+                            </div>
+                        </div>
+                        <div class="space-x-2">
+                            <button onclick="toggleBanner('${banner.id}')" class="bg-blue-500 text-white px-3 py-1 rounded text-sm">
+                                Toggle
+                            </button>
+                            <button onclick="deleteBanner('${banner.id}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+                banners.appendChild(bannerDiv);
+            });
+        }
+
+        // Payment Functions
+        function processDeposit() {
+            const amount = document.getElementById('depositAmount').value;
+            const method = document.getElementById('depositMethod').value;
+            
+            showNotification(`Deposit request of $${amount} via ${method} submitted for approval`, 'success');
+            closeModal('depositModal');
+        }
+
+        function processWithdraw() {
+            const amount = document.getElementById('withdrawAmount').value;
+            const account = document.getElementById('withdrawAccount').value;
+            
+            if (!amount || !account) {
+                showNotification('Please fill all fields', 'error');
+                return;
             }
             
-            return 'ขอโทษครับ ผมไม่เข้าใจคำถาม กรุณาถามเกี่ยวกับลอตเตอรี่, การวิเคราะห์ตัวเลข, หรือเทคนิคการเล่นครับ';
+            showNotification(`Withdrawal request of $${amount} submitted for approval`, 'success');
+            closeModal('withdrawModal');
+        }
+
+        // Other Functions
+        function checkResults() {
+            const number = document.getElementById('checkNumber').value;
+            const display = document.getElementById('checkResultDisplay');
+            
+            if (!number || number.length !== 3) {
+                showNotification('Please enter a valid 3-digit number', 'error');
+                return;
+            }
+            
+            const isWinner = Math.random() > 0.8; // 20% chance of winning
+            display.classList.remove('hidden');
+            display.innerHTML = isWinner 
+                ? `<div class="text-green-500 font-bold">🎉 Congratulations! You won $${Math.floor(Math.random() * 1000) + 100}!</div>`
+                : `<div class="text-red-500">Sorry, ${number} didn't win this time. Better luck next time!</div>`;
+        }
+
+        function generateLotteryResults() {
+            const result1 = Math.floor(Math.random() * 10);
+            const result2 = Math.floor(Math.random() * 10);
+            const result3 = Math.floor(Math.random() * 10);
+            
+            showNotification(`New lottery results generated: ${result1}${result2}${result3}`, 'success');
+            loadLatestResults();
+        }
+
+        function blockNumbers() {
+            const numbers = document.getElementById('blockNumbers').value;
+            if (numbers) {
+                showNotification(`Numbers ${numbers} have been blocked`, 'success');
+                document.getElementById('blockNumbers').value = '';
+            }
+        }
+
+        function addBanner() {
+            const title = document.getElementById('bannerTitle').value;
+            const imageUrl = document.getElementById('bannerImageUrl').value;
+            const linkUrl = document.getElementById('bannerLinkUrl').value;
+            const position = document.getElementById('bannerPosition').value;
+            
+            if (!title || !imageUrl) {
+                showNotification('Please fill required fields', 'error');
+                return;
+            }
+            
+            showNotification('Banner added successfully', 'success');
+            closeModal('addBannerModal');
+            loadAdminBanners();
+        }
+
+        // Modal Functions
+        function showRegister() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+
+        function showAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'block';
+        }
+
+        function showDepositModal() {
+            document.getElementById('depositModal').style.display = 'block';
+        }
+
+        function showWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'block';
+        }
+
+        function showAddBannerModal() {
+            document.getElementById('addBannerModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
 
         // Utility Functions
         function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
-                type === 'success' ? 'bg-green-500' : 
-                type === 'error' ? 'bg-red-500' : 
-                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
-            }`;
-            notification.textContent = message;
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
             
-            document.body.appendChild(notification);
+            text.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500'}`;
+            notification.classList.add('show');
             
             setTimeout(() => {
-                notification.remove();
+                notification.classList.remove('show');
             }, 3000);
         }
 
-        // Allow Enter key in AI chat
-        document.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter' && event.target.id === 'ai-input') {
-                sendToAI();
-            }
-        });
+        function refreshUsers() {
+            showNotification('Users data refreshed', 'success');
+            loadAdminUsers();
+        }
 
-        // Auto-format lottery number input
-        document.addEventListener('input', function(event) {
-            if (event.target.id === 'lottery-number' || event.target.id === 'check-number') {
-                event.target.value = event.target.value.replace(/\D/g, '');
+        function toggleMenu() {
+            showNotification('Menu toggled', 'info');
+        }
+
+        function toggleNotifications() {
+            showNotification('Notifications toggled', 'info');
+        }
+
+        function quickAction() {
+            if (window.isAdmin) {
+                showAdminTab('dashboard');
+            } else {
+                showTab('lottery');
             }
+        }
+
+        function editProfile() {
+            showNotification('Edit profile feature coming soon', 'info');
+        }
+
+        function changePassword() {
+            showNotification('Change password feature coming soon', 'info');
+        }
+
+        async function loadUserData() {
+            if (window.currentUser) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', window.currentUser.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        document.getElementById('userName').textContent = userData.name || 'User';
+                        document.getElementById('userBalance').textContent = `Balance: $${userData.balance || 0}`;
+                    }
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                    // Use sample data as fallback
+                    document.getElementById('userName').textContent = 'Sample User';
+                    document.getElementById('userBalance').textContent = 'Balance: $150.00';
+                }
+            }
+        }
+
+        // Global approval functions
+        window.approveTransaction = function(transactionId) {
+            showNotification(`Transaction ${transactionId} approved`, 'success');
+            loadAdminPayments();
+        };
+
+        window.rejectTransaction = function(transactionId) {
+            showNotification(`Transaction ${transactionId} rejected`, 'error');
+            loadAdminPayments();
+        };
+
+        window.toggleBanner = function(bannerId) {
+            showNotification(`Banner ${bannerId} toggled`, 'success');
+            loadAdminBanners();
+        };
+
+        window.deleteBanner = function(bannerId) {
+            showNotification(`Banner ${bannerId} deleted`, 'success');
+            loadAdminBanners();
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close modals when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Initialize with login form
+            showLoginForm();
         });
     </script>
+
+    <style>
+        /* Switch Styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--secondary-orange);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
 </body>
 </html>
